@@ -29,6 +29,9 @@ Opening `index.html` directly from disk will not work, because browsers block th
 |---|---|---|---|
 | World English Bible | English | Public domain | `data/web/` (one file per book) |
 | King James Version | English | Public domain | `data/kjv/` (one file per book) |
+| American Standard Version | English | Public domain | `data/asv/` |
+| Young's Literal Translation | English | Public domain | `data/ylt/` |
+| Bible in Basic English | English | Public domain | `data/bbe/` |
 | Amharic | Amharic | Depends on the translation | Not in this repository. Import it inside the app. |
 
 No Amharic text is included. Most Amharic translations are copyrighted, so the app loads an Amharic Bible from a file you import (Study › Import a Bible file). The imported text is stored only in that browser on that computer and is never uploaded.
@@ -46,11 +49,12 @@ A JSON file with all 66 books in the traditional order. `books[book][chapter][ve
 }
 ```
 
-`tools/convert_english.py` shows how the two English files were produced from their sources.
+`tools/convert_english.py` shows how the English versions were produced from their sources.
 
 ## Study content
 
-The fathers' readings, background notes and questions are in `data/content.json`. Only Luke 15 (the Prodigal Son) has study content so far. The summaries of Chrysostom, Ambrose and Augustine are drafts that have not been checked against the source texts.
+- **The fathers in their own words** (`data/fathers/`, one file per chapter): about 8,700 quotations from early church fathers (authors up to AD 750), shown for the verse or passage you are reading. They are in English. Most come from the Catena Aurea, so the four Gospels are covered verse by verse and the rest of the Bible only thinly. Built by `tools/build_fathers.py` from the [HistoricalChristianFaith Commentaries-Database](https://github.com/HistoricalChristianFaith/Commentaries-Database), keeping only entries whose translation is clearly public domain.
+- **Summaries, background and questions** (`data/content.json`): written for Luke 15 (the Prodigal Son) only so far. The summaries of Chrysostom, Ambrose and Augustine are drafts that have not been checked against the source texts.
 
 ## Where your data is kept
 
@@ -58,5 +62,5 @@ Highlights, notes, voice recordings and imported Bibles stay in the browser's st
 
 ## Credits
 
-- World English Bible and King James Version: public domain. Source files from [scrollmapper/bible_databases](https://github.com/scrollmapper/bible_databases) and [thiagobodruk/bible](https://github.com/thiagobodruk/bible).
+- The five English versions are public domain. Source files from [scrollmapper/bible_databases](https://github.com/scrollmapper/bible_databases) and [thiagobodruk/bible](https://github.com/thiagobodruk/bible).
 - The Context tab links to [BibleProject](https://bibleproject.com/); none of their content is copied into this app.

@@ -46,14 +46,20 @@ const S = {
   highlights: ls.get('highlights', {}),
   notes: ls.get('notes', []),
   draft: '',
+  more: 8,
   recording: false,
   msg: ''
 };
 let C = null; // stories, book names and study content
 const versions = {
   web: { id: 'web', name: 'World English Bible', language: 'en', dir: 'data/web', books: {} },
-  kjv: { id: 'kjv', name: 'King James Version', language: 'en', dir: 'data/kjv', books: {} }
+  kjv: { id: 'kjv', name: 'King James Version', language: 'en', dir: 'data/kjv', books: {} },
+  asv: { id: 'asv', name: 'American Standard Version', language: 'en', dir: 'data/asv', books: {} },
+  ylt: { id: 'ylt', name: 'Young’s Literal Translation', language: 'en', dir: 'data/ylt', books: {} },
+  bbe: { id: 'bbe', name: 'Bible in Basic English', language: 'en', dir: 'data/bbe', books: {} }
 };
+// Church fathers' commentary, one file per chapter, listed in an index so missing chapters are not requested.
+const F = { index: {}, cache: {}, pending: {} };
 let opens = []; // passages that tiles on the current screen open
 let recorder = null;
 
@@ -94,6 +100,21 @@ function chapter(id) {
     return { state: 'loading', verses: [] };
   }
   return { state: 'ok', verses: (v.books[b] || [])[S.pass.c - 1] || [] };
+}
+
+// Returns { state, list } with the fathers' comments on the current chapter.
+function fathers() {
+  const b = S.pass.b, c = S.pass.c, key = b + '/' + c;
+  if (!(F.index[b] || []).includes(c)) return { state: 'ok', list: [] };
+  if (F.cache[key]) return { state: 'ok', list: F.cache[key] };
+  if (!F.pending[key]) {
+    F.pending[key] = true;
+    fetch('data/fathers/' + key + '.json').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then((list) => { F.cache[key] = list; })
+      .catch(() => { F.cache[key] = []; })
+      .then(() => { F.pending[key] = false; render(); });
+  }
+  return { state: 'loading', list: [] };
 }
 
 function passRef(p) {
@@ -198,10 +219,20 @@ function sidePanel() {
   const st = study();
   let body = '';
   if (S.tab === 'fathers') {
-    body = st
-      ? st.fathers.map((f) => `<div class="card stack" style="gap:8px"><div class="row between" style="align-items:baseline"><b style="font-size:18px">${esc(tp(f.name))}</b><span class="muted small">${esc(tp(f.era))}</span></div><span class="pill">${esc(tp(f.theme))}</span><p class="prose">${esc(tp(f.text))}</p><span class="muted small">${esc(tp(f.source))}</span></div>`).join('') +
+    const fa = fathers();
+    const lo = S.sel || S.pass.f || 1, hi = S.sel || S.pass.to || 999;
+    const list = fa.list.filter((e) => e.f <= hi && e.t >= lo);
+    const scope = S.sel ? t('ቁ. ' + S.sel, 'v. ' + S.sel) : passRef(S.pass);
+    const quote = (e) => `<div class="card stack" style="gap:8px"><div class="row between" style="align-items:baseline"><b style="font-size:17px">${esc(e.a)}</b><span class="muted small">${t(e.y + ' ገደማ (እ.ኤ.አ.)', 'c. AD ' + e.y)} · ${t('ቁ. ', 'v. ')}${e.f}${e.t > e.f && e.t < 999 ? '–' + e.t : ''}</span></div><p class="prose" lang="en">${esc(e.q)}</p><span class="muted small" lang="en">${esc(e.s)}</span></div>`;
+    const summaries = st
+      ? `<h2>${t('አጭር ማጠቃለያ', 'Summaries')}</h2>` + st.fathers.map((f) => `<div class="card stack" style="gap:8px"><div class="row between" style="align-items:baseline"><b style="font-size:18px">${esc(tp(f.name))}</b><span class="muted small">${esc(tp(f.era))}</span></div><span class="pill">${esc(tp(f.theme))}</span><p class="prose">${esc(tp(f.text))}</p><span class="muted small">${esc(tp(f.source))}</span></div>`).join('') +
         `<p class="muted small">${t('ረቂቅ ማጠቃለያዎች፦ ከምንጮቹ ጋር መመሳከር ያስፈልጋቸዋል።', 'Draft summaries: each still needs checking against its source.')}</p>`
-      : `<div class="card"><p class="muted prose">${t('ለዚህ ክፍል የአባቶች ትርጓሜ ገና አልተዘጋጀም።', 'The fathers’ readings for this passage have not been prepared yet.')}</p></div>`;
+      : '';
+    let own;
+    if (fa.state === 'loading') own = `<p class="muted prose" role="status">${t('እየተጫነ ነው…', 'Loading…')}</p>`;
+    else if (!list.length) own = `<div class="card"><p class="muted prose">${t('ለ' + scope + ' በነጻ የሚገኝ የአባቶች ትርጓሜ አልተገኘም።', 'No public-domain commentary from the fathers was found for ' + scope + '.')}</p></div>`;
+    else own = list.slice(0, S.more).map(quote).join('') + (list.length > S.more ? `<button class="btn" data-a="more" data-k="more">${t('ተጨማሪ አሳይ', 'Show more')} (${list.length - S.more})</button>` : '');
+    body = summaries + `<h2>${t('በራሳቸው ቃል', 'In their own words')} · ${esc(scope)}</h2><p class="muted small">${t('ጥቅሶቹ በእንግሊዝኛ ናቸው፤ ከነጻ (public domain) ትርጉሞች የተወሰዱ።', 'Quotations are in English, from public-domain translations.')}</p>` + own;
   } else if (S.tab === 'context') {
     body = `<div class="card stack"><b>${t('ቪዲዮና ሥዕላዊ ማብራሪያ', 'Videos and visual guides')}</b><p class="prose">${t('BibleProject ስለ እያንዳንዱ መጽሐፍና ጭብጥ አጫጭር ቪዲዮዎች አሉት። በድረ ገጻቸው ይከፈታል።', 'BibleProject has short videos on each book and theme. This opens on their website.')}</p><a class="btn fill" style="align-self:flex-start" href="https://bibleproject.com/" target="_blank" rel="noopener" data-k="bp">${t('BibleProjectን ክፈት', 'Open BibleProject')}</a></div>` +
       (st ? st.context.map((e) => `<div class="card stack" style="gap:6px"><b>${esc(tp(e.head))}</b><p class="prose">${esc(tp(e.body))}</p></div>`).join('') : '');
@@ -303,6 +334,7 @@ function setPass(change) {
   Object.values(versions).forEach((v) => { v.failed = {}; });
   S.pass = Object.assign({ b: S.pass.b, c: S.pass.c, f: S.pass.f, to: S.pass.to }, change);
   S.sel = null;
+  S.more = 8;
   save('pass');
 }
 
@@ -345,11 +377,12 @@ const actions = {
   lang() { S.en = !S.en; save('en'); },
   theme() { S.dark = !S.dark; save('dark'); },
   browse(v) { S.browse = v; save('browse'); },
-  open(v) { S.pass = opens[+v]; S.sel = null; S.screen = 'study'; save('pass', 'screen'); window.scrollTo(0, 0); },
-  verse(v) { S.sel = S.sel === +v ? null : +v; },
+  open(v) { S.pass = opens[+v]; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen'); window.scrollTo(0, 0); },
+  verse(v) { S.sel = S.sel === +v ? null : +v; S.more = 8; },
   hl(v) { S.highlights[hlKey(S.sel)] = v; save('highlights'); },
   clearHl() { delete S.highlights[hlKey(S.sel)]; save('highlights'); },
   tab(v) { S.tab = v; },
+  more() { S.more += 12; },
   split() { S.split = !S.split; save('split'); },
   focus() { S.focus = !S.focus; },
   smaller() { S.size = Math.max(0, S.size - 1); save('size'); },
@@ -447,6 +480,7 @@ async function start() {
     root.innerHTML = '<main><p role="alert" style="padding:24px">The app could not load its content. Check your connection and reload the page.</p></main>';
     return;
   }
+  try { const r = await fetch('data/fathers/index.json'); if (r.ok) F.index = await r.json(); } catch (e) { /* fathers data unavailable */ }
   if (!C.books[S.pass.b]) S.pass = DEFAULT_PASS;
   render();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
