@@ -1,0 +1,11 @@
+{
+  "name": "ቃሉ · Bible study",
+  "short_name": "ቃሉ",
+  "description": "Amharic Bible study with the early church fathers alongside.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#27292C",
+  "theme_color": "#1F2023",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

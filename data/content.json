@@ -1,0 +1,1398 @@
+{
+ "books": [
+  {
+   "n": [
+    "ዘፍጥረት",
+    "Genesis"
+   ],
+   "ch": 50
+  },
+  {
+   "n": [
+    "ዘፀአት",
+    "Exodus"
+   ],
+   "ch": 40
+  },
+  {
+   "n": [
+    "ዘሌዋውያን",
+    "Leviticus"
+   ],
+   "ch": 27
+  },
+  {
+   "n": [
+    "ዘኍልቍ",
+    "Numbers"
+   ],
+   "ch": 36
+  },
+  {
+   "n": [
+    "ዘዳግም",
+    "Deuteronomy"
+   ],
+   "ch": 34
+  },
+  {
+   "n": [
+    "ኢያሱ",
+    "Joshua"
+   ],
+   "ch": 24
+  },
+  {
+   "n": [
+    "መሳፍንት",
+    "Judges"
+   ],
+   "ch": 21
+  },
+  {
+   "n": [
+    "ሩት",
+    "Ruth"
+   ],
+   "ch": 4
+  },
+  {
+   "n": [
+    "1 ሳሙኤል",
+    "1 Samuel"
+   ],
+   "ch": 31
+  },
+  {
+   "n": [
+    "2 ሳሙኤል",
+    "2 Samuel"
+   ],
+   "ch": 24
+  },
+  {
+   "n": [
+    "1 ነገሥት",
+    "1 Kings"
+   ],
+   "ch": 22
+  },
+  {
+   "n": [
+    "2 ነገሥት",
+    "2 Kings"
+   ],
+   "ch": 25
+  },
+  {
+   "n": [
+    "1 ዜና መዋዕል",
+    "1 Chronicles"
+   ],
+   "ch": 29
+  },
+  {
+   "n": [
+    "2 ዜና መዋዕል",
+    "2 Chronicles"
+   ],
+   "ch": 36
+  },
+  {
+   "n": [
+    "ዕዝራ",
+    "Ezra"
+   ],
+   "ch": 10
+  },
+  {
+   "n": [
+    "ነህምያ",
+    "Nehemiah"
+   ],
+   "ch": 13
+  },
+  {
+   "n": [
+    "አስቴር",
+    "Esther"
+   ],
+   "ch": 10
+  },
+  {
+   "n": [
+    "ኢዮብ",
+    "Job"
+   ],
+   "ch": 42
+  },
+  {
+   "n": [
+    "መዝሙር",
+    "Psalms"
+   ],
+   "ch": 150
+  },
+  {
+   "n": [
+    "ምሳሌ",
+    "Proverbs"
+   ],
+   "ch": 31
+  },
+  {
+   "n": [
+    "መክብብ",
+    "Ecclesiastes"
+   ],
+   "ch": 12
+  },
+  {
+   "n": [
+    "መኃልየ መኃልይ",
+    "Song of Songs"
+   ],
+   "ch": 8
+  },
+  {
+   "n": [
+    "ኢሳይያስ",
+    "Isaiah"
+   ],
+   "ch": 66
+  },
+  {
+   "n": [
+    "ኤርምያስ",
+    "Jeremiah"
+   ],
+   "ch": 52
+  },
+  {
+   "n": [
+    "ሰቆቃወ ኤርምያስ",
+    "Lamentations"
+   ],
+   "ch": 5
+  },
+  {
+   "n": [
+    "ሕዝቅኤል",
+    "Ezekiel"
+   ],
+   "ch": 48
+  },
+  {
+   "n": [
+    "ዳንኤል",
+    "Daniel"
+   ],
+   "ch": 12
+  },
+  {
+   "n": [
+    "ሆሴዕ",
+    "Hosea"
+   ],
+   "ch": 14
+  },
+  {
+   "n": [
+    "ኢዮኤል",
+    "Joel"
+   ],
+   "ch": 3
+  },
+  {
+   "n": [
+    "አሞጽ",
+    "Amos"
+   ],
+   "ch": 9
+  },
+  {
+   "n": [
+    "አብድዩ",
+    "Obadiah"
+   ],
+   "ch": 1
+  },
+  {
+   "n": [
+    "ዮናስ",
+    "Jonah"
+   ],
+   "ch": 4
+  },
+  {
+   "n": [
+    "ሚክያስ",
+    "Micah"
+   ],
+   "ch": 7
+  },
+  {
+   "n": [
+    "ናሆም",
+    "Nahum"
+   ],
+   "ch": 3
+  },
+  {
+   "n": [
+    "ዕንባቆም",
+    "Habakkuk"
+   ],
+   "ch": 3
+  },
+  {
+   "n": [
+    "ሶፎንያስ",
+    "Zephaniah"
+   ],
+   "ch": 3
+  },
+  {
+   "n": [
+    "ሐጌ",
+    "Haggai"
+   ],
+   "ch": 2
+  },
+  {
+   "n": [
+    "ዘካርያስ",
+    "Zechariah"
+   ],
+   "ch": 14
+  },
+  {
+   "n": [
+    "ሚልክያስ",
+    "Malachi"
+   ],
+   "ch": 4
+  },
+  {
+   "n": [
+    "ማቴዎስ",
+    "Matthew"
+   ],
+   "ch": 28
+  },
+  {
+   "n": [
+    "ማርቆስ",
+    "Mark"
+   ],
+   "ch": 16
+  },
+  {
+   "n": [
+    "ሉቃስ",
+    "Luke"
+   ],
+   "ch": 24
+  },
+  {
+   "n": [
+    "ዮሐንስ",
+    "John"
+   ],
+   "ch": 21
+  },
+  {
+   "n": [
+    "የሐዋርያት ሥራ",
+    "Acts"
+   ],
+   "ch": 28
+  },
+  {
+   "n": [
+    "ሮሜ",
+    "Romans"
+   ],
+   "ch": 16
+  },
+  {
+   "n": [
+    "1 ቆሮንቶስ",
+    "1 Corinthians"
+   ],
+   "ch": 16
+  },
+  {
+   "n": [
+    "2 ቆሮንቶስ",
+    "2 Corinthians"
+   ],
+   "ch": 13
+  },
+  {
+   "n": [
+    "ገላትያ",
+    "Galatians"
+   ],
+   "ch": 6
+  },
+  {
+   "n": [
+    "ኤፌሶን",
+    "Ephesians"
+   ],
+   "ch": 6
+  },
+  {
+   "n": [
+    "ፊልጵስዩስ",
+    "Philippians"
+   ],
+   "ch": 4
+  },
+  {
+   "n": [
+    "ቈላስይስ",
+    "Colossians"
+   ],
+   "ch": 4
+  },
+  {
+   "n": [
+    "1 ተሰሎንቄ",
+    "1 Thessalonians"
+   ],
+   "ch": 5
+  },
+  {
+   "n": [
+    "2 ተሰሎንቄ",
+    "2 Thessalonians"
+   ],
+   "ch": 3
+  },
+  {
+   "n": [
+    "1 ጢሞቴዎስ",
+    "1 Timothy"
+   ],
+   "ch": 6
+  },
+  {
+   "n": [
+    "2 ጢሞቴዎስ",
+    "2 Timothy"
+   ],
+   "ch": 4
+  },
+  {
+   "n": [
+    "ቲቶ",
+    "Titus"
+   ],
+   "ch": 3
+  },
+  {
+   "n": [
+    "ፊልሞና",
+    "Philemon"
+   ],
+   "ch": 1
+  },
+  {
+   "n": [
+    "ዕብራውያን",
+    "Hebrews"
+   ],
+   "ch": 13
+  },
+  {
+   "n": [
+    "ያዕቆብ",
+    "James"
+   ],
+   "ch": 5
+  },
+  {
+   "n": [
+    "1 ጴጥሮስ",
+    "1 Peter"
+   ],
+   "ch": 5
+  },
+  {
+   "n": [
+    "2 ጴጥሮስ",
+    "2 Peter"
+   ],
+   "ch": 3
+  },
+  {
+   "n": [
+    "1 ዮሐንስ",
+    "1 John"
+   ],
+   "ch": 5
+  },
+  {
+   "n": [
+    "2 ዮሐንስ",
+    "2 John"
+   ],
+   "ch": 1
+  },
+  {
+   "n": [
+    "3 ዮሐንስ",
+    "3 John"
+   ],
+   "ch": 1
+  },
+  {
+   "n": [
+    "ይሁዳ",
+    "Jude"
+   ],
+   "ch": 1
+  },
+  {
+   "n": [
+    "ራእይ",
+    "Revelation"
+   ],
+   "ch": 22
+  }
+ ],
+ "timeline": [
+  {
+   "n": [
+    "መጀመሪያ",
+    "Beginnings"
+   ],
+   "items": [
+    {
+     "n": [
+      "ፍጥረት",
+      "Creation"
+     ],
+     "sub": [
+      "ዘፍጥረት 1–2",
+      "Genesis 1–2"
+     ],
+     "p": {
+      "b": 0,
+      "c": 1,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ውድቀት",
+      "The Fall"
+     ],
+     "sub": [
+      "ዘፍጥረት 3",
+      "Genesis 3"
+     ],
+     "p": {
+      "b": 0,
+      "c": 3,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ኖኅና መርከቡ",
+      "Noah and the Ark"
+     ],
+     "sub": [
+      "ዘፍጥረት 6–9",
+      "Genesis 6–9"
+     ],
+     "p": {
+      "b": 0,
+      "c": 6,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "የባቢሎን ግንብ",
+      "The Tower of Babel"
+     ],
+     "sub": [
+      "ዘፍጥረት 11",
+      "Genesis 11"
+     ],
+     "p": {
+      "b": 0,
+      "c": 11,
+      "f": 1,
+      "to": 0
+     }
+    }
+   ]
+  },
+  {
+   "n": [
+    "አበው",
+    "The Patriarchs"
+   ],
+   "items": [
+    {
+     "n": [
+      "የአብርሃም ጥሪ",
+      "The Call of Abraham"
+     ],
+     "sub": [
+      "ዘፍጥረት 12",
+      "Genesis 12"
+     ],
+     "p": {
+      "b": 0,
+      "c": 12,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "የይስሐቅ መሥዋዕት",
+      "The Binding of Isaac"
+     ],
+     "sub": [
+      "ዘፍጥረት 22",
+      "Genesis 22"
+     ],
+     "p": {
+      "b": 0,
+      "c": 22,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ያዕቆብና ዔሳው",
+      "Jacob and Esau"
+     ],
+     "sub": [
+      "ዘፍጥረት 25–33",
+      "Genesis 25–33"
+     ],
+     "p": {
+      "b": 0,
+      "c": 25,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ዮሴፍ በግብፅ",
+      "Joseph in Egypt"
+     ],
+     "sub": [
+      "ዘፍጥረት 37–50",
+      "Genesis 37–50"
+     ],
+     "p": {
+      "b": 0,
+      "c": 37,
+      "f": 1,
+      "to": 0
+     }
+    }
+   ]
+  },
+  {
+   "n": [
+    "ከግብፅ መውጣት",
+    "The Exodus"
+   ],
+   "items": [
+    {
+     "n": [
+      "የሙሴ ጥሪ",
+      "The Call of Moses"
+     ],
+     "sub": [
+      "ዘፀአት 3",
+      "Exodus 3"
+     ],
+     "p": {
+      "b": 1,
+      "c": 3,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ፋሲካ",
+      "The Passover"
+     ],
+     "sub": [
+      "ዘፀአት 12",
+      "Exodus 12"
+     ],
+     "p": {
+      "b": 1,
+      "c": 12,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ቀይ ባሕር",
+      "The Red Sea"
+     ],
+     "sub": [
+      "ዘፀአት 14",
+      "Exodus 14"
+     ],
+     "p": {
+      "b": 1,
+      "c": 14,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "አሥርቱ ትእዛዛት",
+      "The Ten Commandments"
+     ],
+     "sub": [
+      "ዘፀአት 20",
+      "Exodus 20"
+     ],
+     "p": {
+      "b": 1,
+      "c": 20,
+      "f": 1,
+      "to": 0
+     }
+    }
+   ]
+  },
+  {
+   "n": [
+    "ምድሪቱና ነገሥታት",
+    "The Land and the Kings"
+   ],
+   "items": [
+    {
+     "n": [
+      "ኢያሪኮ",
+      "Jericho"
+     ],
+     "sub": [
+      "ኢያሱ 6",
+      "Joshua 6"
+     ],
+     "p": {
+      "b": 5,
+      "c": 6,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ሩት",
+      "Ruth"
+     ],
+     "sub": [
+      "ሩት 1–4",
+      "Ruth 1–4"
+     ],
+     "p": {
+      "b": 7,
+      "c": 1,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ዳዊትና ጎልያድ",
+      "David and Goliath"
+     ],
+     "sub": [
+      "1 ሳሙኤል 17",
+      "1 Samuel 17"
+     ],
+     "p": {
+      "b": 8,
+      "c": 17,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "የሰሎሞን ጥበብ",
+      "The Wisdom of Solomon"
+     ],
+     "sub": [
+      "1 ነገሥት 3",
+      "1 Kings 3"
+     ],
+     "p": {
+      "b": 10,
+      "c": 3,
+      "f": 1,
+      "to": 0
+     }
+    }
+   ]
+  },
+  {
+   "n": [
+    "ምርኮና መመለስ",
+    "Exile and Return"
+   ],
+   "items": [
+    {
+     "n": [
+      "ዳንኤል በአንበሶች ጉድጓድ",
+      "Daniel in the Lions’ Den"
+     ],
+     "sub": [
+      "ዳንኤል 6",
+      "Daniel 6"
+     ],
+     "p": {
+      "b": 26,
+      "c": 6,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "አስቴር",
+      "Esther"
+     ],
+     "sub": [
+      "አስቴር 1–10",
+      "Esther 1–10"
+     ],
+     "p": {
+      "b": 16,
+      "c": 1,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "የኢየሩሳሌም ቅጥር",
+      "Rebuilding the Wall"
+     ],
+     "sub": [
+      "ነህምያ 1–6",
+      "Nehemiah 1–6"
+     ],
+     "p": {
+      "b": 15,
+      "c": 1,
+      "f": 1,
+      "to": 0
+     }
+    }
+   ]
+  },
+  {
+   "n": [
+    "የኢየሱስ ሕይወት",
+    "The Life of Jesus"
+   ],
+   "items": [
+    {
+     "n": [
+      "ልደት",
+      "The Birth of Jesus"
+     ],
+     "sub": [
+      "ሉቃስ 2",
+      "Luke 2"
+     ],
+     "p": {
+      "b": 41,
+      "c": 2,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "የተራራው ስብከት",
+      "The Sermon on the Mount"
+     ],
+     "sub": [
+      "ማቴዎስ 5–7",
+      "Matthew 5–7"
+     ],
+     "p": {
+      "b": 39,
+      "c": 5,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ደጉ ሳምራዊ",
+      "The Good Samaritan"
+     ],
+     "sub": [
+      "ሉቃስ 10",
+      "Luke 10"
+     ],
+     "p": {
+      "b": 41,
+      "c": 10,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "የጠፋው ልጅ",
+      "The Prodigal Son"
+     ],
+     "sub": [
+      "ሉቃስ 15",
+      "Luke 15"
+     ],
+     "p": {
+      "b": 41,
+      "c": 15,
+      "f": 11,
+      "to": 32
+     }
+    },
+    {
+     "n": [
+      "ስቅለትና ትንሣኤ",
+      "The Cross and Resurrection"
+     ],
+     "sub": [
+      "ዮሐንስ 19–20",
+      "John 19–20"
+     ],
+     "p": {
+      "b": 42,
+      "c": 19,
+      "f": 1,
+      "to": 0
+     }
+    }
+   ]
+  },
+  {
+   "n": [
+    "የመጀመሪያዪቱ ቤተ ክርስቲያን",
+    "The Early Church"
+   ],
+   "items": [
+    {
+     "n": [
+      "በዓለ ኀምሳ",
+      "Pentecost"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 2",
+      "Acts 2"
+     ],
+     "p": {
+      "b": 43,
+      "c": 2,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "የሳውል መለወጥ",
+      "The Conversion of Saul"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 9",
+      "Acts 9"
+     ],
+     "p": {
+      "b": 43,
+      "c": 9,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "የጳውሎስ ጉዞዎች",
+      "Paul’s Journeys"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 13–28",
+      "Acts 13–28"
+     ],
+     "p": {
+      "b": 43,
+      "c": 13,
+      "f": 1,
+      "to": 0
+     }
+    }
+   ]
+  }
+ ],
+ "chrono": [
+  {
+   "n": [
+    "መጀመሪያ",
+    "Beginnings"
+   ],
+   "books": [
+    0,
+    17
+   ]
+  },
+  {
+   "n": [
+    "ዘፀአትና ሕግ",
+    "Exodus and the Law"
+   ],
+   "books": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "n": [
+    "ምድሪቱን መውረስና መሳፍንት",
+    "Conquest and Judges"
+   ],
+   "books": [
+    5,
+    6,
+    7
+   ]
+  },
+  {
+   "n": [
+    "የተባበረው መንግሥት",
+    "The United Kingdom"
+   ],
+   "books": [
+    8,
+    9,
+    12,
+    18,
+    19,
+    20,
+    21
+   ]
+  },
+  {
+   "n": [
+    "የተከፈለው መንግሥትና ነቢያት",
+    "The Divided Kingdom and the Prophets"
+   ],
+   "books": [
+    10,
+    11,
+    13,
+    31,
+    29,
+    27,
+    22,
+    32,
+    33,
+    35,
+    34,
+    23,
+    24,
+    28,
+    30
+   ]
+  },
+  {
+   "n": [
+    "ምርኮ",
+    "The Exile"
+   ],
+   "books": [
+    25,
+    26
+   ]
+  },
+  {
+   "n": [
+    "ከምርኮ መመለስ",
+    "The Return"
+   ],
+   "books": [
+    14,
+    36,
+    37,
+    16,
+    15,
+    38
+   ]
+  },
+  {
+   "n": [
+    "የኢየሱስ ሕይወት",
+    "The Life of Jesus"
+   ],
+   "books": [
+    39,
+    40,
+    41,
+    42
+   ]
+  },
+  {
+   "n": [
+    "የመጀመሪያዪቱ ቤተ ክርስቲያን",
+    "The Early Church"
+   ],
+   "books": [
+    43,
+    58,
+    47,
+    51,
+    52,
+    45,
+    46,
+    44,
+    48,
+    49,
+    50,
+    56,
+    53,
+    55,
+    54,
+    59,
+    60,
+    57,
+    64,
+    61,
+    62,
+    63,
+    65
+   ]
+  }
+ ],
+ "canon": [
+  {
+   "n": [
+    "ሕግ (ኦሪት)",
+    "The Law"
+   ],
+   "books": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "n": [
+    "ታሪክ",
+    "History"
+   ],
+   "books": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+   ]
+  },
+  {
+   "n": [
+    "መዝሙርና ጥበብ",
+    "Poetry and Wisdom"
+   ],
+   "books": [
+    17,
+    18,
+    19,
+    20,
+    21
+   ]
+  },
+  {
+   "n": [
+    "ዐበይት ነቢያት",
+    "Major Prophets"
+   ],
+   "books": [
+    22,
+    23,
+    24,
+    25,
+    26
+   ]
+  },
+  {
+   "n": [
+    "ደቂቀ ነቢያት",
+    "Minor Prophets"
+   ],
+   "books": [
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38
+   ]
+  },
+  {
+   "n": [
+    "ወንጌላትና የሐዋርያት ሥራ",
+    "Gospels and Acts"
+   ],
+   "books": [
+    39,
+    40,
+    41,
+    42,
+    43
+   ]
+  },
+  {
+   "n": [
+    "የጳውሎስ መልእክታት",
+    "Paul’s Letters"
+   ],
+   "books": [
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56
+   ]
+  },
+  {
+   "n": [
+    "ሌሎች መልእክታትና ራእይ",
+    "Other Letters and Revelation"
+   ],
+   "books": [
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65
+   ]
+  }
+ ],
+ "study": [
+  {
+   "b": 41,
+   "c": 15,
+   "fathers": [
+    {
+     "name": [
+      "ዮሐንስ አፈወርቅ",
+      "John Chrysostom"
+     ],
+     "era": [
+      "347–407 ገደማ · ቁስጥንጥንያ",
+      "c. 347–407 · Constantinople"
+     ],
+     "theme": [
+      "ንስሐ",
+      "Repentance"
+     ],
+     "text": [
+      "አባትየው ስለ ባከነው ገንዘብ አይጠይቅም፤ አንዲት የወቀሳ ቃልም አይናገርም። ለአፈወርቅ ይህ ታሪክ የሚመለስ ሁሉ ተስፋ እንዳይቆርጥ ያስተምራል፤ ንስሐ የሚገባን የሚጠብቀው ፍርድ ሳይሆን እቅፍ ነው።",
+      "The father asks for no account of the wasted money and speaks no word of blame. For Chrysostom the story teaches that no one who returns should despair: repentance is met with an embrace, not a trial."
+     ],
+     "source": [
+      "ምንጭ፦ ስለ ንስሐ፥ ድርሳን 1",
+      "Source: On Repentance, Homily 1"
+     ]
+    },
+    {
+     "name": [
+      "አምብሮስ ዘሚላን",
+      "Ambrose of Milan"
+     ],
+     "era": [
+      "339–397 ገደማ · ሚላን",
+      "c. 339–397 · Milan"
+     ],
+     "theme": [
+      "እግዚአብሔር ይፈጥናል",
+      "God hurries to us"
+     ],
+     "text": [
+      "ልጁ ገና ሩቅ ነው፤ አባቱ ግን ይሮጣል። አምብሮስ ይህን ሲተረጕም፥ እግዚአብሔር ቃል ከመነገሩ በፊት የልብን መመለስ ሰምቶ ሊቀበል ይፈጥናል ይላል።",
+      "The son is still far off, yet the father runs. Ambrose reads this as God hearing the turning of the heart before a word is spoken, and hurrying out to meet it."
+     ],
+     "source": [
+      "ምንጭ፦ የሉቃስ ወንጌል ትርጓሜ፥ መጽሐፍ 7",
+      "Source: Exposition of the Gospel of Luke, Book 7"
+     ]
+    },
+    {
+     "name": [
+      "አውግስጢኖስ ዘሂፖ",
+      "Augustine of Hippo"
+     ],
+     "era": [
+      "354–430 · ሰሜን አፍሪካ",
+      "354–430 · North Africa"
+     ],
+     "theme": [
+      "የልብ ርቀት",
+      "Distance of the heart"
+     ],
+     "text": [
+      "ሩቅ አገር በካርታ ላይ ያለ ስፍራ አይደለም። አውግስጢኖስ ከእግዚአብሔር የምንርቀውም የምንመለሰውም በእግር ሳይሆን በልብ ፍቅር ነው ይላል፤ በታናሹ ልጅ ውስጥ የራሱን ወጣትነት አይቷል።",
+      "The far country is not a place on a map. Augustine says we leave God and return to him not on foot but by the affections of the heart, and he saw his own youth in the younger son."
+     ],
+     "source": [
+      "ምንጭ፦ ኑዛዜ፥ መጽሐፍ 1",
+      "Source: Confessions, Book 1"
+     ]
+    }
+   ],
+   "context": [
+    {
+     "head": [
+      "ለማን ተነገረ?",
+      "Who was listening?"
+     ],
+     "body": [
+      "ኢየሱስ ከኃጢአተኞች ጋር በመብላቱ ፈሪሳውያንና ጻፎች አጉረመረሙ (ሉቃስ 15፥1–2)። ምሳሌው ለእነርሱ የተሰጠ መልስ ነው።",
+      "Pharisees and scribes grumbled that Jesus ate with sinners (Luke 15:1–2). The parable is his answer to them."
+     ]
+    },
+    {
+     "head": [
+      "የርስት ጥያቄ",
+      "Asking for the inheritance"
+     ],
+     "body": [
+      "አባት በሕይወት ሳለ ድርሻን መጠየቅ ከባድ ስድብ ነበር፤ አባቱን እንደ ሞተ መቁጠር ማለት ነው።",
+      "Asking for one’s share while the father lived was a grave insult, close to treating him as already dead."
+     ]
+    },
+    {
+     "head": [
+      "እሪያ መጠበቅ",
+      "Feeding pigs"
+     ],
+     "body": [
+      "እሪያ ለአይሁድ ርኩስ እንስሳ ነው፤ ልጁ ምን ያህል እንደ ወደቀ ያሳያል።",
+      "Pigs were unclean for Jews, which shows how far the son had fallen."
+     ]
+    },
+    {
+     "head": [
+      "ሉቃስ 15፥4–7",
+      "Luke 15:4–7"
+     ],
+     "body": [
+      "የጠፋው በግ፦ በዚሁ ምዕራፍ የመጀመሪያው “የጠፋ” ምሳሌ።",
+      "The lost sheep: the first of the three “lost” parables in this chapter."
+     ]
+    },
+    {
+     "head": [
+      "ሉቃስ 15፥8–10",
+      "Luke 15:8–10"
+     ],
+     "body": [
+      "የጠፋው ድሪም፦ ሁለተኛው ምሳሌ፤ እርሱም በመገኘት ደስታ ይጠናቀቃል።",
+      "The lost coin: the second parable, again ending in joy at what is found."
+     ]
+    },
+    {
+     "head": [
+      "መዝሙር 103፥13",
+      "Psalm 103:13"
+     ],
+     "body": [
+      "አባት ለልጆቹ እንደሚራራ እግዚአብሔርም ለሚፈሩት ይራራል።",
+      "As a father has compassion on his children, so the Lord has compassion on those who fear him."
+     ]
+    },
+    {
+     "head": [
+      "አዘነለት (ቁ. 20)",
+      "Had compassion (v. 20)"
+     ],
+     "body": [
+      "የግሪኩ ቃል ከ“አንጀት” የመጣ ነው፤ ከውስጥ የሚነሣ ጥልቅ ርኅራኄን ያመለክታል።",
+      "The Greek verb comes from the word for the inner organs: a compassion felt in the gut."
+     ]
+    },
+    {
+     "head": [
+      "በከንቱ ኑሮ (ቁ. 13)",
+      "Reckless living (v. 13)"
+     ],
+     "body": [
+      "የግሪኩ ቃል “ምንም ሳያስቀሩ” የሚል ስሜት አለው፤ ያለ ገደብ ማባከንን ይገልጻል።",
+      "The Greek word carries the sense of saving nothing: spending without restraint."
+     ]
+    }
+   ],
+   "questions": [
+    {
+     "body": [
+      "በዚህ ታሪክ ውስጥ ራስዎን በማን ቦታ ያገኙታል፦ በታናሹ ልጅ፥ በታላቁ ልጅ ወይስ በአባትየው?",
+      "Where do you find yourself in this story: the younger son, the elder, or the father?"
+     ]
+    },
+    {
+     "body": [
+      "ሦስቱ አባቶች የተለያየ ነገር ያጎላሉ። የትኛው ትርጓሜ ዛሬ ይበልጥ ይናገርዎታል?",
+      "The three fathers stress different things. Which reading speaks to you most today?"
+     ]
+    }
+   ]
+  }
+ ]
+}
