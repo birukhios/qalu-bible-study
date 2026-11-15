@@ -48,6 +48,7 @@ const S = {
   draft: '',
   more: 8,
   picker: false,
+  intro: false,
   recording: false,
   msg: ''
 };
@@ -63,6 +64,8 @@ const versions = {
 };
 // Church fathers' commentary, one file per chapter, listed in an index so missing chapters are not requested.
 const F = { index: {}, cache: {}, pending: {} };
+// Book introductions and chapter notes for the Context tab, one file per book.
+const X = { cache: {}, pending: {} };
 let opens = []; // passages that tiles on the current screen open
 let recorder = null;
 
@@ -118,6 +121,33 @@ function fathers() {
       .then(() => { F.pending[key] = false; render(); });
   }
   return { state: 'loading', list: [] };
+}
+
+// Returns the book's background file ({ intro, chapters }) or null while it loads.
+function background() {
+  const b = S.pass.b;
+  if (X.cache[b]) return X.cache[b];
+  if (!X.pending[b]) {
+    X.pending[b] = true;
+    fetch('data/context/' + b + '.json').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then((d) => { X.cache[b] = d; })
+      .catch(() => { X.cache[b] = { intro: '', chapters: {} }; })
+      .then(() => { X.pending[b] = false; render(); });
+  }
+  return null;
+}
+
+// A small Markdown renderer for the notes: headings, lists, paragraphs, bold and italic.
+function md(text) {
+  const inline = (x) => esc(x).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\*([^*]+)\*/g, '<i>$1</i>');
+  return text.split('\n').map((line) => {
+    if (!line.trim()) return '';
+    let m = /^(#{2,4})\s+(.*)$/.exec(line);
+    if (m) return m[1].length === 2 ? `<h3>${inline(m[2])}</h3>` : `<h4>${inline(m[2])}</h4>`;
+    m = /^(\s*)(\d+\.|[*-])\s+(.*)$/.exec(line);
+    if (m) return `<p class="li" style="margin-left:${Math.min(3, Math.floor(m[1].length / 2)) * 16}px">${/\d/.test(m[2]) ? m[2] : '•'} ${inline(m[3])}</p>`;
+    return `<p>${inline(line)}</p>`;
+  }).join('');
 }
 
 function passRef(p) {
@@ -241,6 +271,8 @@ function sidePanel() {
     body = summaries + `<h2>${t('በራሳቸው ቃል', 'In their own words')} · ${esc(scope)}</h2><p class="muted small">${t('ጥቅሶቹ በእንግሊዝኛ ናቸው፤ ከነጻ (public domain) ትርጉሞች የተወሰዱ።', 'Quotations are in English, from public-domain translations.')}</p>` + own;
   } else if (S.tab === 'context') {
     const about = C.bookContext[S.pass.b];
+    const bg = background();
+    const chapterNote = bg ? bg.chapters[S.pass.c] : '';
     const inGroup = (groups) => (groups.find((g) => g.books.includes(S.pass.b)) || { n: ['', ''] }).n;
     const facts = [
       [t('የመጽሐፉ ዓይነት', 'Kind of book'), tp(inGroup(C.canon))],
@@ -250,8 +282,12 @@ function sidePanel() {
     ];
     body = `<div class="card stack"><b style="font-size:18px">${t('ስለ ', 'About ')}${esc(bookName(S.pass.b))}</b><p class="prose">${esc(tp(about))}</p>
 <dl class="facts">${facts.map((f) => `<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join('')}</dl></div>` +
+      (bg === null ? `<p class="muted prose" role="status">${t('እየተጫነ ነው…', 'Loading…')}</p>` : '') +
+      (chapterNote ? `<div class="card stack"><b style="font-size:18px">${t('ስለ ምዕራፍ ' + S.pass.c, 'About chapter ' + S.pass.c)}</b><div class="notes" lang="en">${md(chapterNote)}</div></div>` : '') +
       (st ? `<h2>${t('ስለዚህ ክፍል', 'About this passage')}</h2>` + st.context.map((e) => `<div class="card stack" style="gap:6px"><b>${esc(tp(e.head))}</b><p class="prose">${esc(tp(e.body))}</p></div>`).join('') : '') +
-      `<p class="muted small">${t('አጭር ረቂቅ ማብራሪያ፤ ስለ ጸሐፊዎችና ዘመናት የተለመደውን አመለካከት ይከተላል።', 'Short draft notes that follow the traditional views on authors and dates.')}</p>`;
+      (bg && bg.intro ? `<button class="btn" data-a="intro" data-k="intro" aria-expanded="${S.intro}">${t('የመጽሐፉ ሙሉ መግቢያ', 'Full introduction to the book')}${icon(S.intro ? 'left' : 'right')}</button>` +
+        (S.intro ? `<div class="card stack"><b style="font-size:18px">${t('የ' + bookName(S.pass.b) + ' መግቢያ', 'Introduction to ' + bookName(S.pass.b))}</b><div class="notes" lang="en">${md(bg.intro)}</div></div>` : '') : '') +
+      `<p class="muted small">${t('የምዕራፍና የመጽሐፍ ማብራሪያዎቹ በእንግሊዝኛ ናቸው፤ ከunfoldingWord Translation Notes የተወሰዱ (CC BY-SA 4.0)። ዋናው ሥራ በ unfoldingword.org/utn ይገኛል። አጭሩ የአማርኛ ማጠቃለያ ረቂቅ ነው።', 'Chapter and book notes are selected from the unfoldingWord Translation Notes (CC BY-SA 4.0). The original work by unfoldingWord is available from unfoldingword.org/utn. The short summary at the top is a draft.')}</p>`;
   } else {
     const place = S.sel ? t('ቁ. ' + S.sel, 'v. ' + S.sel) : bookName(S.pass.b) + ' ' + S.pass.c;
     const label = t('ማስታወሻ፦ ', 'Note on: ') + place;
@@ -421,6 +457,7 @@ const actions = {
   clearHl() { delete S.highlights[hlKey(S.sel)]; save('highlights'); },
   tab(v) { S.tab = v; },
   picker() { S.picker = !S.picker; },
+  intro() { S.intro = !S.intro; },
   prevCh() {
     const p = S.pass;
     if (p.c > 1) setPass({ c: p.c - 1, f: 1, to: 0 });

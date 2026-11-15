@@ -109,6 +109,12 @@ textarea { padding: 10px; min-height: 96px; resize: vertical; font-size: 16px; }
 .reader.single { max-width: 760px; margin: 0 auto; }
 .verses { display: flex; flex-direction: column; gap: 2px; }
 .btn:disabled { opacity: .45; cursor: default; }
+.notes { font-size: 15px; line-height: 1.65; }
+.notes h3 { font-size: 15px; font-weight: 700; margin: 14px 0 4px; color: var(--muted); text-transform: none; }
+.notes h3:first-child { margin-top: 0; }
+.notes h4 { font-size: 16px; font-weight: 700; margin: 12px 0 2px; }
+.notes p { margin: 0 0 8px; }
+.notes p.li { margin-bottom: 4px; }
 .facts { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
 .facts div { background: var(--surface); border-radius: 10px; padding: 10px 12px; }
 .facts dt { font-size: 13px; font-weight: 600; color: var(--muted); }
