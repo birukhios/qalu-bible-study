@@ -51,6 +51,17 @@ A JSON file with all 66 books in the traditional order. `books[book][chapter][ve
 
 `tools/convert_english.py` shows how the English versions were produced from their sources.
 
+### Converting old Amharic Bible PDFs
+
+`tools/convert_amharic_pdf.py` builds an import file from per-book PDFs set in the pre-Unicode Visual Ge'ez (VG2) fonts, as many Amharic Bible PDFs from the early 2000s are. It needs `pdfplumber` and the `VisualGeez.txt` mapping table from [geezorg/geez-lib](https://github.com/geezorg/geez-lib) (`src/main/resources/tables/monodirectional/`):
+
+```sh
+pip install pdfplumber
+python3 tools/convert_amharic_pdf.py PDF_FOLDER VisualGeez.txt my-bible.private.json
+```
+
+The result is for your own use on your own computer. Do not commit or publish a copyrighted translation; `*.private.json` is ignored by git for that reason. The conversion is not perfect: expect occasional words wrongly split or joined at line breaks, and a few verses merged into their neighbour where the PDF itself lacks a verse number.
+
 ## Study content
 
 - **The fathers in their own words** (`data/fathers/`, one file per chapter): about 8,700 quotations from early church fathers (authors up to AD 750), shown for the verse or passage you are reading. They are in English. Most come from the Catena Aurea, so the four Gospels are covered verse by verse and the rest of the Bible only thinly. Built by `tools/build_fathers.py` from the [HistoricalChristianFaith Commentaries-Database](https://github.com/HistoricalChristianFaith/Commentaries-Database), keeping only entries whose translation is clearly public domain.
