@@ -52,6 +52,8 @@ const S = {
 };
 let C = null; // stories, book names and study content
 const versions = {
+  amulb: { id: 'amulb', name: 'አማርኛ ULB (Unlocked Literal Bible)', language: 'am', dir: 'data/amulb', books: {},
+    credit: 'Amharic Unlocked Literal Bible. Original work available at https://door43.org/. Licensed CC BY-SA 4.0.' },
   web: { id: 'web', name: 'World English Bible', language: 'en', dir: 'data/web', books: {} },
   kjv: { id: 'kjv', name: 'King James Version', language: 'en', dir: 'data/kjv', books: {} },
   asv: { id: 'asv', name: 'American Standard Version', language: 'en', dir: 'data/asv', books: {} },
@@ -284,6 +286,7 @@ ${S.split ? `<div class="field wide"><label for="pk-v2">${t('ሁለተኛ ትር
     verses = nums.map((n) => `<button class="verse" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span lang="${versions[S.primary].language}"><sup>${n} </sup>${esc(main.verses[n - 1] || '')}</span>${S.split ? `<span class="alt" lang="${versions[S.secondary].language}">${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>`).join('');
   }
 
+  const credits = [S.primary].concat(S.split ? [S.secondary] : []).map((id) => versions[id].credit).filter(Boolean).join(' ');
   const colors = [['yellow', t('ቢጫ', 'Yellow')], ['green', t('አረንጓዴ', 'Green')], ['blue', t('ሰማያዊ', 'Blue')], ['pink', t('ሮዝ', 'Pink')]];
   const selbar = S.sel
     ? `<div class="row selbar" role="toolbar" aria-label="${t('የቁጥር መሣሪያዎች', 'Verse tools')}"><b class="small">${t('ቁ. ' + S.sel, 'v. ' + S.sel)}</b>
@@ -303,6 +306,7 @@ ${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl
 </div></div>
 ${importCard}${picker}
 <div class="cols"><article class="card stack reader">${selbar}${heads}<div style="font-size:${[16, 19, 22, 25][S.size]}px">${verses}</div></article>${S.focus ? '' : sidePanel()}</div>
+${credits ? `<p class="muted small" lang="en">${esc(credits)}</p>` : ''}
 </div>`;
 }
 

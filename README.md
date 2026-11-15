@@ -32,9 +32,12 @@ Opening `index.html` directly from disk will not work, because browsers block th
 | American Standard Version | English | Public domain | `data/asv/` |
 | Young's Literal Translation | English | Public domain | `data/ylt/` |
 | Bible in Basic English | English | Public domain | `data/bbe/` |
-| Amharic | Amharic | Depends on the translation | Not in this repository. Import it inside the app. |
+| Amharic Unlocked Literal Bible | Amharic | CC BY-SA 4.0 | `data/amulb/` |
+| Other Amharic translations | Amharic | Usually copyrighted | Not in this repository. Import them inside the app. |
 
-No Amharic text is included. Most Amharic translations are copyrighted, so the app loads an Amharic Bible from a file you import (Study › Import a Bible file). The imported text is stored only in that browser on that computer and is never uploaded.
+The built-in Amharic text is the Amharic Unlocked Literal Bible by the Door43 World Missions Community. Original work available at https://door43.org/. It is licensed [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), and the files in `data/amulb/` are shared under the same licence. Changes made: the USFM markup and footnotes were removed and the text was split into one file per book (`tools/convert_usfm.py`); the wording is unchanged.
+
+Most other Amharic translations are copyrighted, so they are not included. You can load one from a file you import (Study › Import a Bible file). The imported text is stored only in that browser on that computer and is never uploaded.
 
 ### Import format
 
