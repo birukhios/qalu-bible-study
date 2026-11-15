@@ -236,8 +236,10 @@ function sidePanel() {
     else own = list.slice(0, S.more).map(quote).join('') + (list.length > S.more ? `<button class="btn" data-a="more" data-k="more">${t('ተጨማሪ አሳይ', 'Show more')} (${list.length - S.more})</button>` : '');
     body = summaries + `<h2>${t('በራሳቸው ቃል', 'In their own words')} · ${esc(scope)}</h2><p class="muted small">${t('ጥቅሶቹ በእንግሊዝኛ ናቸው፤ ከነጻ (public domain) ትርጉሞች የተወሰዱ።', 'Quotations are in English, from public-domain translations.')}</p>` + own;
   } else if (S.tab === 'context') {
-    body = `<div class="card stack"><b>${t('ቪዲዮና ሥዕላዊ ማብራሪያ', 'Videos and visual guides')}</b><p class="prose">${t('BibleProject ስለ እያንዳንዱ መጽሐፍና ጭብጥ አጫጭር ቪዲዮዎች አሉት። በድረ ገጻቸው ይከፈታል።', 'BibleProject has short videos on each book and theme. This opens on their website.')}</p><a class="btn fill" style="align-self:flex-start" href="https://bibleproject.com/" target="_blank" rel="noopener" data-k="bp">${t('BibleProjectን ክፈት', 'Open BibleProject')}</a></div>` +
-      (st ? st.context.map((e) => `<div class="card stack" style="gap:6px"><b>${esc(tp(e.head))}</b><p class="prose">${esc(tp(e.body))}</p></div>`).join('') : '');
+    const about = C.bookContext[S.pass.b];
+    body = `<div class="card stack" style="gap:6px"><b>${t('ስለ ', 'About ')}${esc(bookName(S.pass.b))}</b><p class="prose">${esc(tp(about))}</p></div>` +
+      (st ? `<h2>${t('ስለዚህ ክፍል', 'About this passage')}</h2>` + st.context.map((e) => `<div class="card stack" style="gap:6px"><b>${esc(tp(e.head))}</b><p class="prose">${esc(tp(e.body))}</p></div>`).join('') : '') +
+      `<p class="muted small">${t('አጭር ረቂቅ ማብራሪያ፤ ስለ ጸሐፊዎችና ዘመናት የተለመደውን አመለካከት ይከተላል።', 'Short draft notes that follow the traditional views on authors and dates.')}</p>`;
   } else {
     const place = S.sel ? t('ቁ. ' + S.sel, 'v. ' + S.sel) : bookName(S.pass.b) + ' ' + S.pass.c;
     const label = t('ማስታወሻ፦ ', 'Note on: ') + place;
@@ -249,6 +251,19 @@ ${S.msg ? `<p class="prose" role="status">${esc(S.msg)}</p>` : ''}</div>` +
   }
   return `<aside class="sidepanel" aria-label="${t('ተጨማሪ ጥናት', 'Study sides')}">
 <div class="seg" role="group">${tabs.map((x) => `<button data-a="tab" data-v="${x[0]}" data-k="tab-${x[0]}" aria-pressed="${S.tab === x[0]}">${x[1]}</button>`).join('')}</div>${body}</aside>`;
+}
+
+// BibleProject's overview video for the book (and part of the book) being read. The card links to
+// their page and shows their thumbnail from their own server; nothing of theirs is stored here.
+function videoCard() {
+  const list = C.videos[S.pass.b] || [];
+  const v = list.find((x) => S.pass.c >= x.from && S.pass.c <= x.to) || list[0];
+  if (!v) return '';
+  const set = S.pass.b < 39 ? 'old-testament-overview' : 'new-testament-overview';
+  const thumb = `https://ik.imagekit.io/bpweb1/web/media/video-images/${set}/${v.slug}/tr:q-90,w-600/${v.slug}_16.9.jpg`;
+  return `<a class="card video" href="https://bibleproject.com/videos/${v.slug}/" target="_blank" rel="noopener" data-k="video">
+<img src="${thumb}" alt="" loading="lazy" onerror="this.remove()">
+<span class="stack" style="gap:4px"><span class="muted small"><b>BibleProject</b></span><b style="font-size:18px">${esc(v.title)}</b><span class="muted small">${t('የመጽሐፉ አጠቃላይ ቪዲዮ (በእንግሊዝኛ)፤ በBibleProject ድረ ገጽ ይከፈታል።', 'Book overview video. Opens on BibleProject’s website.')}</span><span class="btn fill" style="align-self:flex-start">${icon('play')}${t('ቪዲዮውን ተመልከት', 'Watch the video')}</span></span></a>`;
 }
 
 function studyView() {
@@ -304,7 +319,7 @@ ${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl
 <button class="btn" data-a="split" data-k="split" aria-pressed="${S.split}">${icon('split')}${t('ጎን ለጎን', 'Split view')}</button>
 <button class="btn" data-a="focus" data-k="focus" aria-pressed="${S.focus}">${icon('focus')}${t('ትኩረት', 'Focus')}</button>
 </div></div>
-${importCard}${picker}
+${videoCard()}${importCard}${picker}
 <div class="cols"><article class="card stack reader">${selbar}${heads}<div style="font-size:${[16, 19, 22, 25][S.size]}px">${verses}</div></article>${S.focus ? '' : sidePanel()}</div>
 ${credits ? `<p class="muted small" lang="en">${esc(credits)}</p>` : ''}
 </div>`;

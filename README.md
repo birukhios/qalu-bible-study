@@ -68,7 +68,8 @@ The result is for your own use on your own computer. Do not commit or publish a 
 ## Study content
 
 - **The fathers in their own words** (`data/fathers/`, one file per chapter): about 8,700 quotations from early church fathers (authors up to AD 750), shown for the verse or passage you are reading. They are in English. Most come from the Catena Aurea, so the four Gospels are covered verse by verse and the rest of the Bible only thinly. Built by `tools/build_fathers.py` from the [HistoricalChristianFaith Commentaries-Database](https://github.com/HistoricalChristianFaith/Commentaries-Database), keeping only entries whose translation is clearly public domain.
-- **Summaries, background and questions** (`data/content.json`): written for Luke 15 (the Prodigal Son) only so far. The summaries of Chrysostom, Ambrose and Augustine are drafts that have not been checked against the source texts.
+- **Book background** (`data/content.json`): a short note on each of the 66 books, shown in the Context tab. These are brief drafts that follow traditional views on authors and dates.
+- **Summaries, passage background and questions** (`data/content.json`): written for Luke 15 (the Prodigal Son) only so far. The summaries of Chrysostom, Ambrose and Augustine are drafts that have not been checked against the source texts.
 
 ## Where your data is kept
 
@@ -77,4 +78,4 @@ Highlights, notes, voice recordings and imported Bibles stay in the browser's st
 ## Credits
 
 - The five English versions are public domain. Source files from [scrollmapper/bible_databases](https://github.com/scrollmapper/bible_databases) and [thiagobodruk/bible](https://github.com/thiagobodruk/bible).
-- The Context tab links to [BibleProject](https://bibleproject.com/); none of their content is copied into this app.
+- The Study screen shows a card for [BibleProject](https://bibleproject.com/)'s overview video of the book being read. The card links to their page and loads the thumbnail from their server; none of their content is stored in this app.

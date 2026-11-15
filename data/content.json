@@ -1394,5 +1394,861 @@
     }
    ]
   }
+ ],
+ "bookContext": [
+  [
+   "በትውፊት ለሙሴ ይሰጣል። ስለ ፍጥረት፣ ስለ ውድቀት፣ ስለ ጥፋት ውሃ እና እግዚአብሔር ለአብርሃም፣ ለይስሐቅ፣ ለያዕቆብና ለዮሴፍ ስለ ሰጠው ተስፋ ይተርካል።",
+   "Traditionally attributed to Moses. It tells of creation, the fall, the flood, and God's promises to Abraham, Isaac, Jacob and Joseph."
+  ],
+  [
+   "በትውፊት ለሙሴ ይሰጣል። እግዚአብሔር እስራኤልን ከግብፅ ባርነት ነጻ ያወጣል፤ በሲና ቃል ኪዳን ይገባል፤ ሕጉንና የማደሪያውን ድንኳን ይሰጣል።",
+   "Traditionally attributed to Moses. God frees Israel from slavery in Egypt, makes a covenant at Sinai and gives the law and the tabernacle."
+  ],
+  [
+   "እግዚአብሔር በሕዝቡ መካከል እንዲያድር በሲና የተሰጡ የአምልኮ፣ የመሥዋዕትና የቅድስና ሕጎች።",
+   "Laws for worship, sacrifice and holy living, given at Sinai so that a holy God could dwell among his people."
+  ],
+  [
+   "እስራኤል ከሲና እስከ ተስፋዪቱ ምድር ዳርቻ በምድረ በዳ ያሳለፈቻቸው አርባ ዓመታት፤ የሕዝቡ ዐመፅና የእግዚአብሔር ትዕግሥት ይታይበታል።",
+   "Israel's forty years in the wilderness between Sinai and the edge of the promised land, marked by rebellion and God's patience."
+  ],
+  [
+   "ሙሴ በሞዓብ ሜዳ ያደረጋቸው የስንብት ንግግሮች፤ ሕጉን ይደግማል፤ አዲሱን ትውልድ እግዚአብሔርን እንዲወድና እንዲታዘዝ ይጠራል።",
+   "Moses' farewell speeches on the plains of Moab, restating the law and calling a new generation to love and obey God."
+  ],
+  [
+   "በኢያሱ መሪነት እስራኤል ወደ ከነዓን ገብታ ምድሪቱን ትወርሳለች፤ ለነገዶችም ታካፍላለች።",
+   "Under Joshua, Israel enters Canaan, takes the land and divides it among the tribes."
+  ],
+  [
+   "ከኢያሱ በኋላ እስራኤል ደጋግማ ከእግዚአብሔር ትርቃለች፤ ትጨቆናለች፤ መሳፍንት በተባሉ መሪዎችም ትድናለች።",
+   "After Joshua, Israel repeatedly turns from God, is oppressed, and is rescued by leaders called judges."
+  ],
+  [
+   "በመሳፍንት ዘመን የተፈጸመ ታሪክ። ሞዓባዊቷ መበለት ሩት ታማኝ ፍቅር ታሳያለች፤ የንጉሥ ዳዊትም ቅድመ አያት ትሆናለች።",
+   "Set in the time of the judges. Ruth, a Moabite widow, shows loyal love and becomes an ancestor of King David."
+  ],
+  [
+   "ከመሳፍንት ወደ ነገሥታት የተደረገ ሽግግር፦ ነቢዩ ሳሙኤል፣ የሳኦል መነሣትና መውደቅ፣ የዳዊት መቀባት።",
+   "The move from judges to kings: Samuel the prophet, the rise and fall of Saul, and the anointing of David."
+  ],
+  [
+   "የዳዊት ንግሥና፦ ድሎቹ፣ እግዚአብሔር ስለ ዘላለማዊ ዙፋን የሰጠው ተስፋ፣ የኀጢአቱም መዘዝ።",
+   "David's reign over Israel: his victories, God's promise of a lasting dynasty, and the cost of his sin."
+  ],
+  [
+   "የሰሎሞን ንግሥናና ቤተ መቅደሱ፣ የመንግሥቱ መከፈል፣ የነቢዩ ኤልያስ አገልግሎት።",
+   "Solomon's reign and the temple, the division of the kingdom, and the prophet Elijah."
+  ],
+  [
+   "የነቢዩ ኤልሳዕ አገልግሎትና የሁለቱ መንግሥታት ውድቀት፤ እስራኤል በአሦር፣ ይሁዳም በባቢሎን ተማርከው ያበቃል።",
+   "The prophet Elisha and the decline of both kingdoms, ending with Israel's fall to Assyria and Judah's exile to Babylon."
+  ],
+  [
+   "ከምርኮ በኋላ የተጻፈ። ከአዳም እስከ ዳዊት ያለውን ታሪክ ይደግማል፤ በዳዊትና በአምልኮ ላይ ያተኩራል።",
+   "Written after the exile. It retells Israel's story from Adam to David, with a focus on David and the worship of God."
+  ],
+  [
+   "ከምርኮ በኋላ የተጻፈ። ከሰሎሞን እስከ ምርኮ ያሉትን የይሁዳ ነገሥታት ይከተላል፤ በቤተ መቅደሱ ላይ ያተኩራል።",
+   "Written after the exile. It follows the kings of Judah from Solomon to the exile, with a focus on the temple."
+  ],
+  [
+   "ከባቢሎን ምርኮ መመለስ፣ የቤተ መቅደሱ ዳግም መሠራት፣ ዕዝራም ሕጉን ማስተማሩ።",
+   "The return from exile in Babylon, the rebuilding of the temple, and Ezra's teaching of the law."
+  ],
+  [
+   "የፋርስ ንጉሥ ባለሟል የነበረው ነህምያ የኢየሩሳሌምን ቅጥር ዳግም ለመሥራትና ሕዝቡን ለማደስ ይመራል።",
+   "Nehemiah, an official of the Persian king, leads the rebuilding of Jerusalem's walls and the renewal of the people."
+  ],
+  [
+   "በፋርስ መንግሥት ዘመን የተፈጸመ። አይሁዳዊቷ ንግሥት አስቴር ሕዝቧን ከጥፋት ለማዳን ሕይወቷን አደጋ ላይ ትጥላለች።",
+   "Set in the Persian empire. Esther, a Jewish queen, risks her life to save her people from destruction."
+  ],
+  [
+   "አንድ ጻድቅ ሰው ከባድ መከራ ይደርስበታል፤ ስለ ምክንያቱም ከወዳጆቹ ጋር ይከራከራል። እግዚአብሔርም ከዐውሎ ነፋስ ውስጥ ይመልስለታል።",
+   "A righteous man suffers greatly and argues with his friends about why. God answers from the whirlwind."
+  ],
+  [
+   "150 የእስራኤል መዝሙሮችና ጸሎቶች፤ ብዙዎቹ ከዳዊት ጋር ይያያዛሉ፤ ምስጋናን፣ ሰቆቃን፣ ውዳሴንና መታመንን ይዘዋል።",
+   "150 songs and prayers of Israel, many linked with David, covering praise, lament, thanksgiving and trust."
+  ],
+  [
+   "አጫጭር የጥበብ አባባሎች፤ ብዙዎቹ ከሰሎሞን ጋር ይያያዛሉ፤ የጥበብ መጀመሪያ እግዚአብሔርን መፍራት መሆኑን ያስተምራሉ።",
+   "Short wise sayings, many linked with Solomon, teaching that wisdom begins with the fear of the Lord."
+  ],
+  [
+   "አንድ ሰባኪ ሕይወት አጭርና ግራ አጋቢ መሆኗን ያሰላስላል፤ እግዚአብሔርን መፍራትና ትእዛዛቱን መጠበቅ እንደሚገባም ይደመድማል።",
+   "A teacher reflects on how brief and puzzling life is, and concludes that we should fear God and keep his commands."
+  ],
+  [
+   "ከሰሎሞን ጋር የሚያያዝ የፍቅር ቅኔ፤ በሙሽራና በሙሽሪት መካከል ያለውን ፍቅር ያከብራል።",
+   "Love poetry linked with Solomon, celebrating the love between a bride and groom."
+  ],
+  [
+   "ኢሳይያስ በይሁዳ የተነበየው ከክርስቶስ ልደት በፊት በ8ኛው መቶ ዘመን ነው። ስለ ፍርድ ያስጠነቅቃል፤ ስለ መጽናናት፣ ስለ መከራ ተቀባዩ አገልጋይና ስለ አዲስ ፍጥረትም ተስፋ ይሰጣል።",
+   "Isaiah prophesied in Judah in the 8th century BC. He warns of judgment and promises comfort, a suffering servant and a new creation."
+  ],
+  [
+   "ኤርምያስ ከምርኮ በፊት በነበሩት የይሁዳ የመጨረሻ ዓመታት ተነበየ፤ ለንስሐ ይጠራል፤ ስለ አዲስ ኪዳንም ተስፋ ይሰጣል።",
+   "Jeremiah prophesied in Judah's last years before the exile, calling for repentance and promising a new covenant."
+  ],
+  [
+   "ኢየሩሳሌም በባቢሎን ስለ መፍረሷ የተጻፉ አምስት የሐዘን ቅኔዎች፤ በመካከላቸው በእግዚአብሔር ምሕረት ላይ ያለ ተስፋ ይገኛል።",
+   "Five poems of grief over the destruction of Jerusalem by Babylon, with hope in God's mercy at the centre."
+  ],
+  [
+   "በባቢሎን ከምርኮኞች መካከል የነበረው ካህኑ ሕዝቅኤል የእግዚአብሔርን ክብር፣ ፍርድን፣ የታደሰ ሕዝብንና ቤተ መቅደስን በራእይ ያያል።",
+   "Ezekiel, a priest among the exiles in Babylon, sees visions of God's glory, of judgment, and of a restored people and temple."
+  ],
+  [
+   "ዳንኤልና ጓደኞቹ በባቢሎን ምርኮ ለእግዚአብሔር ታማኝ ሆነው ይኖራሉ። ራእዮቹ እግዚአብሔር በመንግሥታት ሁሉ ላይ እንደሚገዛ ያሳያሉ።",
+   "Daniel and his friends stay faithful to God in exile in Babylon. His visions show God ruling over all kingdoms."
+  ],
+  [
+   "ሆሴዕ ለሰሜኑ መንግሥት ተነበየ። የራሱ የተቸገረ ትዳር እግዚአብሔር ላልታመነ ሕዝብ ያለውን ታማኝ ፍቅር ያሳያል።",
+   "Hosea prophesied to the northern kingdom. His own troubled marriage pictures God's faithful love for an unfaithful people."
+  ],
+  [
+   "የአንበጣ መቅሠፍት ስለ እግዚአብሔር ቀን ማስጠንቀቂያ ይሆናል፤ ለንስሐ ይጠራል፤ እግዚአብሔር መንፈሱን እንደሚያፈስስም ተስፋ ይሰጣል።",
+   "A plague of locusts becomes a warning of the day of the Lord, with a call to repent and a promise that God will pour out his Spirit."
+  ],
+  [
+   "ከይሁዳ የመጣው እረኛ አሞጽ የሰሜኑን መንግሥት በድኾች ላይ ስለሚፈጸመው ግፍና ስለ ባዶ አምልኮ ይገሥጻል።",
+   "Amos, a shepherd from Judah, condemns the northern kingdom for injustice toward the poor and empty worship."
+  ],
+  [
+   "በብሉይ ኪዳን አጭሩ መጽሐፍ። በኤዶም ላይ ስለ ትዕቢቷና በይሁዳ ላይ ስላደረገችው ጭካኔ ፍርድን ያውጃል።",
+   "The shortest book of the Old Testament. It announces judgment on Edom for its pride and its cruelty to Judah."
+  ],
+  [
+   "አንድ ነቢይ ለነነዌ እንዲሰብክ ከተሰጠው ጥሪ ይሸሻል፤ የእግዚአብሔር ምሕረት ምን ያህል ሰፊ እንደ ሆነም ይማራል።",
+   "A prophet runs from God's call to preach to Nineveh, and learns how wide God's mercy is."
+  ],
+  [
+   "ሚክያስ በይሁዳ የተነበየው ከክርስቶስ ልደት በፊት በ8ኛው መቶ ዘመን ነው። ብልሹ መሪዎችን ይገሥጻል፤ ከቤተ ልሔም ስለሚወጣ ገዥም ተስፋ ይሰጣል።",
+   "Micah prophesied in Judah in the 8th century BC. He condemns corrupt leaders and promises a ruler from Bethlehem."
+  ],
+  [
+   "የአሦር ዋና ከተማ የነነዌን ውድቀት ያውጃል፤ ይህም በጨካኝ መንግሥት ላይ የእግዚአብሔር ፍትሕ ነው።",
+   "Announces the fall of Nineveh, capital of Assyria, as God's justice on a cruel empire."
+  ],
+  [
+   "ነቢዩ ክፋት ለምን ሳይቀጣ እንደሚቀር እግዚአብሔርን ይጠይቃል፤ ጻድቅ በእምነት እንደሚኖርም ይማራል።",
+   "The prophet asks God why evil goes unpunished, and learns that the righteous will live by faith."
+  ],
+  [
+   "ስለሚመጣው የእግዚአብሔር ቀን ይሁዳን ያስጠነቅቃል፤ እግዚአብሔር ለሚያድሰው ትሑት ሕዝብም ደስታን ተስፋ ይሰጣል።",
+   "Warns Judah of the coming day of the Lord and promises joy for a humble people whom God restores."
+  ],
+  [
+   "ከምርኮ ከተመለሱ በኋላ ሐጌ ሕዝቡ የቤተ መቅደሱን ሥራ እንዲጨርሱ ያሳስባል።",
+   "After the return from exile, Haggai urges the people to finish rebuilding the temple."
+  ],
+  [
+   "በሐጌ ዘመን የነበረ ነቢይ። ራእዮቹ ቤተ መቅደሱን የሚሠሩትን ያበረታታሉ፤ ስለሚመጣው ንጉሥም ይናገራሉ።",
+   "A prophet of the same period as Haggai. His visions encourage the rebuilders and look ahead to a coming king."
+  ],
+  [
+   "በብሉይ ኪዳን የመጨረሻው ነቢይ። የደከመውን ሕዝብ ወደ ታማኝ አምልኮ ይጠራል፤ ስለሚመጣ መልእክተኛም ተስፋ ይሰጣል።",
+   "The last of the prophets in the Old Testament. He calls a weary people back to faithful worship and promises a messenger to come."
+  ],
+  [
+   "በትውፊት ለሐዋርያው ማቴዎስ ይሰጣል። ኢየሱስን የብሉይ ኪዳንን ተስፋ የሚፈጽም መሲሕ አድርጎ ያቀርባል።",
+   "Traditionally attributed to the apostle Matthew. It presents Jesus as the promised Messiah who fulfils the Old Testament."
+  ],
+  [
+   "በትውፊት የጴጥሮስ ባልደረባ ለነበረው ለዮሐንስ ማርቆስ ይሰጣል። ኢየሱስን መከራ የተቀበለ የእግዚአብሔር ልጅ አድርጎ የሚያቀርብ አጭርና ፈጣን ትረካ።",
+   "Traditionally attributed to John Mark, a companion of Peter. A short, fast-moving account of Jesus as the suffering Son of God."
+  ],
+  [
+   "በትውፊት ሐኪምና የጳውሎስ ባልደረባ ለነበረው ለሉቃስ ይሰጣል። ኢየሱስ ለድኾች፣ ለተገለሉትና ለጠፉት ያለውን ርኅራኄ ያጎላል።",
+   "Traditionally attributed to Luke, a physician and companion of Paul. It stresses Jesus' care for the poor, the outcast and the lost."
+  ],
+  [
+   "በትውፊት ለሐዋርያው ዮሐንስ ይሰጣል። አንባቢዎች ኢየሱስ ክርስቶስ የእግዚአብሔር ልጅ እንደ ሆነ እንዲያምኑ ተጽፏል።",
+   "Traditionally attributed to the apostle John. It is written so that readers may believe that Jesus is the Christ, the Son of God."
+  ],
+  [
+   "የሉቃስ ሁለተኛ መጽሐፍ። ወንጌል በመንፈስ ቅዱስ ኀይል፣ በጴጥሮስና በጳውሎስ አገልግሎት ከኢየሩሳሌም እስከ ሮም መስፋፋቱን ይከተላል።",
+   "Luke's second volume. It follows the spread of the gospel from Jerusalem to Rome through the Holy Spirit, Peter and Paul."
+  ],
+  [
+   "ጳውሎስ በሮም ላለችው ቤተ ክርስቲያን የጻፈው መልእክት፤ ወንጌልን ያብራራል፦ ሁሉ ኀጢአት ሠርተዋል፤ ሁሉም በክርስቶስ በማመን ይጸድቃሉ።",
+   "Paul's letter to the church in Rome, explaining the gospel: all have sinned, and all are made right with God by faith in Christ."
+  ],
+  [
+   "ጳውሎስ በቆሮንቶስ ላለችው የተከፋፈለች ቤተ ክርስቲያን ስለ አንድነት፣ ስለ ቅዱስ አኗኗር፣ ስለ አምልኮ፣ ስለ መንፈሳዊ ስጦታዎች፣ ስለ ፍቅርና ስለ ትንሣኤ ይጽፋል።",
+   "Paul writes to a divided church in Corinth about unity, holy living, worship, spiritual gifts, love and the resurrection."
+  ],
+  [
+   "ጳውሎስ አገልግሎቱን ለቆሮንቶስ ሰዎች ያስረዳል፤ የእግዚአብሔር ኀይል በድካም እንደሚሠራም ያሳያል።",
+   "Paul defends his ministry to the Corinthians and shows how God's power works through weakness."
+  ],
+  [
+   "ጳውሎስ ለገላትያ አብያተ ክርስቲያናት ሰው የሚጸድቀው ሕግን በመጠበቅ ሳይሆን በክርስቶስ በማመን እንደ ሆነ አጥብቆ ያስረዳል።",
+   "Paul insists to the churches of Galatia that people are made right with God by faith in Christ, not by keeping the law."
+  ],
+  [
+   "እግዚአብሔር ሁሉን በክርስቶስ አንድ ለማድረግ ስላለው ዕቅድና ቤተ ክርስቲያን እንደ አንድ አካል እንዴት መኖር እንዳለባት የሚናገር የጳውሎስ መልእክት።",
+   "A letter of Paul on God's plan to unite all things in Christ, and on how the church should live as one body."
+  ],
+  [
+   "ጳውሎስ ከእስር ቤት የጻፈው። የደስታና የምስጋና መልእክት፤ አማኞች የክርስቶስን ትሕትና እንዲይዙ ያሳስባል።",
+   "Written by Paul from prison. A letter of joy and thanks, urging the believers to have the humble mind of Christ."
+  ],
+  [
+   "ጳውሎስ ከእስር ቤት የጻፈው። ክርስቶስ ከሁሉ በላይ መሆኑን ያሳያል፤ ከሐሰት ትምህርትም ያስጠነቅቃል።",
+   "Written by Paul from prison. It presents Christ as supreme over all things and warns against false teaching."
+  ],
+  [
+   "ከጳውሎስ ቀደምት መልእክቶች አንዱ። በመከራ ውስጥ ያለችውን አዲስ ቤተ ክርስቲያን ያበረታታል፤ ስለ ክርስቶስ ዳግም መምጣትም ያስተምራል።",
+   "One of Paul's earliest letters. He encourages a young church under pressure and teaches about the return of Christ."
+  ],
+  [
+   "ጳውሎስ ስለ ጌታ ቀን የተፈጠረውን ግራ መጋባት ያርማል፤ አማኞች ጸንተው እንዲቆሙና እንዲሠሩ ያሳስባል።",
+   "Paul corrects confusion about the day of the Lord and urges the believers to stand firm and keep working."
+  ],
+  [
+   "ጳውሎስ በኤፌሶን ለነበረው ወጣት መሪ ለጢሞቴዎስ ስለ ትክክለኛ ትምህርት፣ ስለ አምልኮና ስለ ቤተ ክርስቲያን አመራር ምክር ይሰጣል።",
+   "Paul advises Timothy, a younger leader in Ephesus, on sound teaching, worship and church leadership."
+  ],
+  [
+   "በትውፊት የጳውሎስ የመጨረሻ መልእክት፤ ከእስር ቤት የተጻፈ። ጢሞቴዎስ ታማኝ ሆኖ እንዲጸናና ቃሉን እንዲሰብክ ያሳስባል።",
+   "Traditionally Paul's last letter, written from prison. He urges Timothy to stay faithful and to preach the word."
+  ],
+  [
+   "ጳውሎስ በቀርጤስ አብያተ ክርስቲያናትን ለሚመራው ለቲቶ ሽማግሌዎችን ስለ መሾምና መልካም ምግባርን ስለ ማስተማር መመሪያ ይሰጣል።",
+   "Paul instructs Titus, who is leading the churches in Crete, on appointing elders and teaching good conduct."
+  ],
+  [
+   "አጭር የግል መልእክት። ጳውሎስ ፊልሞና የኰበለለውን ባሪያ አናሲሞስን እንደ ክርስቶስ ወንድም እንዲቀበለው ይለምናል።",
+   "A short personal letter. Paul asks Philemon to welcome back Onesimus, a runaway slave, as a brother in Christ."
+  ],
+  [
+   "ጸሐፊው አይታወቅም። ኢየሱስ ከመላእክት፣ ከሙሴና ከቀድሞው ክህነት እንደሚበልጥ ያሳያል፤ አማኞች ተስፋ እንዳይቆርጡም ያሳስባል።",
+   "The author is unknown. It shows Jesus as greater than the angels, Moses and the old priesthood, and urges believers not to give up."
+  ],
+  [
+   "በትውፊት ለጌታ ወንድም ለያዕቆብ ይሰጣል። እውነተኛ እምነት በሥራ እንደሚገለጥ የሚያስተምር ተግባራዊ መልእክት።",
+   "Traditionally attributed to James, the brother of Jesus. Practical teaching that real faith shows itself in deeds."
+  ],
+  [
+   "መከራ ለገጠማቸው ለተበተኑ አማኞች የተጻፈ። ወደ ተስፋ፣ ወደ ቅዱስ አኗኗርና መከራን በትዕግሥት ወደ መቀበል ይጠራቸዋል።",
+   "Written to scattered believers facing hardship. It calls them to hope, holy living and patient endurance of suffering."
+  ],
+  [
+   "ከሐሰተኛ አስተማሪዎች ያስጠነቅቃል፤ የጌታ ቀን እንደሚመጣም አማኞችን ያሳስባል።",
+   "Warns against false teachers and reminds believers that the day of the Lord will come."
+  ],
+  [
+   "በትውፊት ለሐዋርያው ዮሐንስ ይሰጣል። እግዚአብሔር ብርሃንና ፍቅር እንደ ሆነ፣ እርሱን የሚያውቁም እርስ በርስ እንደሚዋደዱ ያስተምራል።",
+   "Traditionally attributed to the apostle John. It teaches that God is light and love, and that those who know him love one another."
+  ],
+  [
+   "አማኞች በእውነትና በፍቅር እንዲመላለሱ፣ ሐሰተኛ አስተማሪዎችንም እንዳይደግፉ የሚያሳስብ አጭር መልእክት።",
+   "A brief letter urging believers to walk in truth and love, and not to support false teachers."
+  ],
+  [
+   "ጋይዮስ ለተጓዥ አስተማሪዎች ስላደረገው መስተንግዶ የሚያመሰግን አጭር መልእክት።",
+   "A brief letter praising Gaius for his hospitality to travelling teachers."
+  ],
+  [
+   "በትውፊት የያዕቆብ ወንድም ለሆነው ለይሁዳ ይሰጣል። አማኞች ከሐሰተኛ አስተማሪዎች እምነትን እንዲጠብቁ ያሳስባል።",
+   "Traditionally attributed to Jude, the brother of James. It urges believers to defend the faith against false teachers."
+  ],
+  [
+   "ዮሐንስ በፍጥሞ ደሴት የተቀበላቸው ራእዮች፤ በእስያ ላሉ ሰባት አብያተ ክርስቲያናት የተጻፉ። የክርስቶስን የመጨረሻ ድልና አዲስ ሰማይና አዲስ ምድርን ያሳያሉ።",
+   "Visions given to John on the island of Patmos, written to seven churches in Asia. They show Christ's final victory and a new heaven and earth."
+  ]
+ ],
+ "videos": [
+  [
+   {
+    "slug": "genesis-1-11",
+    "title": "Genesis 1-11",
+    "from": 1,
+    "to": 11
+   },
+   {
+    "slug": "genesis-12-50",
+    "title": "Genesis 12-50",
+    "from": 12,
+    "to": 50
+   }
+  ],
+  [
+   {
+    "slug": "exodus-1-18",
+    "title": "Exodus 1-18",
+    "from": 1,
+    "to": 18
+   },
+   {
+    "slug": "exodus-19-40",
+    "title": "Exodus 19-40",
+    "from": 19,
+    "to": 40
+   }
+  ],
+  [
+   {
+    "slug": "leviticus",
+    "title": "Leviticus",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "numbers",
+    "title": "Numbers",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "deuteronomy",
+    "title": "Deuteronomy",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "joshua",
+    "title": "Joshua",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "judges",
+    "title": "Judges",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "ruth",
+    "title": "Ruth",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "1-samuel",
+    "title": "1 Samuel",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "2-samuel",
+    "title": "2 Samuel",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "kings",
+    "title": "1 & 2 Kings",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "kings",
+    "title": "1 & 2 Kings",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "chronicles",
+    "title": "1 & 2 Chronicles",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "chronicles",
+    "title": "1 & 2 Chronicles",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "ezra-nehemiah",
+    "title": "Ezra-Nehemiah",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "ezra-nehemiah",
+    "title": "Ezra-Nehemiah",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "esther",
+    "title": "Esther",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "job",
+    "title": "Job",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "psalms",
+    "title": "Psalms",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "proverbs",
+    "title": "Proverbs",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "ecclesiastes",
+    "title": "Ecclesiastes",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "song-songs",
+    "title": "Song of Songs",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "isaiah-1-39",
+    "title": "Isaiah 1-39",
+    "from": 1,
+    "to": 39
+   },
+   {
+    "slug": "isaiah-40-66",
+    "title": "Isaiah 40-66",
+    "from": 40,
+    "to": 66
+   }
+  ],
+  [
+   {
+    "slug": "jeremiah",
+    "title": "Jeremiah",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "lamentations",
+    "title": "Lamentations",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "ezekiel-1-33",
+    "title": "Ezekiel 1-33",
+    "from": 1,
+    "to": 33
+   },
+   {
+    "slug": "ezekiel-34-48",
+    "title": "Ezekiel 34-48",
+    "from": 34,
+    "to": 48
+   }
+  ],
+  [
+   {
+    "slug": "daniel",
+    "title": "Daniel",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "hosea",
+    "title": "Hosea",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "joel",
+    "title": "Joel",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "amos",
+    "title": "Amos",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "obadiah",
+    "title": "Obadiah",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "jonah",
+    "title": "Jonah",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "micah",
+    "title": "Micah",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "nahum",
+    "title": "Nahum",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "habakkuk",
+    "title": "Habakkuk",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "zephaniah",
+    "title": "Zephaniah",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "haggai",
+    "title": "Haggai",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "zechariah",
+    "title": "Zechariah",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "malachi",
+    "title": "Malachi",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "matthew-1-13",
+    "title": "Matthew 1-13",
+    "from": 1,
+    "to": 13
+   },
+   {
+    "slug": "matthew-14-28",
+    "title": "Matthew 14-28",
+    "from": 14,
+    "to": 28
+   }
+  ],
+  [
+   {
+    "slug": "mark",
+    "title": "Mark",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "luke-1-9",
+    "title": "Luke 1-9",
+    "from": 1,
+    "to": 9
+   },
+   {
+    "slug": "luke-10-24",
+    "title": "Luke 10-24",
+    "from": 10,
+    "to": 24
+   }
+  ],
+  [
+   {
+    "slug": "john-1-12",
+    "title": "John 1-12",
+    "from": 1,
+    "to": 12
+   },
+   {
+    "slug": "john-13-21",
+    "title": "John 13-21",
+    "from": 13,
+    "to": 21
+   }
+  ],
+  [
+   {
+    "slug": "acts-1-12",
+    "title": "Acts 1-12",
+    "from": 1,
+    "to": 12
+   },
+   {
+    "slug": "acts-13-28",
+    "title": "Acts 13-28",
+    "from": 13,
+    "to": 28
+   }
+  ],
+  [
+   {
+    "slug": "romans-1-4",
+    "title": "Romans 1-4",
+    "from": 1,
+    "to": 4
+   },
+   {
+    "slug": "romans-5-16",
+    "title": "Romans 5-16",
+    "from": 5,
+    "to": 16
+   }
+  ],
+  [
+   {
+    "slug": "1-corinthians",
+    "title": "1 Corinthians",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "2-corinthians",
+    "title": "2 Corinthians",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "galatians",
+    "title": "Galatians",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "ephesians",
+    "title": "Ephesians",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "philippians",
+    "title": "Philippians",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "colossians",
+    "title": "Colossians",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "1-thessalonians",
+    "title": "1 Thessalonians",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "2-thessalonians",
+    "title": "2 Thessalonians",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "1-timothy",
+    "title": "1 Timothy",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "2-timothy",
+    "title": "2 Timothy",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "titus",
+    "title": "Titus",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "philemon",
+    "title": "Philemon",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "hebrews",
+    "title": "Hebrews",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "james",
+    "title": "James",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "1-peter",
+    "title": "1 Peter",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "2-peter",
+    "title": "2 Peter",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "1-3-john",
+    "title": "1-3 John",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "1-3-john",
+    "title": "1-3 John",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "1-3-john",
+    "title": "1-3 John",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "jude",
+    "title": "Jude",
+    "from": 1,
+    "to": 999
+   }
+  ],
+  [
+   {
+    "slug": "revelation-1-11",
+    "title": "Revelation 1-11",
+    "from": 1,
+    "to": 11
+   },
+   {
+    "slug": "revelation-12-22",
+    "title": "Revelation 12-22",
+    "from": 12,
+    "to": 22
+   }
+  ]
  ]
 }

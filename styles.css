@@ -76,6 +76,10 @@ h2 { font-size: 18px; font-weight: 700; }
 .tile b { font-size: 16px; font-weight: 600; }
 
 /* Study */
+.video { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px; text-decoration: none; color: var(--text); }
+.video:hover { border-color: var(--muted); }
+.video img { width: 220px; max-width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; background: var(--ctl); }
+
 .field { display: flex; flex-direction: column; gap: 4px; flex: 1 1 110px; }
 .field.wide { flex: 2 1 170px; }
 .field label { font-size: 13px; font-weight: 600; color: var(--muted); }
