@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Convert public-domain KJV and WEB source files into the app's Bible JSON format.
 
-App format: {"id", "name", "language", "books": [book][chapter][verse] -> text}
+Output: OUT_DIR/<id>/<book index>.json, each holding [chapter][verse] -> text
 Sources:
   KJV: https://github.com/thiagobodruk/bible (json/en_kjv.json)
   WEB: https://github.com/scrollmapper/bible_databases (branch 2024, json/t_web.json)
 Usage: convert_english.py en_kjv.json t_web.json OUT_DIR
 """
-import json, re, sys
+import json, os, re, sys
 
 def clean(t):
     t = re.sub(r"\{[^{}]*\}", "", t)          # footnotes in braces
@@ -16,11 +16,16 @@ def clean(t):
     t = re.sub(r"\s+([.,;:!?])", r"\1", t)     # stray space before punctuation
     return re.sub(r"\s+", " ", t).strip()
 
+def write(out, vid, books):
+    """One file per book (OUT/<id>/<book index>.json) so the app only downloads the book being read."""
+    os.makedirs(f"{out}/{vid}", exist_ok=True)
+    for i, chapters in enumerate(books):
+        json.dump(chapters, open(f"{out}/{vid}/{i}.json", "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+
 def main(kjv_path, web_path, out):
     kjv = json.load(open(kjv_path, encoding="utf-8-sig"))
     books = [[[clean(v) for v in ch] for ch in b["chapters"]] for b in kjv]
-    json.dump({"id": "kjv", "name": "King James Version", "language": "en", "books": books},
-              open(f"{out}/kjv.json", "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    write(out, "kjv", books)
     rows = json.load(open(web_path, encoding="utf-8-sig"))["resultset"]["row"]
     web = [[] for _ in range(66)]
     for r in rows:
@@ -34,8 +39,7 @@ def main(kjv_path, web_path, out):
         while len(vs) < v:
             vs.append("")
         vs[v - 1] = clean(text)
-    json.dump({"id": "web", "name": "World English Bible", "language": "en", "books": web},
-              open(f"{out}/web.json", "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    write(out, "web", web)
     for name, bk in (("kjv", books), ("web", web)):
         print(name, len(bk), sum(len(b) for b in bk), sum(len(c) for b in bk for c in b))
     print("KJV Luke 15:20:", books[41][14][19])

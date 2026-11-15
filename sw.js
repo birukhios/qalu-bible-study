@@ -1,5 +1,5 @@
 // Offline support. App files: network first, cached copy as fallback. Bible data: cached after first use.
-const CACHE = 'qalu-v1';
+const CACHE = 'qalu-v2';
 const SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'icon.svg', 'manifest.webmanifest', 'data/content.json'];
 
 self.addEventListener('install', (event) => {
@@ -19,7 +19,7 @@ self.addEventListener('fetch', (event) => {
     if (response.ok) { const copy = response.clone(); caches.open(CACHE).then((cache) => cache.put(event.request, copy)); }
     return response;
   };
-  const bigData = /\/data\/(web|kjv)\.json$/.test(url.pathname);
+  const bigData = /\/data\/(web|kjv)\/\d+\.json$/.test(url.pathname);
   if (bigData) {
     event.respondWith(caches.match(event.request).then((hit) => hit || fetch(event.request).then(store)));
   } else {

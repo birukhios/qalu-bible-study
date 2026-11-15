@@ -51,8 +51,8 @@ const S = {
 };
 let C = null; // stories, book names and study content
 const versions = {
-  web: { id: 'web', name: 'World English Bible', language: 'en', file: 'data/web.json', books: null },
-  kjv: { id: 'kjv', name: 'King James Version', language: 'en', file: 'data/kjv.json', books: null }
+  web: { id: 'web', name: 'World English Bible', language: 'en', dir: 'data/web', books: {} },
+  kjv: { id: 'kjv', name: 'King James Version', language: 'en', dir: 'data/kjv', books: {} }
 };
 let opens = []; // passages that tiles on the current screen open
 let recorder = null;
@@ -70,22 +70,30 @@ function pickVersions() {
   if (!versions[S.secondary] || S.secondary === S.primary) S.secondary = ids.find((id) => id !== S.primary) || S.primary;
 }
 
-function loadVersion(id) {
+// Bundled versions are stored one file per book, so only the book being read is downloaded.
+function loadBook(id, b) {
   const v = versions[id];
-  if (!v || v.books || v.loading || !v.file) return;
-  v.loading = true;
-  fetch(v.file).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then((j) => { v.books = j.books; v.loading = false; render(); })
-    .catch(() => { v.loading = false; v.error = true; render(); });
+  v.pending = v.pending || {};
+  v.failed = v.failed || {};
+  if (v.pending[b]) return;
+  v.pending[b] = true;
+  fetch(v.dir + '/' + b + '.json').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then((chapters) => { v.books[b] = chapters; delete v.failed[b]; })
+    .catch(() => { v.failed[b] = true; })
+    .then(() => { v.pending[b] = false; render(); });
 }
 
 // Returns { state: 'ok' | 'loading' | 'error', verses: [] } for the current chapter in one version.
 function chapter(id) {
   const v = versions[id];
   if (!v) return { state: 'error', verses: [] };
-  if (!v.books) { loadVersion(id); return { state: v.error ? 'error' : 'loading', verses: [] }; }
-  const ch = (v.books[S.pass.b] || [])[S.pass.c - 1] || [];
-  return { state: 'ok', verses: ch };
+  const b = S.pass.b;
+  if (v.dir && !v.books[b]) {
+    if (v.failed && v.failed[b] && !v.pending[b]) return { state: 'error', verses: [] };
+    loadBook(id, b);
+    return { state: 'loading', verses: [] };
+  }
+  return { state: 'ok', verses: (v.books[b] || [])[S.pass.c - 1] || [] };
 }
 
 function passRef(p) {
@@ -292,6 +300,7 @@ function render() {
 
 // ---------- actions ----------
 function setPass(change) {
+  Object.values(versions).forEach((v) => { v.failed = {}; });
   S.pass = Object.assign({ b: S.pass.b, c: S.pass.c, f: S.pass.f, to: S.pass.to }, change);
   S.sel = null;
   save('pass');

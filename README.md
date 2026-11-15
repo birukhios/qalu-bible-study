@@ -27,8 +27,8 @@ Opening `index.html` directly from disk will not work, because browsers block th
 
 | Version | Language | Licence | Where it lives |
 |---|---|---|---|
-| World English Bible | English | Public domain | `data/web.json` |
-| King James Version | English | Public domain | `data/kjv.json` |
+| World English Bible | English | Public domain | `data/web/` (one file per book) |
+| King James Version | English | Public domain | `data/kjv/` (one file per book) |
 | Amharic | Amharic | Depends on the translation | Not in this repository. Import it inside the app. |
 
 No Amharic text is included. Most Amharic translations are copyrighted, so the app loads an Amharic Bible from a file you import (Study › Import a Bible file). The imported text is stored only in that browser on that computer and is never uploaded.
