@@ -94,17 +94,27 @@ textarea { padding: 10px; min-height: 96px; resize: vertical; font-size: 16px; }
 @media (min-width: 1100px) { .sidepanel { flex: 0 0 380px; } }
 .verse {
   display: flex; flex-wrap: wrap; gap: 4px 16px; width: 100%; text-align: left;
-  padding: 8px 12px; border-radius: 10px; border: 2px solid transparent; line-height: 1.8;
+  padding: 10px 12px; border-radius: 10px; border: 2px solid transparent; line-height: 1.9;
 }
 .verse > span { flex: 1 1 220px; min-width: 0; }
 .verse .alt { font-size: .88em; line-height: 1.65; }
 .verse sup { font-size: .62em; font-weight: 700; color: var(--muted); }
+.verse:hover { background-color: var(--surface); }
 .verse[aria-pressed="true"] { border-color: var(--accent); }
 .verse[data-hl="yellow"] { background: var(--hl-yellow); }
 .verse[data-hl="green"] { background: var(--hl-green); }
 .verse[data-hl="blue"] { background: var(--hl-blue); }
 .verse[data-hl="pink"] { background: var(--hl-pink); }
-.selbar { padding: 6px 10px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.selbar { padding: 6px 10px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); position: sticky; top: 8px; z-index: 2; }
+.reader.single { max-width: 760px; margin: 0 auto; }
+.verses { display: flex; flex-direction: column; gap: 2px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.facts { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.facts div { background: var(--surface); border-radius: 10px; padding: 10px 12px; }
+.facts dt { font-size: 13px; font-weight: 600; color: var(--muted); }
+.facts dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; }
+.sidepanel .video { flex-direction: column; align-items: stretch; }
+.sidepanel .video img { width: 100%; }
 .dot { width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
 .dot span { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--muted); }
 .pill { align-self: flex-start; background: var(--ctl); font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }

@@ -47,6 +47,7 @@ const S = {
   notes: ls.get('notes', []),
   draft: '',
   more: 8,
+  picker: false,
   recording: false,
   msg: ''
 };
@@ -152,6 +153,9 @@ const ICONS = {
   mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
   stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>',
   play: '<path d="M7 5l12 7-12 7z"/>',
+  left: '<path d="M15 5l-7 7 7 7"/>',
+  right: '<path d="M9 5l7 7-7 7"/>',
+  sliders: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
   trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'
 };
 const icon = (name, size = 18) => `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
@@ -237,7 +241,15 @@ function sidePanel() {
     body = summaries + `<h2>${t('በራሳቸው ቃል', 'In their own words')} · ${esc(scope)}</h2><p class="muted small">${t('ጥቅሶቹ በእንግሊዝኛ ናቸው፤ ከነጻ (public domain) ትርጉሞች የተወሰዱ።', 'Quotations are in English, from public-domain translations.')}</p>` + own;
   } else if (S.tab === 'context') {
     const about = C.bookContext[S.pass.b];
-    body = `<div class="card stack" style="gap:6px"><b>${t('ስለ ', 'About ')}${esc(bookName(S.pass.b))}</b><p class="prose">${esc(tp(about))}</p></div>` +
+    const inGroup = (groups) => (groups.find((g) => g.books.includes(S.pass.b)) || { n: ['', ''] }).n;
+    const facts = [
+      [t('የመጽሐፉ ዓይነት', 'Kind of book'), tp(inGroup(C.canon))],
+      [t('የታሪኩ ዘመን', 'Period'), tp(inGroup(C.chrono))],
+      [t('ርዝመት', 'Length'), C.books[S.pass.b].ch + ' ' + t('ምዕራፍ', C.books[S.pass.b].ch === 1 ? 'chapter' : 'chapters')],
+      [t('አሁን ያሉበት', 'You are in'), t('ምዕራፍ ' + S.pass.c, 'chapter ' + S.pass.c) + ' / ' + C.books[S.pass.b].ch]
+    ];
+    body = `<div class="card stack"><b style="font-size:18px">${t('ስለ ', 'About ')}${esc(bookName(S.pass.b))}</b><p class="prose">${esc(tp(about))}</p>
+<dl class="facts">${facts.map((f) => `<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join('')}</dl></div>` +
       (st ? `<h2>${t('ስለዚህ ክፍል', 'About this passage')}</h2>` + st.context.map((e) => `<div class="card stack" style="gap:6px"><b>${esc(tp(e.head))}</b><p class="prose">${esc(tp(e.body))}</p></div>`).join('') : '') +
       `<p class="muted small">${t('አጭር ረቂቅ ማብራሪያ፤ ስለ ጸሐፊዎችና ዘመናት የተለመደውን አመለካከት ይከተላል።', 'Short draft notes that follow the traditional views on authors and dates.')}</p>`;
   } else {
@@ -250,6 +262,7 @@ ${S.msg ? `<p class="prose" role="status">${esc(S.msg)}</p>` : ''}</div>` +
       S.notes.filter((n) => n.b === S.pass.b && n.c === S.pass.c).map(noteCard).join('');
   }
   return `<aside class="sidepanel" aria-label="${t('ተጨማሪ ጥናት', 'Study sides')}">
+${videoCard()}
 <div class="seg" role="group">${tabs.map((x) => `<button data-a="tab" data-v="${x[0]}" data-k="tab-${x[0]}" aria-pressed="${S.tab === x[0]}">${x[1]}</button>`).join('')}</div>${body}</aside>`;
 }
 
@@ -311,16 +324,22 @@ ${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl
     : `<p class="muted small" style="padding:6px 12px">${t('ለማቅለም ወይም ማስታወሻ ለመያዝ አንድ ቁጥር ይንኩ።', 'Click a verse to highlight it or add a note.')}</p>`;
   const heads = S.split ? `<div class="row muted small" style="padding:0 12px;gap:16px"><b style="flex:1 1 220px">${esc(versions[S.primary].name)}</b><b style="flex:1 1 220px">${esc(versions[S.secondary].name)}</b></div>` : '';
 
+  const title = passTitle(p), ref = passRef(p);
+  const first = p.b === 0 && p.c === 1, last = p.b === 65 && p.c === C.books[65].ch;
+  const stepper = (key) => `<div class="row">
+<button class="btn" data-a="prevCh" data-k="prev-${key}" ${first ? 'disabled' : ''}>${icon('left')}${t('ያለፈው ምዕራፍ', 'Previous chapter')}</button>
+<button class="btn" data-a="nextCh" data-k="next-${key}" ${last ? 'disabled' : ''}>${t('ቀጣዩ ምዕራፍ', 'Next chapter')}${icon('right')}</button></div>`;
   return `<div class="wrap">
-<div class="row between"><div class="stack" style="gap:2px"><h1>${esc(passTitle(p))}</h1><span class="muted small">${esc(passRef(p))}</span></div>
+<div class="row between"><div class="stack" style="gap:2px"><h1>${esc(title)}</h1>${ref !== title ? `<span class="muted small">${esc(ref)}</span>` : ''}</div>
 <div class="row" role="toolbar" aria-label="${t('የንባብ መሣሪያዎች', 'Reading tools')}">
+<button class="btn" data-a="picker" data-k="picker" aria-expanded="${S.picker}" aria-pressed="${S.picker}">${icon('sliders')}${t('ክፍልና ትርጉም', 'Passage and version')}</button>
 <button class="btn" data-a="smaller" data-k="smaller" aria-label="${t('ጽሑፉን አሳንስ', 'Smaller text')}"><b style="font-size:13px">A−</b></button>
 <button class="btn" data-a="larger" data-k="larger" aria-label="${t('ጽሑፉን አሳድግ', 'Larger text')}"><b style="font-size:18px">A+</b></button>
 <button class="btn" data-a="split" data-k="split" aria-pressed="${S.split}">${icon('split')}${t('ጎን ለጎን', 'Split view')}</button>
 <button class="btn" data-a="focus" data-k="focus" aria-pressed="${S.focus}">${icon('focus')}${t('ትኩረት', 'Focus')}</button>
 </div></div>
-${videoCard()}${importCard}${picker}
-<div class="cols"><article class="card stack reader">${selbar}${heads}<div style="font-size:${[16, 19, 22, 25][S.size]}px">${verses}</div></article>${S.focus ? '' : sidePanel()}</div>
+${S.picker ? picker : ''}
+<div class="cols"><article class="card stack reader${S.split || !S.focus ? '' : ' single'}">${selbar}${heads}<div class="verses" style="font-size:${[16, 19, 22, 25][S.size]}px">${verses}</div>${stepper('bottom')}</article>${S.focus ? '' : sidePanel()}</div>
 ${credits ? `<p class="muted small" lang="en">${esc(credits)}</p>` : ''}
 </div>`;
 }
@@ -401,6 +420,19 @@ const actions = {
   hl(v) { S.highlights[hlKey(S.sel)] = v; save('highlights'); },
   clearHl() { delete S.highlights[hlKey(S.sel)]; save('highlights'); },
   tab(v) { S.tab = v; },
+  picker() { S.picker = !S.picker; },
+  prevCh() {
+    const p = S.pass;
+    if (p.c > 1) setPass({ c: p.c - 1, f: 1, to: 0 });
+    else if (p.b > 0) setPass({ b: p.b - 1, c: C.books[p.b - 1].ch, f: 1, to: 0 });
+    window.scrollTo(0, 0);
+  },
+  nextCh() {
+    const p = S.pass;
+    if (p.c < C.books[p.b].ch) setPass({ c: p.c + 1, f: 1, to: 0 });
+    else if (p.b < 65) setPass({ b: p.b + 1, c: 1, f: 1, to: 0 });
+    window.scrollTo(0, 0);
+  },
   more() { S.more += 12; },
   split() { S.split = !S.split; save('split'); },
   focus() { S.focus = !S.focus; },
