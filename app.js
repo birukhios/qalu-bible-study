@@ -52,7 +52,10 @@ const S = {
   intro: false,
   place: 0,
   recording: false,
-  msg: ''
+  msg: '',
+  game: ls.get('game', { xp: 0, streak: 0, last: '', done: {} }), // done: story number -> stars earned (1 to 3)
+  play: null, // the story lesson in progress on the Journey screen
+  jump: true
 };
 let C = null; // stories, book names and study content
 // The interactive map is created once and moved into place on each render, so it keeps its zoom.
@@ -191,7 +194,15 @@ const ICONS = {
   right: '<path d="M9 5l7 7-7 7"/>',
   sliders: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
   pin: '<path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
-  trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'
+  trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  flag: '<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',
+  star: '<path d="M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8z"/>',
+  flame: '<path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/>',
+  heart: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  bolt: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>'
 };
 const icon = (name, size = 18) => `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
 
@@ -200,6 +211,7 @@ function sideMenu() {
   const nav = (screen, ic, label) => `<button class="nav" data-a="nav" data-v="${screen}" data-k="nav-${screen}" ${S.screen === screen ? 'aria-current="page"' : ''}>${icon(ic, 20)}${esc(label)}</button>`;
   return `<nav class="side" aria-label="${t('ዋና ማውጫ', 'Main')}">
 <div class="brand">${icon('logo', 26)}<span>ቃሉ</span></div>
+${nav('journey', 'flag', t('ጉዞ', 'Journey'))}
 ${nav('browse', 'grid', t('መጽሐፍ ቅዱስ', 'Bible'))}
 ${nav('study', 'book', t('ጥናት', 'Study'))}
 ${nav('map', 'pin', t('ካርታ', 'Map'))}
@@ -468,6 +480,144 @@ function notesView() {
   return `<div class="wrap narrow"><h1>${t('ማስታወሻዎች', 'Notes')}</h1><p class="muted">${t('በጥናት ጊዜ የያዟቸው ማስታወሻዎች ሁሉ በአንድ ቦታ።', 'Every note you take while studying, in one place.')}</p>${body}</div>`;
 }
 
+// ---------- journey: the story timeline as a game ----------
+// Each story is a lesson: read the passage, then answer questions made from its own verses.
+// Hearts left at the end become stars; finishing a story opens the next one.
+const ERA_COLORS = ['#58B368', '#4A9FE0', '#E0A23A', '#E0705A', '#A58BEA', '#3CB6B0', '#E487B6', '#8DBB52', '#E8935A'];
+const DX = [0, 46, 66, 46, 0, -46, -66, -46];
+const dayKey = (d = new Date()) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const streakNow = () => (S.game.last === dayKey() || S.game.last === dayKey(new Date(Date.now() - 864e5)) ? S.game.streak : 0);
+let storyList = null;
+const stories = () => storyList || (storyList = C.timeline.flatMap((g, e) => g.items.map((it) => Object.assign({ era: e }, it))));
+const shuffle = (list) => { const a = list.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const bare = (w) => w.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+const clip = (s, n = 110) => (s.length > n ? s.slice(0, s.lastIndexOf(' ', n) > 40 ? s.lastIndexOf(' ', n) : n) + '…' : s);
+const marks = (cls, name, got, of, size) => `<span class="${cls}" role="img" aria-label="${got} / ${of}">${Array.from({ length: of }, (_, i) => `<span class="${i < got ? 'on' : ''}">${icon(name, size)}</span>`).join('')}</span>`;
+
+// Returns { state, list: [{ n, text }] } with the story's verses in the first version.
+function storyVerses(p) {
+  const v = versions[S.primary];
+  if (v.dir && !v.books[p.b]) {
+    if (v.failed && v.failed[p.b] && !v.pending[p.b]) return { state: 'error', list: [] };
+    loadBook(S.primary, p.b);
+    return { state: 'loading', list: [] };
+  }
+  const all = (v.books[p.b] || [])[p.c - 1] || [];
+  const list = [];
+  for (let n = Math.max(1, p.f || 1); n <= (p.to ? Math.min(p.to, all.length) : all.length); n++) if (all[n - 1]) list.push({ n, text: all[n - 1] });
+  return { state: 'ok', list };
+}
+
+// Up to three "missing word" and two "which verse comes next" questions, all taken from the passage itself,
+// so every story has a quiz in whichever version is being read.
+function makeQuiz(list) {
+  const qs = [];
+  const words = [...new Set(list.flatMap((v) => v.text.split(/\s+/).map(bare)).filter((w) => w.length >= 3))];
+  for (const v of shuffle(list)) {
+    if (qs.length >= 3) break;
+    const parts = v.text.split(/\s+/);
+    const cands = parts.map((w, i) => [bare(w), i]).filter((c) => c[0].length >= 3).sort((a, b) => b[0].length - a[0].length).slice(0, 3);
+    if (parts.length < 5 || !cands.length) continue;
+    const [word, at] = cands[Math.floor(Math.random() * cands.length)];
+    const inVerse = new Set(parts.map(bare));
+    const wrong = shuffle(shuffle(words.filter((w) => !inVerse.has(w))).sort((a, b) => Math.abs(a.length - word.length) - Math.abs(b.length - word.length)).slice(0, 6)).slice(0, 3);
+    if (wrong.length < 3) continue;
+    qs.push({ kind: 'word', n: v.n, text: parts.map((w, i) => (i === at ? w.replace(word, '\u0000') : w)).join(' '), full: v.text, options: shuffle([word].concat(wrong)), answer: word });
+  }
+  if (list.length >= 4) {
+    for (const i of shuffle(list.map((_, k) => k).slice(0, -1)).slice(0, 2)) {
+      const next = list[i + 1];
+      const wrong = shuffle(list.filter((v, k) => k !== i && k !== i + 1 && v.text !== next.text)).slice(0, 2);
+      if (wrong.length < 2) continue;
+      qs.push({ kind: 'next', n: list[i].n, text: list[i].text, full: next.text, fullN: next.n, options: shuffle([next].concat(wrong)).map((v) => clip(v.text)), answer: clip(next.text) });
+    }
+  }
+  return shuffle(qs);
+}
+
+function finishStory() {
+  const p = S.play, g = S.game, first = !g.done[p.i];
+  p.stars = Math.max(1, p.hearts);
+  p.gained = p.right * 10 + (first ? 20 : 0);
+  g.xp += p.gained;
+  g.done[p.i] = Math.max(g.done[p.i] || 0, p.stars);
+  if (g.last !== dayKey()) { g.streak = streakNow() + 1; g.last = dayKey(); }
+  p.step = 'done';
+  save('game');
+}
+
+function lessonView() {
+  const p = S.play, st = stories()[p.i], era = C.timeline[st.era];
+  const lang = versions[S.primary].language;
+  const top = (fill, right) => `<div class="row lesson-top"><button class="btn" data-a="storyQuit" data-k="quit" aria-label="${t('ወደ ጉዞው ተመለስ', 'Back to the journey')}" title="${t('ወደ ጉዞው ተመለስ', 'Back to the journey')}">${icon('close')}</button><div class="bar" style="flex:1"><i style="width:${fill}%"></i></div>${right}</div>`;
+  let body;
+  if (p.step === 'read') {
+    const vs = storyVerses(st.p);
+    let text;
+    if (vs.state === 'loading') text = `<p class="muted prose" role="status">${t('ጽሑፉ እየተጫነ ነው…', 'Loading the text…')}</p>`;
+    else if (vs.state === 'error') text = `<p class="prose" role="alert">${t('ጽሑፉን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱና እንደገና ይሞክሩ።', 'The text could not be loaded. Check your connection and try again.')}</p><button class="btn" data-a="story" data-v="${p.i}" data-k="reload">${t('እንደገና ሞክር', 'Try again')}</button>`;
+    else if (!vs.list.length) text = `<p class="prose">${t('ለዚህ ክፍል በተመረጠው ትርጉም ጽሑፍ የለም።', 'The selected version has no text for this passage.')}</p>`;
+    else text = `<div class="verses story-text" lang="${lang}">${vs.list.map((v) => `<p><sup>${v.n} </sup>${esc(v.text)}</p>`).join('')}</div>`;
+    body = top(0, '') + `<div class="stack" style="gap:4px"><span class="pill" style="background:var(--era);color:#14161A">${esc(tp(era.n))} · ${p.i + 1} / ${stories().length}</span><h1>${esc(tp(st.n))}</h1><span class="muted small">${esc(passRef(st.p))}</span></div>
+<article class="card stack">${text}</article>
+${vs.state === 'ok' ? `<button class="btn fill go" data-a="storyQuiz" data-k="quiz">${vs.list.length ? t('ጥያቄዎቹን ጀምር', 'Start the quiz') : t('ቀጥል', 'Continue')}${icon('right')}</button>` : ''}`;
+  } else if (p.step === 'quiz') {
+    const q = p.qs[p.q], answered = p.picked != null, right = answered && q.options[p.picked] === q.answer;
+    const prompt = q.kind === 'word'
+      ? esc(q.text).replace('\u0000', '<span class="blank"></span>')
+      : esc(q.text);
+    const opts = q.options.map((o, i) => `<button class="opt${answered && o === q.answer ? ' right' : ''}${answered && i === p.picked && o !== q.answer ? ' wrong' : ''}" data-a="answer" data-v="${i}" data-k="opt-${p.q}-${i}" lang="${lang}" ${answered ? 'disabled' : ''}>${esc(o)}</button>`).join('');
+    body = top(Math.round(((p.q + (answered ? 1 : 0)) / p.qs.length) * 100), marks('hearts', 'heart', p.hearts, 3, 22)) +
+      `<div class="stack" style="gap:4px"><span class="muted small"><b>${t('ጥያቄ', 'Question')} ${p.q + 1} / ${p.qs.length}</b></span><h2>${q.kind === 'word' ? t('የጎደለው ቃል የትኛው ነው?', 'Which word is missing?') : t('ቀጥሎ የሚመጣው ቁጥር የትኛው ነው?', 'Which verse comes next?')}</h2></div>
+<div class="card"><p class="prose big" lang="${lang}"><sup class="muted">${q.n} </sup>${prompt}</p></div>
+<div class="stack">${opts}</div>
+${answered ? `<div class="verdict ${right ? 'good' : 'bad'} stack" role="status"><b>${right ? t('ትክክል!', 'Correct!') : t('ትክክል አይደለም', 'Not quite')}</b><span lang="${lang}"><sup>${q.fullN || q.n} </sup>${esc(q.full)}</span></div>
+<button class="btn fill go" data-a="storyNext" data-k="next-q">${t('ቀጥል', 'Continue')}${icon('right')}</button>` : ''}`;
+  } else if (p.step === 'fail') {
+    body = top(0, marks('hearts', 'heart', 0, 3, 22)) + `<div class="card stack trophy"><span class="hearts big-mark">${icon('heart', 56)}</span><h1>${t('ልቦች አልቀዋል', 'Out of hearts')}</h1><p class="muted prose">${t('ታሪኩን እንደገና ያንብቡና ደግመው ይሞክሩ።', 'Read the story again and have another go.')}</p>
+<button class="btn fill go" data-a="story" data-v="${p.i}" data-k="retry">${t('እንደገና ሞክር', 'Try again')}</button></div>`;
+  } else {
+    const more = p.i + 1 < stories().length;
+    const eraDone = era.items.length && stories().every((s, i) => s.era !== st.era || S.game.done[i]);
+    body = top(100, '') + `<div class="card stack trophy">${marks('stars big-mark', 'star', p.stars, 3, 48)}<h1>${t('ታሪኩን ጨርሰዋል!', 'Story complete!')}</h1><p class="muted">${esc(tp(st.n))}</p>
+${eraDone ? `<span class="pill" style="background:var(--era);color:#14161A">${icon('check', 14)} ${esc(tp(era.n))} · ${t('ዘመኑ ተጠናቋል', 'era complete')}</span>` : ''}
+<div class="row" style="justify-content:center"><span class="chip xp">${icon('bolt')}+${p.gained} ${t('ነጥብ', 'XP')}</span><span class="chip fire">${icon('flame')}${streakNow()} ${t('ተከታታይ ቀን', streakNow() === 1 ? 'day streak' : 'day streak')}</span></div>
+${more ? `<button class="btn fill go" data-a="story" data-v="${p.i + 1}" data-k="next-story">${t('ቀጣዩ ታሪክ', 'Next story')}${icon('right')}</button>` : ''}
+<button class="btn go" data-a="storyStudy" data-k="deeper">${icon('book')}${t('በጥልቀት አጥና', 'Study it in depth')}</button>
+<button class="btn go" data-a="storyQuit" data-k="back">${t('ወደ ጉዞው ተመለስ', 'Back to the journey')}</button></div>`;
+  }
+  return `<div class="wrap lesson" style="--era:${ERA_COLORS[st.era % ERA_COLORS.length]}">${body}</div>`;
+}
+
+function journeyView() {
+  if (S.play) return lessonView();
+  const all = stories(), g = S.game;
+  const got = all.filter((_, i) => g.done[i]).length;
+  const cur = all.findIndex((_, i) => !g.done[i]);
+  const stat = (cls, ic, value, label) => `<div class="stat ${cls}">${icon(ic, 24)}<div class="stack" style="gap:0"><b>${value}</b><span class="muted small">${label}</span></div></div>`;
+  let k = 0;
+  const eras = C.timeline.map((era, e) => {
+    const start = k;
+    const nodes = era.items.map((it, j) => {
+      const i = k++;
+      const state = g.done[i] ? 'done' : i === cur ? 'now' : 'locked';
+      return `<div class="node ${state}" style="--dx:${DX[j % DX.length]}px">
+<button class="orb" data-a="story" data-v="${i}" data-k="story-${i}" ${state === 'locked' ? 'disabled' : ''} aria-label="${esc(tp(it.n))}${state === 'locked' ? t(' (ተቆልፏል)', ' (locked)') : ''}">${icon(state === 'done' ? 'check' : state === 'now' ? 'play' : 'lock', 28)}</button>
+${state === 'done' ? marks('stars', 'star', g.done[i], 3, 16) : state === 'now' ? `<span class="pill start">${t('ጀምር', 'Start')}</span>` : ''}
+<b>${esc(tp(it.n))}</b><span class="muted small">${esc(tp(it.sub))}</span></div>`;
+    }).join('');
+    const n = era.items.filter((_, j) => g.done[start + j]).length;
+    return `<section class="era" style="--era:${ERA_COLORS[e % ERA_COLORS.length]}">
+<div class="era-head stack" style="gap:8px"><div class="row between"><b style="font-size:19px">${e + 1}. ${esc(tp(era.n))}</b><b class="small">${n === era.items.length ? icon('check', 14) + ' ' : ''}${n} / ${era.items.length}</b></div><div class="bar"><i style="width:${Math.round((n / era.items.length) * 100)}%"></i></div></div>
+<div class="path">${nodes}</div></section>`;
+  });
+  return `<div class="wrap" style="max-width:720px">
+<div class="stack"><h1>${t('የታሪክ ጉዞ', 'Story journey')}</h1><p class="muted">${t('ታሪኮቹን በቅደም ተከተል ያንብቡ፣ ጥያቄዎቹን ይመልሱ፣ ኮከቦችን ይሰብስቡ።', 'Read the stories in order, answer the questions, and collect stars.')}</p></div>
+<div class="stats">${stat('lvl', 'star', Math.floor(g.xp / 100) + 1, t('ደረጃ', 'Level'))}${stat('xp', 'bolt', g.xp, t('ነጥብ', 'XP'))}${stat('fire', 'flame', streakNow(), t('ተከታታይ ቀናት', 'Day streak'))}${stat('count', 'check', got + ' / ' + all.length, t('ታሪኮች', 'Stories'))}</div>
+${eras.join('')}
+</div>`;
+}
+
 function render() {
   if (!C) return;
   const active = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.k : null;
@@ -481,12 +631,19 @@ function render() {
   render.paneKey = paneKey;
   opens = [];
   root.dataset.theme = S.dark ? 'dark' : 'light';
+  root.dataset.play = S.screen === 'journey' && S.play ? '1' : ''; // small screens hide the menu during a lesson
   document.documentElement.lang = S.en ? 'en' : 'am';
   document.body.style.background = S.dark ? '#27292C' : '#F5F5F6';
-  const view = S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'map' ? mapView() : browseView();
+  const view = S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'map' ? mapView() : browseView();
   root.innerHTML = sideMenu() + '<main>' + view + '</main>';
   const newPanel = root.querySelector('.sidepanel');
   if (newPanel && panelTop) newPanel.scrollTop = panelTop;     // keep the side panel where the reader left it
+  if (S.jump && S.screen === 'journey' && !S.play) {
+    // On arriving at the journey, bring the next story to play into view.
+    const now = root.querySelector('.node.now');
+    if (now && S.game.done[0]) now.scrollIntoView({ block: 'center' });
+    S.jump = false;
+  }
   const slot = root.querySelector('#mapslot');
   if (slot) {
     const el = ensureMap();
@@ -553,7 +710,43 @@ async function startRecording() {
 }
 
 const actions = {
-  nav(v) { S.screen = v; save('screen'); },
+  nav(v) { S.screen = v; S.play = null; S.jump = true; save('screen'); },
+  story(v) {
+    const i = +v;
+    if (i > 0 && !S.game.done[i - 1]) return false;
+    Object.values(versions).forEach((ver) => { ver.failed = {}; });
+    S.play = { i, step: 'read', qs: [], q: 0, hearts: 3, right: 0, picked: null };
+    window.scrollTo(0, 0);
+  },
+  storyQuit() { S.play = null; S.jump = true; },
+  storyQuiz() {
+    const vs = storyVerses(stories()[S.play.i].p);
+    if (vs.state !== 'ok') return false;
+    S.play.qs = makeQuiz(vs.list);
+    if (S.play.qs.length) S.play.step = 'quiz'; else finishStory();
+    window.scrollTo(0, 0);
+  },
+  answer(v) {
+    const p = S.play, q = p.qs[p.q];
+    if (p.picked != null) return false;
+    p.picked = +v;
+    if (q.options[p.picked] === q.answer) p.right++; else p.hearts--;
+  },
+  storyNext() {
+    const p = S.play;
+    p.picked = null;
+    if (p.hearts <= 0) p.step = 'fail';
+    else if (p.q + 1 < p.qs.length) p.q++;
+    else finishStory();
+    window.scrollTo(0, 0);
+  },
+  storyStudy() {
+    const st = stories()[S.play.i];
+    S.pass = { b: st.p.b, c: st.p.c, f: st.p.f, to: st.p.to, title: st.n, pl: st.pl };
+    S.play = null; S.sel = null; S.more = 8; S.screen = 'study';
+    save('pass', 'screen');
+    window.scrollTo(0, 0);
+  },
   lang() { S.en = !S.en; save('en'); },
   theme() { S.dark = !S.dark; save('dark'); },
   browse(v) { S.browse = v; save('browse'); },

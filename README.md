@@ -4,6 +4,7 @@ A personal Bible study web app with an Amharic interface (English toggle), built
 
 ## What it does
 
+- **Story journey:** the 135 timeline stories as a game. Read a story, answer up to five questions made from its own verses (a missing word, or which verse comes next), and earn stars, XP and a daily streak; each finished story opens the next. Progress is kept in the browser.
 - **Browse three ways:** a timeline of 135 stories in nine eras, the books in chronological order, or the traditional order of the 66 books.
 - **Study screen:** pick any book, chapter and verse range; click a verse to highlight it or attach a note.
 - **Bible map:** an interactive map (drag and zoom) with a pin for each place in the story timeline; choosing a pin lists the stories set there. It uses [Leaflet](https://leafletjs.com/) (BSD 2-Clause, in `vendor/leaflet/`) with map tiles from [OpenStreetMap](https://www.openstreetmap.org/copyright), so it shows the present-day world and needs a connection; without one, the pins sit on a plain land outline built from [Natural Earth](https://www.naturalearthdata.com/) data (public domain, `tools/build_land.py`). Pin positions are approximate, and several are traditional sites.
