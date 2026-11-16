@@ -4119,7 +4119,8 @@
     "Jerusalem"
    ],
    "lat": 31.778,
-   "lon": 35.235
+   "lon": 35.235,
+   "ic": "🕍"
   },
   {
    "id": "bethlehem",
@@ -4128,7 +4129,8 @@
     "Bethlehem"
    ],
    "lat": 31.705,
-   "lon": 35.203
+   "lon": 35.203,
+   "ic": "⭐"
   },
   {
    "id": "jericho",
@@ -4137,7 +4139,8 @@
     "Jericho"
    ],
    "lat": 31.871,
-   "lon": 35.444
+   "lon": 35.444,
+   "ic": "🎺"
   },
   {
    "id": "jerichoroad",
@@ -4150,7 +4153,8 @@
    "note": [
     "ምሳሌው የተቀመጠበት መንገድ።",
     "The road on which the parable is set."
-   ]
+   ],
+   "ic": "🤝"
   },
   {
    "id": "elah",
@@ -4159,7 +4163,8 @@
     "Valley of Elah"
    ],
    "lat": 31.69,
-   "lon": 34.96
+   "lon": 34.96,
+   "ic": "🪨"
   },
   {
    "id": "beersheba",
@@ -4168,7 +4173,8 @@
     "Beersheba"
    ],
    "lat": 31.245,
-   "lon": 34.79
+   "lon": 34.79,
+   "ic": "🐑"
   },
   {
    "id": "beatitudes",
@@ -4181,7 +4187,8 @@
    "note": [
     "በትውፊት የሚታወቀው ስፍራ።",
     "The traditional site."
-   ]
+   ],
+   "ic": "⛰️"
   },
   {
    "id": "damascus",
@@ -4190,7 +4197,8 @@
     "Damascus"
    ],
    "lat": 33.513,
-   "lon": 36.292
+   "lon": 36.292,
+   "ic": "✨"
   },
   {
    "id": "haran",
@@ -4199,7 +4207,8 @@
     "Haran"
    ],
    "lat": 36.865,
-   "lon": 39.03
+   "lon": 39.03,
+   "ic": "🐪"
   },
   {
    "id": "babylon",
@@ -4208,7 +4217,8 @@
     "Babylon"
    ],
    "lat": 32.54,
-   "lon": 44.42
+   "lon": 44.42,
+   "ic": "🦁"
   },
   {
    "id": "susa",
@@ -4217,7 +4227,8 @@
     "Susa"
    ],
    "lat": 32.19,
-   "lon": 48.26
+   "lon": 48.26,
+   "ic": "👑"
   },
   {
    "id": "ararat",
@@ -4230,7 +4241,8 @@
    "note": [
     "በትውፊት የሚታወቀው ስፍራ።",
     "The traditional location."
-   ]
+   ],
+   "ic": "🌈"
   },
   {
    "id": "egypt",
@@ -4243,7 +4255,8 @@
    "note": [
     "ግምታዊ ምልክት፤ በአባይ ወንዝ ዳር።",
     "An approximate pin, on the Nile."
-   ]
+   ],
+   "ic": "🌾"
   },
   {
    "id": "goshen",
@@ -4252,7 +4265,8 @@
     "Goshen (Egypt)"
    ],
    "lat": 30.8,
-   "lon": 31.8
+   "lon": 31.8,
+   "ic": "🚪"
   },
   {
    "id": "redsea",
@@ -4265,7 +4279,8 @@
    "note": [
     "የተሻገሩበት ትክክለኛ ስፍራ አይታወቅም፤ ይህ ግምታዊ ምልክት ነው።",
     "The exact place of the crossing is not known; this pin is approximate."
-   ]
+   ],
+   "ic": "🌊"
   },
   {
    "id": "sinai",
@@ -4278,7 +4293,8 @@
    "note": [
     "በትውፊት የሚታወቀው ስፍራ።",
     "The traditional location."
-   ]
+   ],
+   "ic": "🔥"
   },
   {
    "id": "antioch",
@@ -4287,7 +4303,8 @@
     "Antioch"
    ],
    "lat": 36.2,
-   "lon": 36.16
+   "lon": 36.16,
+   "ic": "🧭"
   },
   {
    "id": "rome",
@@ -4296,7 +4313,8 @@
     "Rome"
    ],
    "lat": 41.9,
-   "lon": 12.5
+   "lon": 12.5,
+   "ic": "🏟️"
   },
   {
    "id": "hebron",
@@ -4305,7 +4323,8 @@
     "Hebron (Mamre)"
    ],
    "lat": 31.53,
-   "lon": 35.1
+   "lon": 35.1,
+   "ic": "⛺"
   },
   {
    "id": "sodom",
@@ -4318,7 +4337,8 @@
    "note": [
     "ትክክለኛው ስፍራ አይታወቅም፤ በሙት ባሕር ደቡብ እንደ ነበሩ ይገመታል።",
     "The exact site is not known; they are thought to have stood near the south of the Dead Sea."
-   ]
+   ],
+   "ic": "🌋"
   },
   {
    "id": "bethel",
@@ -4327,7 +4347,8 @@
     "Bethel"
    ],
    "lat": 31.93,
-   "lon": 35.22
+   "lon": 35.22,
+   "ic": "🪜"
   },
   {
    "id": "peniel",
@@ -4340,7 +4361,8 @@
    "note": [
     "ግምታዊ ምልክት።",
     "An approximate pin."
-   ]
+   ],
+   "ic": "🤼"
   },
   {
    "id": "dothan",
@@ -4349,7 +4371,8 @@
     "Dothan"
    ],
    "lat": 32.41,
-   "lon": 35.24
+   "lon": 35.24,
+   "ic": "🧥"
   },
   {
    "id": "kadesh",
@@ -4358,7 +4381,8 @@
     "Kadesh Barnea"
    ],
    "lat": 30.69,
-   "lon": 34.49
+   "lon": 34.49,
+   "ic": "🍇"
   },
   {
    "id": "nebo",
@@ -4367,7 +4391,8 @@
     "Mount Nebo"
    ],
    "lat": 31.77,
-   "lon": 35.725
+   "lon": 35.725,
+   "ic": "🏔️"
   },
   {
    "id": "jordan",
@@ -4380,7 +4405,8 @@
    "note": [
     "ከኢያሪኮ አጠገብ ያለው መሻገሪያ፤ በትውፊት የጥምቀት ስፍራ።",
     "The crossing near Jericho, the traditional site of the baptism."
-   ]
+   ],
+   "ic": "🕊️"
   },
   {
    "id": "gibeon",
@@ -4389,7 +4415,8 @@
     "Gibeon"
    ],
    "lat": 31.85,
-   "lon": 35.18
+   "lon": 35.18,
+   "ic": "☀️"
   },
   {
    "id": "shechem",
@@ -4398,7 +4425,8 @@
     "Shechem (Sychar)"
    ],
    "lat": 32.21,
-   "lon": 35.28
+   "lon": 35.28,
+   "ic": "⛲"
   },
   {
    "id": "tabor",
@@ -4407,7 +4435,8 @@
     "Mount Tabor"
    ],
    "lat": 32.687,
-   "lon": 35.39
+   "lon": 35.39,
+   "ic": "🌟"
   },
   {
    "id": "gaza",
@@ -4416,7 +4445,8 @@
     "Gaza"
    ],
    "lat": 31.5,
-   "lon": 34.47
+   "lon": 34.47,
+   "ic": "💪"
   },
   {
    "id": "shiloh",
@@ -4425,7 +4455,8 @@
     "Shiloh"
    ],
    "lat": 32.056,
-   "lon": 35.29
+   "lon": 35.29,
+   "ic": "🙏"
   },
   {
    "id": "engedi",
@@ -4434,7 +4465,8 @@
     "En Gedi"
    ],
    "lat": 31.46,
-   "lon": 35.39
+   "lon": 35.39,
+   "ic": "🗡️"
   },
   {
    "id": "carmel",
@@ -4443,7 +4475,8 @@
     "Mount Carmel"
    ],
    "lat": 32.73,
-   "lon": 35.05
+   "lon": 35.05,
+   "ic": "⚡"
   },
   {
    "id": "nineveh",
@@ -4452,7 +4485,8 @@
     "Nineveh"
    ],
    "lat": 36.36,
-   "lon": 43.15
+   "lon": 43.15,
+   "ic": "🐋"
   },
   {
    "id": "nazareth",
@@ -4461,7 +4495,8 @@
     "Nazareth"
    ],
    "lat": 32.7,
-   "lon": 35.3
+   "lon": 35.3,
+   "ic": "👼"
   },
   {
    "id": "cana",
@@ -4474,7 +4509,8 @@
    "note": [
     "በትውፊት የሚታወቀው ስፍራ።",
     "The traditional site."
-   ]
+   ],
+   "ic": "🍷"
   },
   {
    "id": "capernaum",
@@ -4483,7 +4519,8 @@
     "Capernaum"
    ],
    "lat": 32.88,
-   "lon": 35.575
+   "lon": 35.575,
+   "ic": "🛏️"
   },
   {
    "id": "galilee",
@@ -4492,7 +4529,8 @@
     "The Sea of Galilee"
    ],
    "lat": 32.8,
-   "lon": 35.59
+   "lon": 35.59,
+   "ic": "🐟"
   },
   {
    "id": "caesareaphilippi",
@@ -4501,7 +4539,8 @@
     "Caesarea Philippi"
    ],
    "lat": 33.25,
-   "lon": 35.69
+   "lon": 35.69,
+   "ic": "🔑"
   },
   {
    "id": "bethany",
@@ -4510,7 +4549,8 @@
     "Bethany"
    ],
    "lat": 31.77,
-   "lon": 35.26
+   "lon": 35.26,
+   "ic": "🪦"
   },
   {
    "id": "wilderness",
@@ -4523,7 +4563,8 @@
    "note": [
     "ግምታዊ ምልክት።",
     "An approximate pin."
-   ]
+   ],
+   "ic": "🏜️"
   },
   {
    "id": "emmaus",
@@ -4536,7 +4577,8 @@
    "note": [
     "ትክክለኛው ስፍራ አከራካሪ ነው፤ ይህ ከተለመዱት ግምቶች አንዱ ነው።",
     "The site is disputed; this is one of the usual candidates."
-   ]
+   ],
+   "ic": "🍞"
   },
   {
    "id": "gazaroad",
@@ -4549,7 +4591,8 @@
    "note": [
     "ግምታዊ ምልክት፤ ከኢየሩሳሌም ወደ ጋዛ በሚወርደው መንገድ ላይ።",
     "An approximate pin on the road down from Jerusalem to Gaza."
-   ]
+   ],
+   "ic": "📜"
   },
   {
    "id": "caesarea",
@@ -4558,7 +4601,8 @@
     "Caesarea"
    ],
    "lat": 32.5,
-   "lon": 34.89
+   "lon": 34.89,
+   "ic": "🛡️"
   },
   {
    "id": "philippi",
@@ -4567,7 +4611,8 @@
     "Philippi"
    ],
    "lat": 41.01,
-   "lon": 24.29
+   "lon": 24.29,
+   "ic": "⛓️"
   },
   {
    "id": "athens",
@@ -4576,7 +4621,8 @@
     "Athens"
    ],
    "lat": 37.97,
-   "lon": 23.73
+   "lon": 23.73,
+   "ic": "🏛️"
   },
   {
    "id": "ephesus",
@@ -4585,7 +4631,8 @@
     "Ephesus"
    ],
    "lat": 37.94,
-   "lon": 27.34
+   "lon": 27.34,
+   "ic": "🎭"
   },
   {
    "id": "malta",
@@ -4594,7 +4641,8 @@
     "Malta"
    ],
    "lat": 35.9,
-   "lon": 14.4
+   "lon": 14.4,
+   "ic": "🚢"
   },
   {
    "id": "patmos",
@@ -4603,7 +4651,8 @@
     "Patmos"
    ],
    "lat": 37.31,
-   "lon": 26.55
+   "lon": 26.55,
+   "ic": "📖"
   }
  ],
  "links": [

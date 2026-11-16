@@ -79,13 +79,27 @@ h2 { font-size: 18px; font-weight: 700; }
 .maps { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 @media (max-width: 900px) { .maps { grid-template-columns: minmax(0, 1fr); } }
 #mapslot { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--ctl); position: relative; z-index: 0; isolation: isolate; }
-.lmap { height: min(72vh, 660px); min-height: 360px; background: #B5CCDA; }
-.lpin { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
-.lpin span { width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF; color: #1F2023; border: 2px solid #1F2023; font: 700 13px -apple-system, system-ui, sans-serif; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(0, 0, 0, .4); }
-.lpin.on span { background: #1F2023; color: #FFFFFF; border-color: #FFFFFF; width: 32px; height: 32px; }
-.lpin.static { width: auto; height: auto; }
+.lmap { height: min(72vh, 660px); min-height: 360px; background: var(--ctl); font-family: inherit; }
+/* Illustrated map: a picture sticker for each story place, with its name once the map is close enough. */
+.spot { position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+.spot .em { width: 38px; height: 38px; border-radius: 50%; background: #FFFDF6; border: 2px solid #8A5A2B; box-shadow: 0 3px 0 rgba(90, 55, 20, .45); font-size: 21px; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", sans-serif; }
+.spot b { display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); white-space: nowrap; font: 700 12px/1.3 -apple-system, "Kefa", "Noto Sans Ethiopic", system-ui, sans-serif; color: #4A2F14; background: rgba(255, 253, 246, .92); border-radius: 6px; padding: 1px 6px; }
+.spot.on .em { width: 48px; height: 48px; font-size: 27px; border: 3px solid #D2553B; box-shadow: 0 3px 0 rgba(90, 55, 20, .45), 0 0 0 4px rgba(210, 85, 59, .3); }
+.spot.on b, .lmap[data-zoom="near"] .spot b { display: block; }
+.spot.on b { top: calc(100% + 4px); background: #D2553B; color: #FFFFFF; }
+.lmap[data-zoom="far"] .spot:not(.on) .em { width: 26px; height: 26px; font-size: 14px; border-width: 1.5px; }
+.lmap[data-zoom="mid"] .spot:not(.on) .em { width: 32px; height: 32px; font-size: 18px; }
+.spot.static { flex: 0 0 auto; }
+.art, .maplabel { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none; }
+.art { font-size: 24px; line-height: 1; opacity: .95; font-family: "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", sans-serif; }
+.lmap[data-zoom="far"] .art { font-size: 19px; }
+.maplabel { font-family: "Chalkboard SE", "Marker Felt", "Comic Sans MS", "Kefa", "Noto Sans Ethiopic", system-ui, sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; }
+.maplabel.land { font-size: 17px; color: #8A5A2B; text-shadow: 0 1px 0 #FFF6DD, 0 0 6px #F5E3B8; }
+.maplabel.small { font-size: 12px; color: #8A5A2B; letter-spacing: .06em; text-shadow: 0 1px 0 #FFF6DD; }
+.maplabel.sea { font-size: 14px; color: #FFFFFF; font-style: italic; text-shadow: 0 1px 2px #3F93B5; }
+.lmap[data-zoom="far"] .maplabel.small { display: none; }
+.lmap[data-tiles="1"] .spot b { color: #1F2023; }
 .placelist { max-height: 300px; overflow-y: auto; scrollbar-width: thin; }
-.place b { font-size: 13px; opacity: .8; }
 a.tile { color: var(--text); text-decoration: none; }
 
 /* Study */

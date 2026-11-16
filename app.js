@@ -51,6 +51,7 @@ const S = {
   picker: false,
   intro: false,
   place: 0,
+  tiles: ls.get('tiles', false), // show the present-day map tiles in place of the illustrated map
   recording: false,
   msg: '',
   game: ls.get('game', { xp: 0, streak: 0, last: '', done: {} }), // done: story number -> stars earned (1 to 3)
@@ -59,7 +60,7 @@ const S = {
 };
 let C = null; // stories, book names and study content
 // The interactive map is created once and moved into place on each render, so it keeps its zoom.
-let lmap = null, lmarkers = [], mapEl = null;
+let lmap = null, lmarkers = [], mapEl = null, ltiles = null, lart = null;
 const versions = {
   amulb: { id: 'amulb', name: 'አማርኛ ULB (Unlocked Literal Bible)', language: 'am', dir: 'data/amulb', books: {},
     credit: 'Amharic Unlocked Literal Bible. Original work available at https://door43.org/. Licensed CC BY-SA 4.0.' },
@@ -417,13 +418,45 @@ ${credits ? `<p class="muted small" lang="en">${esc(credits)}</p>` : ''}
 }
 
 function pinIcon(i) {
-  return L.divIcon({ className: '', html: `<span class="lpin${S.place === i ? ' on' : ''}"><span>${i + 1}</span></span>`, iconSize: [44, 44], iconAnchor: [22, 22] });
+  const pl = C.places[i];
+  return L.divIcon({ className: '', html: `<span class="spot${S.place === i ? ' on' : ''}"><span class="em">${pl.ic || '📍'}</span><b>${esc(tp(pl.n))}</b></span>`, iconSize: [44, 44], iconAnchor: [22, 22] });
 }
 
 const MAP_VIEWS = {
   all: () => C.places.map((p) => [p.lat, p.lon]),
+  lands: () => [[24, 28], [40, 49]],
   land: () => [[30.9, 34.2], [33.6, 36.4]],
   city: () => [[31.6, 34.9], [31.95, 35.6]]
+};
+
+// The illustrated map: names, rivers, lakes and small pictures drawn over the land outline.
+// Everything here is approximate and for orientation only; country names are present-day.
+const MAP_ART = {
+  labels: [
+    [38.9, 33.5, ['ቱርክ', 'Turkey'], 'land'], [35.1, 38.6, ['ሶርያ', 'Syria'], 'land'], [33.4, 42.2, ['ኢራቅ', 'Iraq'], 'land'],
+    [33.2, 52, ['ኢራን', 'Iran'], 'land'], [26.2, 42.5, ['ሳዑዲ ዓረቢያ', 'Saudi Arabia'], 'land'], [30.6, 37.2, ['ዮርዳኖስ', 'Jordan'], 'land'],
+    [30.3, 34.85, ['እስራኤል', 'Israel'], 'land'], [26.6, 29.2, ['ግብፅ', 'Egypt'], 'land'], [34.1, 36.1, ['ሊባኖስ', 'Lebanon'], 'small'],
+    [39.4, 22, ['ግሪክ', 'Greece'], 'land'], [43, 12.6, ['ጣሊያን', 'Italy'], 'land'], [35, 33.2, ['ቆጵሮስ', 'Cyprus'], 'small'],
+    [33.9, 25.5, ['ሜዲትራኒያን ባሕር', 'Mediterranean Sea'], 'sea'], [23.2, 36.6, ['ቀይ ባሕር', 'Red Sea'], 'sea'], [43.3, 34.5, ['ጥቁር ባሕር', 'Black Sea'], 'sea'],
+    [27.2, 51.2, ['የፋርስ ባሕረ ሰላጤ', 'Persian Gulf'], 'sea'], [41.5, 50.8, ['ካስፒያን ባሕር', 'Caspian Sea'], 'sea'],
+    [27.6, 31.9, ['ናይል', 'Nile'], 'small'], [35.2, 40.9, ['ኤፍራጥስ', 'Euphrates'], 'small'], [35.2, 44.4, ['ጤግሮስ', 'Tigris'], 'small']
+  ],
+  decor: [
+    [27.6, 38.6, '🐫'], [30.4, 40.2, '🐪'], [25.4, 28.2, '🐫'], [24.4, 32.4, '🌴'], [23.8, 43.8, '🌴'], [30.6, 46.6, '🌴'], [28.4, 35.4, '🌴'],
+    [34.4, 37.6, '🐑'], [31.4, 38.4, '🐑'], [36.4, 41.4, '🐐'], [34.6, 30.2, '⛵'], [36.6, 18.4, '⛵'], [35.2, 22.6, '🐬'], [32.6, 28.6, '🐟'],
+    [34.5, 36.4, '🌲'], [40.2, 31.2, '🌲'], [40.4, 37.2, '🌲'], [37.8, 35.2, '⛰️'], [37.6, 46.2, '⛰️'], [34.2, 48.6, '🐐'], [26.4, 50.6, '🐠'], [28.9, 30.2, '🏜️']
+  ],
+  rivers: [
+    [[22, 31.4], [24.09, 32.9], [25.69, 32.64], [26.16, 32.72], [27.18, 31.18], [28.1, 30.75], [30.04, 31.24], [31.42, 31.81]],
+    [[30.04, 31.24], [31.4, 30.42]],
+    [[33.25, 35.62], [32.9, 35.6], [32.72, 35.58], [32.2, 35.56], [31.76, 35.55]],
+    [[37.9, 38.6], [37, 38], [35.95, 39], [35.33, 40.14], [34.45, 40.92], [34.13, 42.38], [33.43, 43.3], [32.48, 44.43], [31.05, 46.26], [31, 47.43], [29.95, 48.5]],
+    [[37.9, 40.2], [37.33, 42.19], [36.34, 43.13], [34.6, 43.68], [33.31, 44.36], [32.5, 45.82], [31.84, 47.15], [31, 47.43]]
+  ],
+  lakes: [
+    [[32.9, 35.6], [32.87, 35.65], [32.78, 35.65], [32.71, 35.6], [32.72, 35.56], [32.8, 35.53], [32.87, 35.54]],
+    [[31.76, 35.5], [31.76, 35.58], [31.4, 35.57], [31.08, 35.5], [31.08, 35.4], [31.4, 35.4]]
+  ]
 };
 
 function ensureMap() {
@@ -431,22 +464,40 @@ function ensureMap() {
   if (!mapEl) {
     mapEl = document.createElement('div');
     mapEl.className = 'lmap';
-    lmap = L.map(mapEl, { minZoom: 4, maxZoom: 14 });
-    // A plain land outline under the map tiles, so the pins still sit on a map when the tiles cannot load.
+    const sheet = [[20.0, 5.0], [48.0, 56.0]]; // the edges of the land outline in data/land.json: the map is drawn as a sheet this size
+    lmap = L.map(mapEl, { minZoom: 4, maxZoom: 14, maxBounds: L.latLngBounds(sheet).pad(0.15), maxBoundsViscosity: 0.8 });
+    // The land outline, rivers and lakes sit under everything else, so they are also what shows without a connection.
     lmap.createPane('base').style.zIndex = 100;
+    L.rectangle(sheet, { pane: 'base', interactive: false, color: '#8A5A2B', weight: 5, fillColor: '#9ED7EA', fillOpacity: 1 }).addTo(lmap);
+    const water = { pane: 'base', interactive: false, color: '#6FBFDD', weight: 3, lineCap: 'round', lineJoin: 'round' };
     fetch('data/land.json').then((r) => (r.ok ? r.json() : null)).then((g) => {
-      if (g) L.geoJSON(g, { pane: 'base', interactive: false, style: { color: '#8C9199', weight: 1, fillColor: '#D9D6C3', fillOpacity: 1 } }).addTo(lmap);
+      if (!g) return;
+      L.geoJSON(g, { pane: 'base', interactive: false, style: { color: '#C29A5B', weight: 1.5, fillColor: '#F5E3B8', fillOpacity: 1 } }).addTo(lmap);
+      L.rectangle(sheet, { pane: 'base', interactive: false, color: '#8A5A2B', weight: 5, fill: false }).addTo(lmap);
+      MAP_ART.rivers.forEach((line) => L.polyline(line, water).addTo(lmap));
+      MAP_ART.lakes.forEach((ring) => L.polygon(ring, Object.assign({}, water, { weight: 1.5, fillColor: '#A6DBEC', fillOpacity: 1 })).addTo(lmap));
     }).catch(() => {});
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    ltiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
-    }).addTo(lmap);
+    });
+    lart = L.layerGroup();
+    const sticker = (lat, lon, html) => L.marker([lat, lon], { interactive: false, keyboard: false, zIndexOffset: -1000, icon: L.divIcon({ className: '', html, iconSize: [0, 0] }) }).addTo(lart);
+    MAP_ART.decor.forEach((d) => sticker(d[0], d[1], `<span class="art">${d[2]}</span>`));
+    MAP_ART.labels.forEach((l, i) => sticker(l[0], l[1], `<span class="maplabel ${l[3]}" data-label="${i}"></span>`));
     C.places.forEach((pl, i) => {
       const marker = L.marker([pl.lat, pl.lon], { icon: pinIcon(i), keyboard: true, alt: pl.n[1] }).addTo(lmap);
       marker.on('click', () => { S.place = i; render(); });
       lmarkers.push(marker);
     });
-    lmap.fitBounds(MAP_VIEWS.all(), { padding: [30, 30] });
+    // Place names show once the map is close enough for them not to pile up.
+    const zoomed = () => { mapEl.dataset.zoom = lmap.getZoom() >= 9 ? 'near' : lmap.getZoom() >= 7 ? 'mid' : 'far'; };
+    lmap.on('zoomend', zoomed);
+    lmap.fitBounds(MAP_VIEWS.lands());
+    zoomed();
   }
+  if (S.tiles) { ltiles.addTo(lmap); lart.remove(); } else { ltiles.remove(); lart.addTo(lmap); }
+  mapEl.dataset.tiles = S.tiles ? '1' : '';
+  mapEl.querySelectorAll('[data-label]').forEach((el) => { el.textContent = tp(MAP_ART.labels[+el.dataset.label][2]); });
   return mapEl;
 }
 
@@ -454,20 +505,22 @@ function mapView() {
   const pl = C.places[S.place];
   const here = [];
   C.timeline.forEach((g) => g.items.forEach((it) => { if (it.pl === pl.id) here.push(it); }));
-  const chosen = `<div class="card stack"><div class="row"><span class="lpin on static" aria-hidden="true"><span>${S.place + 1}</span></span><b style="font-size:20px">${esc(tp(pl.n))}</b></div>
+  const chosen = `<div class="card stack"><div class="row"><span class="spot on static" aria-hidden="true"><span class="em">${pl.ic || '📍'}</span></span><b style="font-size:20px">${esc(tp(pl.n))}</b></div>
 ${pl.note ? `<p class="muted prose">${esc(tp(pl.note))}</p>` : ''}
 <div class="grid">${here.map((it) => tile(tp(it.n), tp(it.sub), { b: it.p.b, c: it.p.c, f: it.p.f, to: it.p.to, title: it.n, pl: it.pl })).join('')}</div></div>`;
-  const list = C.places.map((p, i) => `<button class="btn place" data-a="place" data-v="${i}" data-k="place-${i}" aria-pressed="${S.place === i}"><b>${i + 1}</b>${esc(tp(p.n))}</button>`).join('');
+  const list = C.places.map((p, i) => `<button class="btn place" data-a="place" data-v="${i}" data-k="place-${i}" aria-pressed="${S.place === i}"><span aria-hidden="true">${p.ic || '📍'}</span>${esc(tp(p.n))}</button>`).join('');
   const links = C.links.map((l, i) => `<a class="tile" href="${esc(l.url)}" target="_blank" rel="noopener" data-k="link-${i}"><b>${esc(tp(l.n))}</b><span class="muted small">${esc(tp(l.d))}</span></a>`).join('');
   return `<div class="wrap">
-<div class="stack"><h1>${t('የመጽሐፍ ቅዱስ ካርታ', 'Bible map')}</h1><p class="muted">${t('ታሪኮቹ የተፈጸሙባቸው ስፍራዎች። ካርታውን ይጎትቱ፣ ያጉሉ፤ ምልክት ይንኩ፤ ከዚያ ታሪኩን ይክፈቱ።', 'Where the stories took place. Drag and zoom the map, choose a pin, then open its story.')}</p></div>
+<div class="stack"><h1>${t('የመጽሐፍ ቅዱስ ታሪክ ካርታ', 'Bible story map')}</h1><p class="muted">${t('ታሪኮቹ የተፈጸሙባቸው ስፍራዎች። ካርታውን ይጎትቱ፣ ያጉሉ፤ ሥዕል ይንኩ፤ ከዚያ ታሪኩን ይክፈቱ።', 'Where the stories took place. Drag and zoom the map, choose a picture, then open its story.')}</p></div>
 <div class="row" role="group" aria-label="${t('የካርታ እይታ', 'Map view')}">
+<button class="btn" data-a="mapView" data-v="lands" data-k="mv-lands">${t('የመጽሐፍ ቅዱስ አገሮች', 'Bible lands')}</button>
 <button class="btn" data-a="mapView" data-v="all" data-k="mv-all">${t('ሁሉም ስፍራዎች', 'All places')}</button>
 <button class="btn" data-a="mapView" data-v="land" data-k="mv-land">${t('ቅድስት አገር', 'The Holy Land')}</button>
-<button class="btn" data-a="mapView" data-v="city" data-k="mv-city">${t('ኢየሩሳሌምና አካባቢዋ', 'Around Jerusalem')}</button></div>
+<button class="btn" data-a="mapView" data-v="city" data-k="mv-city">${t('ኢየሩሳሌምና አካባቢዋ', 'Around Jerusalem')}</button>
+<button class="btn" data-a="tiles" data-k="tiles" aria-pressed="${S.tiles}">${icon('globe')}${t('የዛሬ ካርታ', 'Present-day map')}</button></div>
 <div class="maps"><div id="mapslot"><p class="muted prose" style="padding:16px">${t('ካርታውን መጫን አልተቻለም።', 'The map could not be loaded.')}</p></div>
 <div class="stack mapside">${chosen}<div class="row placelist">${list}</div></div></div>
-<p class="muted small">${t('ካርታው የዛሬውን ዓለም ያሳያል (OpenStreetMap)፤ ለመታየት የኢንተርኔት ግንኙነት ያስፈልገዋል። የምልክቶቹ ስፍራ ግምታዊ ነው፤ አንዳንዶቹም በትውፊት የሚታወቁ ናቸው። ስፍራቸው የማይታወቅ ወይም ምሳሌ የሆኑ ታሪኮች ምልክት የላቸውም።', 'The map shows the present-day world (OpenStreetMap) and needs an internet connection to display. Pin positions are approximate and some are traditional sites. Stories whose location is unknown, and parables, have no pin.')}</p>
+<p class="muted small">${t('የሥዕሎቹ ስፍራ ግምታዊ ነው፤ አንዳንዶቹም በትውፊት የሚታወቁ ናቸው። የአገሮቹ ስሞች የዛሬዎቹ ናቸው። ስፍራቸው የማይታወቅ ወይም ምሳሌ የሆኑ ታሪኮች ሥዕል የላቸውም። “የዛሬ ካርታ” የኢንተርኔት ግንኙነት ያስፈልገዋል (OpenStreetMap)።', 'Picture positions are approximate and some are traditional sites; country names are present-day. Stories whose location is unknown, and parables, have no picture. “Present-day map” needs an internet connection (OpenStreetMap).')}</p>
 <h2>${t('ጠቃሚ ማስፈንጠሪያዎች', 'Helpful links')}</h2>
 <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">${links}</div>
 </div>`;
@@ -650,7 +703,7 @@ function render() {
     if (el) {
       slot.replaceChildren(el);
       lmap.invalidateSize();
-      lmarkers.forEach((m, i) => { m.setIcon(pinIcon(i)); m.unbindTooltip(); m.bindTooltip(tp(C.places[i].n)); });
+      lmarkers.forEach((m, i) => { m.setIcon(pinIcon(i)); m.setZIndexOffset(S.place === i ? 1000 : 0); m.unbindTooltip(); m.bindTooltip(tp(C.places[i].n)); });
     }
   }
   root.querySelectorAll('.pane').forEach((pane, i) => {
@@ -757,6 +810,7 @@ const actions = {
   tab(v) { S.tab = v; },
   place(v) { S.place = +v; const p = C.places[S.place]; if (lmap) lmap.setView([p.lat, p.lon], Math.max(lmap.getZoom(), 9)); },
   mapView(v) { if (lmap) lmap.fitBounds(MAP_VIEWS[v](), { padding: [30, 30] }); return false; },
+  tiles() { S.tiles = !S.tiles; save('tiles'); },
   showPlace() { const i = C.places.findIndex((p) => p.id === S.pass.pl); if (i < 0) return false; S.place = i; S.screen = 'map'; save('screen'); setTimeout(() => { if (lmap) lmap.setView([C.places[i].lat, C.places[i].lon], 10); }, 0); },
   picker() { S.picker = !S.picker; },
   intro() { S.intro = !S.intro; },
