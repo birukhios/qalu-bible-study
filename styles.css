@@ -104,7 +104,6 @@ a.tile { color: var(--text); text-decoration: none; }
 .tile .thumb { width: 100%; margin-bottom: 6px; }
 .themes { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
 .tile.theme { gap: 6px; }
-.tile.theme > a { display: block; }
 .tile.theme .row { padding-top: 6px; }
 .tile.theme.open { grid-column: 1 / -1; border-color: var(--muted); }
 .tile.theme.open .thumb { max-width: 420px; }
@@ -232,3 +231,20 @@ textarea { padding: 10px; min-height: 96px; resize: vertical; font-size: 16px; }
   .app[data-play="1"] .side { display: none; }
   main { padding: 16px; }
 }
+
+/* Video window */
+#modal { display: none; }
+#modal[data-open] { display: flex; position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center; padding: 16px; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Kefa", "Noto Sans Ethiopic", system-ui, sans-serif; }
+.modal-back { position: absolute; inset: 0; background: rgba(0, 0, 0, .78); }
+.modal-box { position: relative; width: min(960px, 100%); background: #1F2023; color: #F2F2F3; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, .6); }
+.modal-head, .modal-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.modal-head b { font-size: 18px; }
+.modal-foot .small { color: #B9BBC1; }
+.player { position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #000; }
+.player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.player .thumb { width: 100%; height: 100%; border-radius: 0; }
+.player-note { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 10px 14px; background: rgba(0, 0, 0, .7); color: #FFFFFF; font-size: 14px; }
+.modal-btn { min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 10px; border: 0; background: #43464C; color: #F2F2F3; font: 500 14px inherit; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; cursor: pointer; }
+.modal-btn.main { background: #ECECEE; color: #1F2023; font-weight: 700; }
+.modal-btn:focus-visible { outline: 3px solid #ECECEE; outline-offset: 2px; }
+.tile.theme > a.pic { display: block; }

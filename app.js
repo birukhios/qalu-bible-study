@@ -76,6 +76,7 @@ const F = { index: {}, cache: {}, pending: {} };
 // Book introductions and chapter notes for the Context tab, one file per book.
 const X = { cache: {}, pending: {} };
 let opens = []; // passages that tiles on the current screen open
+let vids = []; // videos that links on the current screen open in the video window
 let recorder = null;
 
 const t = (am, en) => (S.en ? en : am);
@@ -238,10 +239,42 @@ function videoFor(b, c) {
   if (!v) return null;
   // Most thumbnails are named after the page; these two were found to differ on BibleProject's pages.
   const image = { 'song-songs': 'song-of-songs', '1-3-john': '123-john' }[v.slug] || v.slug;
-  return { title: v.title, url: `https://bibleproject.com/videos/${v.slug}/`, img: BP_IMG(b < 39 ? 'old-testament-overview' : 'new-testament-overview', image) };
+  return { title: v.title, yt: v.yt, url: `https://bibleproject.com/videos/${v.slug}/`, img: BP_IMG(b < 39 ? 'old-testament-overview' : 'new-testament-overview', image) };
 }
 // A 16:9 picture that falls back to a plain play mark (and an optional title) when the image cannot load.
 const thumb = (img, label = '') => `<span class="thumb"><span class="thumb-fallback" aria-hidden="true">${icon('play', 28)}${label ? `<b>${esc(label)}</b>` : ''}</span><img src="${img}" alt="" loading="lazy" onerror="this.remove()"></span>`;
+
+// A link that opens a video in the video window. It stays a real link, so it still works without the script.
+const vlink = (v, cls, key, inner, label = '') => { vids.push(v); return `<a class="${cls}" href="${v.url}" target="_blank" rel="noopener" data-a="video" data-v="${vids.length - 1}" data-k="${key}"${label ? ` aria-label="${esc(label)}"` : ''}>${inner}</a>`; };
+
+// The video window sits outside the app's main element, so re-rendering the screen never restarts a playing video.
+const modal = document.createElement('div');
+modal.id = 'modal';
+document.body.appendChild(modal);
+let modalReturn = null;
+function openVideo(v) {
+  modalReturn = document.activeElement;
+  const player = v.yt
+    ? `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.yt)}?autoplay=1&rel=0&modestbranding=1" title="${esc(v.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`
+    : `${thumb(v.img, v.title)}<p class="player-note">${t('ይህ ቪዲዮ እዚህ ገና መጫወት አይችልም፤ በBibleProject ድረ ገጽ ይከፈታል።', 'This video cannot play here yet. It opens on BibleProject’s website.')}</p>`;
+  modal.innerHTML = `<div class="modal-back" data-close></div>
+<div class="modal-box" role="dialog" aria-modal="true" aria-label="${esc(v.title)}">
+<div class="modal-head"><b>${esc(v.title)}</b><button class="modal-btn" data-close aria-label="${t('ዝጋ', 'Close')}" title="${t('ዝጋ', 'Close')}">${icon('close', 22)}</button></div>
+<div class="player">${player}</div>
+<div class="modal-foot"><span class="small">BibleProject${v.yt ? '' : ''}</span><a class="modal-btn${v.yt ? '' : ' main'}" href="${v.url}" target="_blank" rel="noopener">${t('በBibleProject ድረ ገጽ ክፈት', 'Open on BibleProject')}</a></div></div>`;
+  modal.dataset.open = '1';
+  document.body.style.overflow = 'hidden';
+  modal.querySelector('[data-close].modal-btn').focus();
+}
+function closeVideo() {
+  if (!modal.dataset.open) return;
+  modal.innerHTML = '';
+  delete modal.dataset.open;
+  document.body.style.overflow = '';
+  if (modalReturn && document.contains(modalReturn)) modalReturn.focus();
+}
+modal.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) closeVideo(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeVideo(); });
 
 function themesView() {
   // An older copy of the content file (kept by the browser for a few minutes after an update) has no concepts yet.
@@ -253,12 +286,13 @@ function themesView() {
     const detail = open ? `<p class="prose">${esc(tp(th.c))}</p>
 <b class="small muted">${t('ዋቢ ጥቅሶች', 'Bible references')}</b>
 <div class="row">${th.refs.map((p, j) => { opens.push({ b: p.b, c: p.c, f: p.f, to: p.to, title: th.n }); return `<button class="btn" data-a="open" data-v="${opens.length - 1}" data-k="theme-ref-${i}-${j}">${icon('book')}${esc(passRef(p))}</button>`; }).join('')}</div>` : '';
-    return `<div class="tile theme${open ? ' open' : ''}"><a href="${url}" target="_blank" rel="noopener" data-k="theme-pic-${i}" aria-label="${esc(tp(th.n))}: ${t('ቪዲዮውን ተመልከት', 'watch the video')}">${thumb(th.img, th.n[1])}</a>
+    const v = { title: tp(th.n), url, img: th.img, yt: th.yt };
+    return `<div class="tile theme${open ? ' open' : ''}">${vlink(v, 'pic', 'theme-pic-' + i, thumb(th.img, th.n[1]), tp(th.n) + ': ' + t('ቪዲዮውን ተመልከት', 'watch the video'))}
 <b>${esc(tp(th.n))}</b><span class="muted small">${esc(tp(th.d))}</span>
-<div class="row"><a class="btn fill" href="${url}" target="_blank" rel="noopener" data-k="theme-vid-${i}">${icon('play')}${t('ቪዲዮ', 'Video')}</a>
+<div class="row">${vlink(v, 'btn fill', 'theme-vid-' + i, icon('play') + t('ቪዲዮ', 'Video'))}
 <button class="btn" data-a="theme" data-v="${i}" data-k="theme-more-${i}" aria-expanded="${open}">${icon('note')}${open ? t('ዝጋ', 'Close') : t('ዝርዝር', 'Details')}</button></div>${detail}</div>`;
   }).join('')}</div>
-<p class="muted small">${t('ቪዲዮዎቹ የBibleProject ናቸው (በእንግሊዝኛ)፤ በድረ ገጻቸው ይከፈታሉ። ሥዕሎቹም ከእነሱ አገልጋይ ይታያሉ፤ በዚህ መተግበሪያ ውስጥ አይቀመጡም። ማብራሪያዎቹ ለዚህ መተግበሪያ የተጻፉ አጫጭር ረቂቆች ናቸው፤ የBibleProject ጽሑፍ አይደሉም።', 'The videos are BibleProject’s and open on their website. The pictures are shown from their server and are not stored in this app. The commentaries are short drafts written for this app; they are not BibleProject’s text.')}</p>`;
+<p class="muted small">${t('ቪዲዮዎቹ የBibleProject ናቸው (በእንግሊዝኛ)። ሥዕሎቹም ከእነሱ አገልጋይ ይታያሉ፤ በዚህ መተግበሪያ ውስጥ አይቀመጡም። ማብራሪያዎቹ ለዚህ መተግበሪያ የተጻፉ አጫጭር ረቂቆች ናቸው፤ የBibleProject ጽሑፍ አይደሉም።', 'The videos are BibleProject’s (in English). The pictures are shown from their server and are not stored in this app. The commentaries are short drafts written for this app; they are not BibleProject’s text.')}</p>`;
 }
 
 function browseView() {
@@ -359,9 +393,8 @@ ${videoCard()}
 function videoCard(b = S.pass.b, c = S.pass.c) {
   const v = videoFor(b, c);
   if (!v) return '';
-  return `<a class="card video" href="${v.url}" target="_blank" rel="noopener" data-k="video">
-${thumb(v.img, v.title)}
-<span class="stack" style="gap:4px"><span class="muted small"><b>BibleProject</b></span><b style="font-size:18px">${esc(v.title)}</b><span class="muted small">${t('የመጽሐፉ አጠቃላይ ቪዲዮ (በእንግሊዝኛ)፤ በBibleProject ድረ ገጽ ይከፈታል።', 'Book overview video. Opens on BibleProject’s website.')}</span><span class="btn fill" style="align-self:flex-start">${icon('play')}${t('ቪዲዮውን ተመልከት', 'Watch the video')}</span></span></a>`;
+  return vlink(v, 'card video', 'video', `${thumb(v.img, v.title)}
+<span class="stack" style="gap:4px"><span class="muted small"><b>BibleProject</b></span><b style="font-size:18px">${esc(v.title)}</b><span class="muted small">${t('የመጽሐፉ አጠቃላይ ቪዲዮ (በእንግሊዝኛ)።', 'Book overview video (in English).')}</span><span class="btn fill" style="align-self:flex-start">${icon('play')}${t('ቪዲዮውን ተመልከት', 'Watch the video')}</span></span>`);
 }
 
 function studyView() {
@@ -712,6 +745,7 @@ function render() {
   const paneTops = render.paneKey === paneKey ? [...root.querySelectorAll('.pane')].map((el) => el.scrollTop) : [];
   render.paneKey = paneKey;
   opens = [];
+  vids = [];
   root.dataset.theme = S.dark ? 'dark' : 'light';
   root.dataset.play = S.screen === 'journey' && S.play ? '1' : ''; // small screens hide the menu during a lesson
   document.documentElement.lang = S.en ? 'en' : 'am';
@@ -892,6 +926,7 @@ const actions = {
     save('pass', 'screen');
   },
   reload() { location.reload(); return false; },
+  video(v) { openVideo(vids[+v]); return false; },
   import() { fileInput.click(); return false; }
 };
 
@@ -907,6 +942,7 @@ const changes = {
 root.addEventListener('click', (e) => {
   const el = e.target.closest('[data-a]');
   if (!el || !actions[el.dataset.a]) return;
+  if (el.tagName === 'A') e.preventDefault(); // links that open in the app, such as videos, stay links only as a fallback
   if (actions[el.dataset.a](el.dataset.v) !== false) render();
 });
 root.addEventListener('change', (e) => {
