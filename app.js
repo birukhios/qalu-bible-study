@@ -14,10 +14,16 @@ const ls = {
   }
 };
 
-// IndexedDB holds what is too big for localStorage: imported Bibles and voice recordings.
+// IndexedDB holds imported Bibles, voice recordings, and each account's own study data
+// (highlights, notes and Journey progress), one record per account.
 const dbReady = new Promise((resolve, reject) => {
-  const req = indexedDB.open('qalu', 1);
-  req.onupgradeneeded = () => { req.result.createObjectStore('bibles', { keyPath: 'id' }); req.result.createObjectStore('audio'); };
+  const req = indexedDB.open('qalu', 2);
+  req.onupgradeneeded = () => {
+    const db = req.result;
+    if (!db.objectStoreNames.contains('bibles')) db.createObjectStore('bibles', { keyPath: 'id' });
+    if (!db.objectStoreNames.contains('audio')) db.createObjectStore('audio');
+    if (!db.objectStoreNames.contains('accounts')) db.createObjectStore('accounts', { keyPath: 'id' });
+  };
   req.onsuccess = () => resolve(req.result);
   req.onerror = () => reject(req.error);
 });
@@ -44,8 +50,8 @@ const S = {
   size: ls.get('size', 1),
   primary: ls.get('primary', ''),
   secondary: ls.get('secondary', 'kjv'),
-  highlights: ls.get('highlights', {}),
-  notes: ls.get('notes', []),
+  highlights: {},   // these three belong to the account in use; see loadAccount()
+  notes: [],
   draft: '',
   more: 8,
   picker: false,
@@ -55,7 +61,7 @@ const S = {
   tiles: ls.get('tiles', false), // show the present-day map tiles in place of the illustrated map
   recording: false,
   msg: '',
-  game: ls.get('game', { xp: 0, streak: 0, last: '', done: {} }), // done: story number -> stars earned (1 to 3)
+  game: { xp: 0, streak: 0, last: '', done: {} }, // done: story number -> stars earned (1 to 3)
   play: null, // the story lesson in progress on the Journey screen
   jump: true,
   openBook: ls.get('openBook', null), // the book whose chapter list is open on the Bible screen
@@ -95,7 +101,50 @@ const tp = (pair) => (S.en ? pair[1] : pair[0]);
 const bookName = (i) => tp(C.books[i].n);
 const hasAmharic = () => Object.values(versions).some((v) => v.language === 'am');
 
-function save(...keys) { keys.forEach((k) => ls.set(k, S[k])); }
+function save(...keys) {
+  keys.forEach((k) => (PERSONAL.includes(k) ? saveAccount() : ls.set(k, S[k])));
+}
+
+// ---------- accounts: each one keeps its own highlights, notes and Journey progress ----------
+const PERSONAL = ['highlights', 'notes', 'game'];
+const blankAccount = () => ({ highlights: {}, notes: [], game: { xp: 0, streak: 0, last: '', done: {} } });
+const accountId = () => (S.user ? 'google:' + (S.user.sub || S.user.email) : S.guest ? 'guest' : '');
+let accountReady = '';    // the account whose data is in S
+
+async function loadAccount() {
+  const id = accountId();
+  if (id === accountReady) return;
+  accountReady = '';
+  Object.assign(S, blankAccount());
+  if (!id) return;
+  let rec = null;
+  try { rec = await idb('accounts', 'readonly', (store) => store.get(id)); } catch (e) { /* database unavailable */ }
+  if (!rec) {
+    // Before accounts had their own data, everything sat in one shared place on this device.
+    // The first account to open the app here takes it over, and the shared copy is removed.
+    const old = { highlights: ls.get('highlights', null), notes: ls.get('notes', null), game: ls.get('game', null) };
+    if (old.highlights || old.notes || old.game) {
+      rec = Object.assign(blankAccount(), Object.fromEntries(Object.entries(old).filter((e) => e[1])));
+      rec.id = id;
+      await idb('accounts', 'readwrite', (store) => store.put(rec)).catch(() => {});
+      PERSONAL.forEach((k) => { try { localStorage.removeItem('qalu.' + k); } catch (e) { /* ignore */ } });
+    }
+  }
+  if (accountId() !== id) return;      // the reader switched account while this was loading
+  if (rec) PERSONAL.forEach((k) => { if (rec[k]) S[k] = rec[k]; });
+  accountReady = id;
+  render();
+}
+
+function saveAccount() {
+  const id = accountReady;
+  if (!id) return;
+  const rec = { id };
+  PERSONAL.forEach((k) => { rec[k] = S[k]; });
+  idb('accounts', 'readwrite', (store) => store.put(rec)).catch(() => {
+    S.msg = t('ማስቀመጥ አልተቻለም።', 'This could not be saved.');
+  });
+}
 
 function pickVersions() {
   const ids = Object.keys(versions);
@@ -239,6 +288,7 @@ function onCredential(response) {
     S.user = { name: data.name || data.email || '', email: data.email || '', picture: data.picture || '', sub: data.sub || '' };
     S.guest = false;
     save('user', 'guest');
+    loadAccount();
   } catch (e) {
     S.msg = t('መግባት አልተቻለም። እንደገና ይሞክሩ።', 'Sign-in did not work. Please try again.');
   }
@@ -1191,10 +1241,11 @@ const actions = {
     window.scrollTo(0, 0);
   },
   lang() { S.en = !S.en; save('en'); },
-  guest() { S.guest = true; S.msg = ''; save('guest'); },
-  signIn() { S.guest = false; S.msg = ''; save('guest'); },
+  guest() { S.guest = true; S.msg = ''; save('guest'); loadAccount(); },
+  signIn() { S.guest = false; S.msg = ''; save('guest'); loadAccount(); },
   signOut() {
     S.user = null; S.guest = false; save('user', 'guest');
+    loadAccount();        // clears this account's highlights and notes from the screen
     if (window.google && google.accounts) google.accounts.id.disableAutoSelect();   // do not sign straight back in
   },
   theme() { S.dark = !S.dark; save('dark'); },
@@ -1348,6 +1399,7 @@ async function start() {
   try { const r = await fetch('data/fathers/index.json'); if (r.ok) F.index = await r.json(); } catch (e) { /* fathers data unavailable */ }
   if (!C.books[S.pass.b]) S.pass = DEFAULT_PASS;
   if (!C[S.browse]) S.browse = 'timeline';
+  await loadAccount();
   render();
   if (S.searchOn && S.screen === 'browse' && (S.user || S.guest)) runSearch();   // bring back the last search
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
