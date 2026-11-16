@@ -4726,7 +4726,6 @@
  "themes": [
   {
    "slug": "god-video",
-   "set": "spiritual-beings",
    "n": [
     "እግዚአብሔር (ሥላሴ)",
     "God (the Trinity)"
@@ -4735,16 +4734,40 @@
     "እግዚአብሔር አንድ ነው፤ አብ፣ ወልድና መንፈስ ቅዱስ። መጽሐፍ ቅዱስ ማንነቱን እንዴት እንደሚገልጥ።",
     "God is one: Father, Son and Holy Spirit. How the Bible reveals who he is."
    ],
-   "p": {
-    "b": 42,
-    "c": 1,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/god/tr:q-90,w-600/god_16.9.jpg",
+   "refs": [
+    {
+     "b": 4,
+     "c": 6,
+     "f": 4,
+     "to": 5
+    },
+    {
+     "b": 39,
+     "c": 28,
+     "f": 18,
+     "to": 20
+    },
+    {
+     "b": 42,
+     "c": 1,
+     "f": 1,
+     "to": 14
+    },
+    {
+     "b": 45,
+     "c": 8,
+     "f": 4,
+     "to": 6
+    }
+   ],
+   "c": [
+    "መጽሐፍ ቅዱስ አንድ አምላክ እንዳለ ይመሰክራል (ዘዳግም 6)። አዲስ ኪዳን ይህን አንድ አምላክ አብ፣ ወልድና መንፈስ ቅዱስ አድርጎ ያሳያል፤ በእግዚአብሔር ዘንድ የነበረውና እግዚአብሔር የሆነው ቃል ሥጋ ሆነ፤ ኢየሱስም ተከታዮቹን በአብ፣ በወልድና በመንፈስ ቅዱስ ስም እንዲያጠምቁ ላካቸው። “ሥላሴ” የሚለው ቃል በመጽሐፍ ቅዱስ ውስጥ የለም፤ ቤተ ክርስቲያን ይህን እውነት የምትጠራበት ስም ነው።",
+    "The Bible confesses one God (Deuteronomy 6). The New Testament shows this one God as Father, Son and Holy Spirit: the Word who was with God and was God became flesh, and Jesus sends his followers to baptise in the one name of Father, Son and Spirit. The word “Trinity” is not in the Bible; it is the church’s name for this truth."
+   ]
   },
   {
    "slug": "holy-spirit",
-   "set": "themes",
    "n": [
     "የእግዚአብሔር መንፈስ",
     "Spirit of God"
@@ -4753,16 +4776,46 @@
     "መንፈስ ቅዱስ ማን ነው? ከፍጥረት እስከ አዲስ ፍጥረት በዓለም ውስጥ የሚሠራው ሥራ።",
     "Who the Holy Spirit is, and his work in the world from creation to new creation."
    ],
-   "p": {
-    "b": 43,
-    "c": 2,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/explore-v2/Themes/(No%20Series)/spiritofgod/tr:q-90,w-600/spirit-of-god_16-9-mm823ym.jpg",
+   "refs": [
+    {
+     "b": 0,
+     "c": 1,
+     "f": 1,
+     "to": 2
+    },
+    {
+     "b": 25,
+     "c": 36,
+     "f": 26,
+     "to": 27
+    },
+    {
+     "b": 28,
+     "c": 2,
+     "f": 28,
+     "to": 29
+    },
+    {
+     "b": 43,
+     "c": 2,
+     "f": 1,
+     "to": 4
+    },
+    {
+     "b": 44,
+     "c": 8,
+     "f": 9,
+     "to": 16
+    }
+   ],
+   "c": [
+    "በዕብራይስጥ “መንፈስ” (ሩአኽ) የሚለው ቃል እስትንፋስና ነፋስ ማለትም ነው። የእግዚአብሔር መንፈስ በፍጥረት ጊዜ ነበረ፤ ለሰዎች ለሥራቸው ኃይልና ጥበብ ይሰጣል፤ ነቢያትም አንድ ቀን በሰው ሁሉ ላይ እንደሚፈስ ተስፋ ሰጡ። ይህ ተስፋ በበዓለ ሃምሳ ቀን ተፈጸመ፤ አሁንም መንፈስ ቅዱስ የክርስቶስ በሆኑት ውስጥ ይኖራል።",
+    "In Hebrew the word for Spirit, ruakh, also means breath and wind. God’s Spirit is there at creation and gives people strength and wisdom for their tasks, and the prophets promise that he will one day be poured out on all people. That promise is kept at Pentecost, and the Spirit now lives in those who belong to Christ."
+   ]
   },
   {
    "slug": "messiah",
-   "set": "themes",
    "n": [
     "መሲሕ",
     "The Messiah"
@@ -4771,16 +4824,40 @@
     "ክፋትን ድል አድርጎ የሰውን ልጅ የሚያድን የተስፋ ቃል የተገባለት አዳኝ።",
     "The promised deliverer who would defeat evil and rescue humanity."
    ],
-   "p": {
-    "b": 22,
-    "c": 53,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/the-messiah/tr:q-90,w-600/messiah_16.9.jpg",
+   "refs": [
+    {
+     "b": 0,
+     "c": 3,
+     "f": 15,
+     "to": 15
+    },
+    {
+     "b": 9,
+     "c": 7,
+     "f": 12,
+     "to": 16
+    },
+    {
+     "b": 22,
+     "c": 53,
+     "f": 4,
+     "to": 6
+    },
+    {
+     "b": 41,
+     "c": 4,
+     "f": 16,
+     "to": 21
+    }
+   ],
+   "c": [
+    "“መሲሕ” (በግሪክ “ክርስቶስ”) ማለት “የተቀባ” ማለት ነው። በዘፍጥረት 3 የእባቡን ራስ ስለሚቀጠቅጠው ከተሰጠው ተስፋ ጀምሮ፣ ለዳዊት ስለ ዘላለማዊ ንጉሥ እስከ ተገባው ቃል፣ እስከ ኢሳይያስ መከራ የሚቀበል አገልጋይ ድረስ ብሉይ ኪዳን አዳኝን ይጠባበቃል። አዲስ ኪዳን ያ መሲሕ ኢየሱስ እንደ ሆነ ያውጃል።",
+    "“Messiah” (in Greek, “Christ”) means “anointed one”. From the promise in Genesis 3 of one who would crush the serpent, through the promise to David of a king for ever, to Isaiah’s suffering servant, the Old Testament looks for a deliverer. The New Testament proclaims that Jesus is that Messiah."
+   ]
   },
   {
    "slug": "son-of-man",
-   "set": "themes",
    "n": [
     "የሰው ልጅ",
     "Son of Man"
@@ -4789,16 +4866,40 @@
     "ኢየሱስ ራሱን ብዙ ጊዜ የጠራበት ስምና ትርጉሙ።",
     "The title Jesus most often used for himself, and what it means."
    ],
-   "p": {
-    "b": 26,
-    "c": 7,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/son-of-man/tr:q-90,w-600/son-of-man_16.9.jpg",
+   "refs": [
+    {
+     "b": 18,
+     "c": 8,
+     "f": 3,
+     "to": 6
+    },
+    {
+     "b": 26,
+     "c": 7,
+     "f": 13,
+     "to": 14
+    },
+    {
+     "b": 40,
+     "c": 10,
+     "f": 45,
+     "to": 45
+    },
+    {
+     "b": 40,
+     "c": 14,
+     "f": 61,
+     "to": 62
+    }
+   ],
+   "c": [
+    "“የሰው ልጅ” በቀላሉ ሰው ማለት ሊሆን ይችላል (መዝሙር 8)። በዳንኤል 7 ግን “የሰው ልጅ የሚመስል” በደመና ይመጣል፤ የማያልፍ መንግሥትም ይሰጠዋል። ኢየሱስ ይህን ስም ለራሱ ተጠቀመ፤ ሊያገለግልና ነፍሱን ሊሰጥ የመጣ፣ በክብርም የሚመጣ እርሱ ነው።",
+    "“Son of man” can simply mean a human being (Psalm 8). In Daniel 7 one “like a son of man” comes with the clouds and is given a kingdom that never ends. Jesus takes this title for himself: the one who came to serve and give his life, and who will come in glory."
+   ]
   },
   {
    "slug": "image-of-god",
-   "set": "themes",
    "n": [
     "የእግዚአብሔር መልክ",
     "Image of God"
@@ -4807,16 +4908,40 @@
     "ሰው በእግዚአብሔር መልክ ተፈጠረ ማለት ምን ማለት ነው?",
     "What it means that humans are made in God’s image."
    ],
-   "p": {
-    "b": 0,
-    "c": 1,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/image-of-god/tr:q-90,w-600/image-of-god_16.9.jpg",
+   "refs": [
+    {
+     "b": 0,
+     "c": 1,
+     "f": 26,
+     "to": 28
+    },
+    {
+     "b": 18,
+     "c": 8,
+     "f": 3,
+     "to": 8
+    },
+    {
+     "b": 50,
+     "c": 1,
+     "f": 15,
+     "to": 20
+    },
+    {
+     "b": 50,
+     "c": 3,
+     "f": 9,
+     "to": 10
+    }
+   ],
+   "c": [
+    "እግዚአብሔር ሰውን፣ ወንድና ሴት አድርጎ፣ በመልኩ ፈጠረ፤ እርሱን እንዲወክሉና ዓለሙን እንዲንከባከቡ። ኃጢአት ይህን ጥሪ አበላሸው እንጂ አላጠፋውም። ኢየሱስ የማይታየው አምላክ እውነተኛ መልክ ነው፤ በእርሱም ሰዎች በዚያ መልክ ይታደሳሉ።",
+    "God made humans, male and female, in his image, to represent him and to care for his world. Sin spoils this calling but does not remove it. Jesus is the true image of the invisible God, and in him people are made new in that image."
+   ]
   },
   {
    "slug": "heaven-and-earth",
-   "set": "themes",
    "n": [
     "ሰማይና ምድር",
     "Heaven and Earth"
@@ -4825,16 +4950,40 @@
     "የእግዚአብሔር ስፍራና የሰው ስፍራ እንዴት እንደተለያዩና በኢየሱስ እንዴት እንደሚገናኙ።",
     "How God’s space and ours were separated, and how they are joined again in Jesus."
    ],
-   "p": {
-    "b": 65,
-    "c": 21,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/heaven-and-earth/tr:q-90,w-600/heaven-and-earth_16.9.jpg",
+   "refs": [
+    {
+     "b": 0,
+     "c": 1,
+     "f": 1,
+     "to": 1
+    },
+    {
+     "b": 0,
+     "c": 3,
+     "f": 22,
+     "to": 24
+    },
+    {
+     "b": 42,
+     "c": 1,
+     "f": 14,
+     "to": 14
+    },
+    {
+     "b": 65,
+     "c": 21,
+     "f": 1,
+     "to": 5
+    }
+   ],
+   "c": [
+    "በመጽሐፍ ቅዱስ ሰማይ የእግዚአብሔር ስፍራ፣ ምድር ደግሞ የሰው ስፍራ ነው፤ በዔድን ሁለቱ አንድ ነበሩ። ኃጢአት ለያያቸው፤ የመገናኛው ድንኳንና ቤተ መቅደሱ እንደገና የሚገናኙባቸው ስፍራዎች ነበሩ። በኢየሱስ እግዚአብሔር በመካከላችን አደረ፤ መጽሐፍ ቅዱስም ሰማይና ምድር ለዘላለም አንድ ሲሆኑ ያበቃል።",
+    "In the Bible, heaven is God’s space and earth is ours, and in Eden the two were one. Sin drove them apart; the tabernacle and temple were places where they met again. In Jesus, God came to live among us, and the Bible ends with heaven and earth joined for ever."
+   ]
   },
   {
    "slug": "covenants",
-   "set": "themes",
    "n": [
     "ቃል ኪዳኖች",
     "Covenants"
@@ -4843,16 +4992,46 @@
     "እግዚአብሔር ከኖኅ፣ ከአብርሃም፣ ከእስራኤልና ከዳዊት ጋር የገባቸው ኪዳኖች፤ በኢየሱስም የተፈጸመው አዲስ ኪዳን።",
     "God’s covenants with Noah, Abraham, Israel and David, and the new covenant fulfilled in Jesus."
    ],
-   "p": {
-    "b": 0,
-    "c": 15,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/the-covenants/tr:q-90,w-600/covenants_16.9.jpg",
+   "refs": [
+    {
+     "b": 0,
+     "c": 9,
+     "f": 8,
+     "to": 17
+    },
+    {
+     "b": 0,
+     "c": 12,
+     "f": 1,
+     "to": 3
+    },
+    {
+     "b": 1,
+     "c": 19,
+     "f": 3,
+     "to": 6
+    },
+    {
+     "b": 23,
+     "c": 31,
+     "f": 31,
+     "to": 34
+    },
+    {
+     "b": 41,
+     "c": 22,
+     "f": 19,
+     "to": 20
+    }
+   ],
+   "c": [
+    "ኪዳን ግንኙነትን የሚመሠርት የጸና ቃል ነው። እግዚአብሔር ከኖኅ፣ ከአብርሃም፣ በሲና ከእስራኤል፣ ከዳዊትም ጋር ኪዳን ገባ፤ እያንዳንዱም ዕቅዱን ወደ ፊት ያራምዳል። በኤርምያስ በኩል አዲስ ኪዳን እንደሚገባ ተስፋ ሰጠ፤ ኢየሱስም በሞቱ መሠረተው።",
+    "A covenant is a binding promise that creates a relationship. God makes covenants with Noah, Abraham, Israel at Sinai, and David, and each carries his plan forward. Through Jeremiah he promises a new covenant, which Jesus establishes by his death."
+   ]
   },
   {
    "slug": "holiness",
-   "set": "themes",
    "n": [
     "ቅድስና",
     "Holiness"
@@ -4861,16 +5040,40 @@
     "የእግዚአብሔር ቅድስና ምንድን ነው? ለሰውስ ምን ማለት ነው?",
     "What God’s holiness is, and what it means for people."
    ],
-   "p": {
-    "b": 22,
-    "c": 6,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/holiness/tr:q-90,w-600/holiness_16.9.jpg",
+   "refs": [
+    {
+     "b": 1,
+     "c": 3,
+     "f": 1,
+     "to": 6
+    },
+    {
+     "b": 2,
+     "c": 19,
+     "f": 1,
+     "to": 2
+    },
+    {
+     "b": 22,
+     "c": 6,
+     "f": 1,
+     "to": 7
+    },
+    {
+     "b": 59,
+     "c": 1,
+     "f": 15,
+     "to": 16
+    }
+   ],
+   "c": [
+    "ቅዱስ መሆን ማለት የተለየ መሆን ነው። በራሱ ቅዱስ የሆነ እግዚአብሔር ብቻ ነው፤ ፍጹም መልካምና ከፈጠረው ሁሉ የተለየ። ቅድስናው ለርኩስ ነገር አስፈሪ ነው፤ እርሱ ግን ሰዎችን ያነጻል፤ እርሱ ቅዱስ እንደ ሆነ ቅዱሳን እንዲሆኑም ይጠራቸዋል።",
+    "To be holy is to be set apart. God alone is holy in himself: utterly good and unlike anything he has made. His holiness is dangerous to what is unclean, yet he makes people clean and calls them to be holy as he is holy."
+   ]
   },
   {
    "slug": "gospel-kingdom",
-   "set": "themes",
    "n": [
     "የመንግሥቱ ወንጌል",
     "Gospel of the Kingdom"
@@ -4879,16 +5082,40 @@
     "ወንጌል የምሥራች ነው፤ የእግዚአብሔር መንግሥት በኢየሱስ እንደ መጣች የሚያውጅ።",
     "The gospel is good news: the announcement that God’s kingdom has come in Jesus."
    ],
-   "p": {
-    "b": 40,
-    "c": 1,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/gospel-of-the-kingdom/tr:q-90,w-600/gospel-of-the-kingdom_16.9.jpg",
+   "refs": [
+    {
+     "b": 22,
+     "c": 52,
+     "f": 7,
+     "to": 7
+    },
+    {
+     "b": 40,
+     "c": 1,
+     "f": 14,
+     "to": 15
+    },
+    {
+     "b": 41,
+     "c": 4,
+     "f": 16,
+     "to": 21
+    },
+    {
+     "b": 45,
+     "c": 15,
+     "f": 1,
+     "to": 8
+    }
+   ],
+   "c": [
+    "“ወንጌል” ማለት የምሥራች ነው፤ መልእክተኛ ስለ ንጉሥ የሚያመጣው ዓይነት ዜና። ኢሳይያስ “አምላክሽ ነግሦአል” የሚለውን የምሥራች ጠበቀ። ኢየሱስ የእግዚአብሔር መንግሥት እንደ ቀረበች አወጀ፤ ሐዋርያትም ሞቱንና ትንሣኤውን እንደዚያ የምሥራች ሰበኩ።",
+    "“Gospel” means good news, the kind a messenger brings about a king. Isaiah looked for the news that God reigns. Jesus announced that God’s kingdom had come near, and the apostles preached his death and resurrection as that good news."
+   ]
   },
   {
    "slug": "day-of-the-lord",
-   "set": "themes",
    "n": [
     "የጌታ ቀን",
     "Day of the Lord"
@@ -4897,16 +5124,40 @@
     "እግዚአብሔር በክፋት ላይ የሚፈርድበትና ፍጥረትን የሚያድስበት ቀን።",
     "The day when God judges evil and renews his creation."
    ],
-   "p": {
-    "b": 28,
-    "c": 2,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/day-of-the-lord/tr:q-90,w-600/day-of-the-lord_16.9.jpg",
+   "refs": [
+    {
+     "b": 29,
+     "c": 5,
+     "f": 18,
+     "to": 20
+    },
+    {
+     "b": 28,
+     "c": 2,
+     "f": 28,
+     "to": 32
+    },
+    {
+     "b": 51,
+     "c": 5,
+     "f": 1,
+     "to": 6
+    },
+    {
+     "b": 60,
+     "c": 3,
+     "f": 10,
+     "to": 13
+    }
+   ],
+   "c": [
+    "ነቢያት እግዚአብሔር በክፋት ላይ ሊፈርድና ሕዝቡን ሊያድን ስለሚነሣበት ቀን ተናገሩ። ለትዕቢተኞች ማስጠንቀቂያ፣ ለተጨቆኑ ደግሞ ተስፋ ነው። አዲስ ኪዳን ያ ቀን በኢየሱስ መስቀልና ትንሣኤ እንደ ጀመረ ያያል፤ ሲመለስም ፍጻሜውን ይጠብቃል።",
+    "The prophets spoke of a day when God would act to judge evil and rescue his people. It is a warning to the proud and a hope for the oppressed. The New Testament sees that day begin in the cross and resurrection of Jesus and awaits its completion when he returns."
+   ]
   },
   {
    "slug": "temple",
-   "set": "themes",
    "n": [
     "ቤተ መቅደስ",
     "Temple"
@@ -4915,16 +5166,40 @@
     "እግዚአብሔርና ሰው የሚገናኙበት ስፍራ፤ ወደ ኢየሱስም እንዴት እንደሚያመለክት።",
     "The place where God and humanity meet, and how it points to Jesus."
    ],
-   "p": {
-    "b": 10,
-    "c": 8,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/temple/tr:q-90,w-600/temple_16.9.jpg",
+   "refs": [
+    {
+     "b": 1,
+     "c": 25,
+     "f": 8,
+     "to": 9
+    },
+    {
+     "b": 10,
+     "c": 8,
+     "f": 27,
+     "to": 30
+    },
+    {
+     "b": 42,
+     "c": 2,
+     "f": 19,
+     "to": 21
+    },
+    {
+     "b": 45,
+     "c": 3,
+     "f": 16,
+     "to": 17
+    }
+   ],
+   "c": [
+    "የመገናኛው ድንኳንና ቤተ መቅደሱ እግዚአብሔር በሕዝቡ መካከል የሚያድርባቸው ስፍራዎች ነበሩ። ሰሎሞን ምንም ሕንፃ እግዚአብሔርን ሊይዝ እንደማይችል ያውቅ ነበር። ኢየሱስ ስለ ገዛ ሰውነቱ እንደ ቤተ መቅደስ ተናገረ፤ ጳውሎስም ቤተ ክርስቲያንን የእግዚአብሔር መንፈስ የሚኖርባት ቤተ መቅደስ ይላታል።",
+    "The tabernacle and the temple were the place where God lived among his people. Solomon knew no building could contain God. Jesus spoke of his own body as the temple, and Paul calls the church God’s temple, where his Spirit lives."
+   ]
   },
   {
    "slug": "sabbath-video",
-   "set": "themes",
    "n": [
     "ሰንበት",
     "Sabbath"
@@ -4933,16 +5208,40 @@
     "እግዚአብሔር በሰባተኛው ቀን ዐረፈ፤ የዕረፍት ተስፋ በመጽሐፍ ቅዱስ ሁሉ።",
     "God rested on the seventh day: the hope of rest through the whole Bible."
    ],
-   "p": {
-    "b": 0,
-    "c": 2,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/sabbath/tr:q-90,w-600/sabbath_16.9.jpg",
+   "refs": [
+    {
+     "b": 0,
+     "c": 2,
+     "f": 1,
+     "to": 3
+    },
+    {
+     "b": 1,
+     "c": 20,
+     "f": 8,
+     "to": 11
+    },
+    {
+     "b": 40,
+     "c": 2,
+     "f": 27,
+     "to": 28
+    },
+    {
+     "b": 57,
+     "c": 4,
+     "f": 9,
+     "to": 11
+    }
+   ],
+   "c": [
+    "እግዚአብሔር በሰባተኛው ቀን ዐረፈ፤ ቀኑንም ባረከው። እስራኤል ሰንበትን ለሁሉ፣ ለአገልጋዮችና ለእንስሳትም ጭምር፣ የዕረፍት ቀን አድርገው እንዲጠብቁ ታዘዙ። ኢየሱስ ራሱን የሰንበት ጌታ ብሎ ጠራ፤ የዕብራውያን መልእክትም ለእግዚአብሔር ሕዝብ ገና የቀረ ዕረፍት እንዳለ ይናገራል።",
+    "God rested on the seventh day and blessed it. Israel was commanded to keep the Sabbath as a day of rest for everyone, servants and animals included. Jesus called himself Lord of the Sabbath, and Hebrews speaks of a rest that still awaits God’s people."
+   ]
   },
   {
    "slug": "tree-of-life",
-   "set": "themes",
    "n": [
     "የሕይወት ዛፍ",
     "Tree of Life"
@@ -4951,16 +5250,40 @@
     "ከዔድን ገነት እስከ ራእይ ድረስ የሚታየው የሕይወት ዛፍ።",
     "The tree of life, from the garden of Eden to Revelation."
    ],
-   "p": {
-    "b": 65,
-    "c": 22,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/tree-of-life/tr:q-90,w-600/tree-of-life_16.9.jpg",
+   "refs": [
+    {
+     "b": 0,
+     "c": 2,
+     "f": 8,
+     "to": 9
+    },
+    {
+     "b": 0,
+     "c": 3,
+     "f": 22,
+     "to": 24
+    },
+    {
+     "b": 19,
+     "c": 3,
+     "f": 13,
+     "to": 18
+    },
+    {
+     "b": 65,
+     "c": 22,
+     "f": 1,
+     "to": 2
+    }
+   ],
+   "c": [
+    "የሕይወት ዛፍ በዔድን ገነት መካከል ነበረ፤ ሰውና ሴቲቱ ኃጢአት ከሠሩ በኋላ ከእርሱ ተከለከሉ። መጽሐፈ ምሳሌ ጥበብን የሕይወት ዛፍ ይላታል። በራእይ ዛፉ በአዲሲቱ ኢየሩሳሌም ቆሞአል፤ ቅጠሎቹም ለሕዝቦች መፈወሻ ናቸው።",
+    "The tree of life stood in the middle of Eden, and after their sin the man and woman were kept from it. Proverbs calls wisdom a tree of life. In Revelation the tree stands in the new Jerusalem, and its leaves are for the healing of the nations."
+   ]
   },
   {
    "slug": "water-of-life",
-   "set": "themes",
    "n": [
     "የሕይወት ውሃ",
     "Water of Life"
@@ -4969,16 +5292,40 @@
     "ምድረ በዳን ገነት የሚያደርግ ውሃ፤ ኢየሱስ የሚሰጠው የሕይወት ውሃ።",
     "The water that turns wilderness into a garden, and the living water Jesus gives."
    ],
-   "p": {
-    "b": 42,
-    "c": 4,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/water-of-life/tr:q-90,w-600/water-of-life_16.9.jpg",
+   "refs": [
+    {
+     "b": 0,
+     "c": 2,
+     "f": 10,
+     "to": 10
+    },
+    {
+     "b": 25,
+     "c": 47,
+     "f": 1,
+     "to": 12
+    },
+    {
+     "b": 42,
+     "c": 4,
+     "f": 10,
+     "to": 14
+    },
+    {
+     "b": 65,
+     "c": 22,
+     "f": 17,
+     "to": 17
+    }
+   ],
+   "c": [
+    "ገነትን ያጠጣ ዘንድ ከዔድን ወንዝ ይወጣ ነበር። ሕዝቅኤል ከቤተ መቅደሱ የሚፈስና በደረሰበት ሁሉ ሕይወትን የሚሰጥ ውሃ አየ። ኢየሱስ በጉድጓዱ አጠገብ ለነበረችው ሴት የሕይወት ውሃ እንደሚሰጥ ነገራት፤ የመጽሐፍ ቅዱስ የመጨረሻ ገጽም የተጠማ ሁሉ መጥቶ እንዲጠጣ ይጋብዛል።",
+    "A river flowed out of Eden to water the garden. Ezekiel saw water flowing from the temple and bringing life wherever it went. Jesus offered living water to the woman at the well, and the Bible’s last page invites everyone who is thirsty to come and drink."
+   ]
   },
   {
    "slug": "exile",
-   "set": "themes",
    "n": [
     "ምርኮና ስደት",
     "Exile"
@@ -4987,16 +5334,40 @@
     "ከቤት መራቅና ወደ ቤት መመለስ፤ በመጽሐፍ ቅዱስ ታሪክ ውስጥ ያለ ዋና ጭብጥ።",
     "Being far from home and coming home: a theme under the whole Bible story."
    ],
-   "p": {
-    "b": 18,
-    "c": 137,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/exile/tr:q-90,w-600/exile_16.9.jpg",
+   "refs": [
+    {
+     "b": 0,
+     "c": 3,
+     "f": 23,
+     "to": 24
+    },
+    {
+     "b": 11,
+     "c": 25,
+     "f": 8,
+     "to": 12
+    },
+    {
+     "b": 18,
+     "c": 137,
+     "f": 1,
+     "to": 6
+    },
+    {
+     "b": 59,
+     "c": 2,
+     "f": 11,
+     "to": 12
+    }
+   ],
+   "c": [
+    "ስደት የሚጀምረው የመጀመሪያዎቹ ሰዎች ከዔድን ሲወጡ ነው፤ ይሁዳ ወደ ባቢሎን ሲማረክም እንደገና ይመጣል። መዝሙር 137 ያን ሐዘን ይገልጻል። አዲስ ኪዳን አማኞችን እንግዶችና መጻተኞች ይላቸዋል፤ እውነተኛ ቤታቸውን እየጠበቁ በታማኝነት የሚኖሩ።",
+    "Exile begins when the first humans are sent out of Eden, and it comes again when Judah is carried away to Babylon. Psalm 137 gives voice to that grief. The New Testament calls believers strangers and exiles, living faithfully while they wait for their true home."
+   ]
   },
   {
    "slug": "justice",
-   "set": "themes",
    "n": [
     "ፍትሕ",
     "Justice"
@@ -5005,16 +5376,40 @@
     "እግዚአብሔር ስለ ፍትሕ የሚለው፤ ለተጨቆኑና ለደካሞች መቆም።",
     "What God says about justice, and standing up for the vulnerable."
    ],
-   "p": {
-    "b": 32,
-    "c": 6,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/justice/tr:q-90,w-600/justice_16.9.jpg",
+   "refs": [
+    {
+     "b": 4,
+     "c": 10,
+     "f": 17,
+     "to": 19
+    },
+    {
+     "b": 29,
+     "c": 5,
+     "f": 21,
+     "to": 24
+    },
+    {
+     "b": 32,
+     "c": 6,
+     "f": 8,
+     "to": 8
+    },
+    {
+     "b": 41,
+     "c": 4,
+     "f": 16,
+     "to": 21
+    }
+   ],
+   "c": [
+    "እግዚአብሔር ፍትሕን ይወዳል፤ ለድሀ አደጉ፣ ለመበለቲቱና ለመጻተኛው ይቆማል፤ ሕዝቡም እንዲሁ እንዲያደርጉ ያዝዛል። ነቢያት ፍትሕ የሌለበት አምልኮ ደስ እንደማያሰኘው ይናገራሉ። ሚክያስ እንዲህ ያጠቃልለዋል፦ ፍትሕን አድርግ፣ ምሕረትን ውደድ፣ ከአምላክህ ጋር በትሕትና ሂድ።",
+    "God loves justice and defends the orphan, the widow and the foreigner, and he tells his people to do the same. The prophets say that worship without justice does not please him. Micah sums it up: do justice, love mercy, walk humbly with your God."
+   ]
   },
   {
    "slug": "generosity",
-   "set": "themes",
    "n": [
     "ልግስና",
     "Generosity"
@@ -5023,16 +5418,40 @@
     "እግዚአብሔር ለጋስ ነው፤ እኛም እንድንለግስ ይጠራናል።",
     "God is a generous host, and he calls us to be generous too."
    ],
-   "p": {
-    "b": 46,
-    "c": 9,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/generosity/tr:q-90,w-600/generosity_16.9.jpg",
+   "refs": [
+    {
+     "b": 4,
+     "c": 15,
+     "f": 7,
+     "to": 11
+    },
+    {
+     "b": 39,
+     "c": 6,
+     "f": 25,
+     "to": 33
+    },
+    {
+     "b": 43,
+     "c": 2,
+     "f": 44,
+     "to": 47
+    },
+    {
+     "b": 46,
+     "c": 9,
+     "f": 6,
+     "to": 8
+    }
+   ],
+   "c": [
+    "እግዚአብሔር በልግስና ይሰጣል፤ ሰዎች ያላቸው ሁሉ ከእርሱ ነው። አባታችሁ የሚያስፈልጋችሁን ያውቃልና አትጨነቁ ብሎ ኢየሱስ ተከታዮቹን ያስተምራል። ይህን በማመን የመጀመሪያዎቹ አማኞች ያላቸውን ተካፈሉ፤ ጳውሎስም እግዚአብሔር በደስታ የሚሰጠውን ይወዳል ይላል።",
+    "God gives freely, and everything people have comes from him. Jesus teaches his followers not to be anxious, because the Father knows what they need. Trusting that, the first believers shared what they had, and Paul says God loves a cheerful giver."
+   ]
   },
   {
    "slug": "the-exodus-way",
-   "set": "themes",
    "n": [
     "የዘፀአት መንገድ",
     "The Exodus Way"
@@ -5041,16 +5460,40 @@
     "ከባርነት መውጣት፣ በምድረ በዳ ማለፍ፣ ወደ ተስፋይቱ ምድር መግባት።",
     "The way out of slavery, through the wilderness, and into the promised land."
    ],
-   "p": {
-    "b": 1,
-    "c": 14,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/The%20Exodus%20Way/tr:q-90,w-600/exodus-way_16.9.jpg",
+   "refs": [
+    {
+     "b": 1,
+     "c": 14,
+     "f": 21,
+     "to": 31
+    },
+    {
+     "b": 22,
+     "c": 43,
+     "f": 16,
+     "to": 19
+    },
+    {
+     "b": 41,
+     "c": 9,
+     "f": 28,
+     "to": 31
+    },
+    {
+     "b": 45,
+     "c": 10,
+     "f": 1,
+     "to": 4
+    }
+   ],
+   "c": [
+    "እግዚአብሔር እስራኤልን ከባርነት አወጣ፤ በባሕሩና በምድረ በዳው አሳለፋቸው፤ ወደ ምድሪቱም አገባቸው። ነቢያት ከምርኮ አዲስ መውጣት እንደሚሆን ተስፋ ሰጡ። ሉቃስ የኢየሱስን ሞት “መውጣቱ” ብሎ ይጠራዋል፤ ጳውሎስም የእስራኤልን ጉዞ ለቤተ ክርስቲያን ምሳሌ አድርጎ ያነበዋል።",
+    "God brought Israel out of slavery, through the sea and the wilderness, and into the land. The prophets promised a new exodus from exile. Luke calls the death of Jesus his “exodus”, and Paul reads Israel’s journey as a pattern for the church."
+   ]
   },
   {
    "slug": "intro-spiritual-beings",
-   "set": "spiritual-beings",
    "n": [
     "መንፈሳዊ ፍጥረታት",
     "Spiritual Beings"
@@ -5059,16 +5502,40 @@
     "መላእክትና ሌሎች መንፈሳዊ ፍጥረታት በመጽሐፍ ቅዱስ ታሪክ ውስጥ።",
     "Angels and other spiritual beings in the Bible’s story."
    ],
-   "p": {
-    "b": 18,
-    "c": 82,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/spiritual-beings/intro-to-spiritual-beings/tr:q-90,w-600/intro-to-spiritual-beings_16.9.jpg",
+   "refs": [
+    {
+     "b": 17,
+     "c": 1,
+     "f": 6,
+     "to": 7
+    },
+    {
+     "b": 18,
+     "c": 82,
+     "f": 1,
+     "to": 8
+    },
+    {
+     "b": 48,
+     "c": 6,
+     "f": 12,
+     "to": 12
+    },
+    {
+     "b": 57,
+     "c": 1,
+     "f": 13,
+     "to": 14
+    }
+   ],
+   "c": [
+    "መጽሐፍ ቅዱስ እግዚአብሔር ስለ ፈጠራቸው የማይታዩ ፍጥረታት ይናገራል፤ እርሱን የሚያገለግሉና መልእክቱን የሚያደርሱ መላእክት፣ በእርሱ ላይ ያመፁ ኃይላትም አሉ። ከእነርሱ አንዱም ከእግዚአብሔር ጋር አይተካከልም። አዲስ ኪዳን ክርስቶስ ከኃይላት ሁሉ በላይ እንደ ሆነና መላእክት መዳንን የሚወርሱትን እንደሚያገለግሉ ይናገራል።",
+    "The Bible speaks of unseen beings whom God made: angels who serve him and carry his messages, and powers that have rebelled against him. None of them is equal to God. The New Testament says Christ is above every power and that angels serve those who are being saved."
+   ]
   },
   {
    "slug": "the-test",
-   "set": "themes",
    "n": [
     "ፈተና",
     "The Test"
@@ -5077,16 +5544,40 @@
     "እግዚአብሔር የሕዝቡን እምነትና ታማኝነት የሚፈትንበት መንገድ።",
     "How God tests the trust and loyalty of his people."
    ],
-   "p": {
-    "b": 0,
-    "c": 22,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/the-test/tr:q-90,w-600/test_16.9.jpg",
+   "refs": [
+    {
+     "b": 0,
+     "c": 22,
+     "f": 1,
+     "to": 14
+    },
+    {
+     "b": 4,
+     "c": 8,
+     "f": 2,
+     "to": 3
+    },
+    {
+     "b": 39,
+     "c": 4,
+     "f": 1,
+     "to": 11
+    },
+    {
+     "b": 58,
+     "c": 1,
+     "f": 2,
+     "to": 4
+    }
+   ],
+   "c": [
+    "እግዚአብሔር በልባቸው ያለውን ለማሳየትና እምነታቸውን ለማጽናት ሕዝቡን ይፈትናል፤ አብርሃምን በሞሪያ፣ እስራኤልን በምድረ በዳ እንደ ፈተነ። እስራኤል በወደቁበት ኢየሱስ በተፈተነ ጊዜ ታማኝ ሆኖ ጸና። ያዕቆብ የእምነት መፈተን ትዕግሥትን እንደሚያደርግ ለአማኞች ይናገራል።",
+    "God tests his people to show what is in their hearts and to deepen their trust, as with Abraham on Moriah and Israel in the wilderness. Where Israel failed, Jesus stayed faithful when he was tempted. James tells believers that testing produces endurance."
+   ]
   },
   {
    "slug": "the-city",
-   "set": "themes",
    "n": [
     "ከተማ",
     "The City"
@@ -5095,12 +5586,43 @@
     "ከባቢሎን ግንብ እስከ አዲሲቱ ኢየሩሳሌም፤ ከተሞች በመጽሐፍ ቅዱስ።",
     "Cities in the Bible, from the tower of Babel to the new Jerusalem."
    ],
-   "p": {
-    "b": 0,
-    "c": 11,
-    "f": 1,
-    "to": 0
-   }
+   "img": "https://ik.imagekit.io/bpweb1/web/media/video-images/theme-videos/the-city/tr:q-90,w-600/city_16.9.jpg",
+   "refs": [
+    {
+     "b": 0,
+     "c": 4,
+     "f": 16,
+     "to": 17
+    },
+    {
+     "b": 0,
+     "c": 11,
+     "f": 1,
+     "to": 9
+    },
+    {
+     "b": 18,
+     "c": 46,
+     "f": 4,
+     "to": 5
+    },
+    {
+     "b": 57,
+     "c": 11,
+     "f": 8,
+     "to": 10
+    },
+    {
+     "b": 65,
+     "c": 21,
+     "f": 22,
+     "to": 27
+    }
+   ],
+   "c": [
+    "በመጽሐፍ ቅዱስ የመጀመሪያዋን ከተማ የሠራው ቃየን ነው፤ ባቢሎንም ለሰው ትዕቢት የተሠራች ከተማን ታሳያለች። እግዚአብሔር ግን አንዲት ከተማን፣ ኢየሩሳሌምን፣ የመገኘቱ ስፍራ አድርጎ መረጠ። አብርሃም እግዚአብሔር የሠራትን ከተማ ይጠብቅ ነበር፤ መጽሐፍ ቅዱስም በአዲሲቱ ኢየሩሳሌም ያበቃል።",
+    "The first city in the Bible is built by Cain, and Babel shows a city built for human pride. Yet God chooses a city, Jerusalem, as the place of his presence. Abraham looked for a city whose builder is God, and the Bible ends in one: the new Jerusalem."
+   ]
   }
  ]
 }

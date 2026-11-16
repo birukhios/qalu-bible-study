@@ -51,6 +51,7 @@ const S = {
   picker: false,
   intro: false,
   place: 0,
+  theme: null, // the concept whose detail is open
   tiles: ls.get('tiles', false), // show the present-day map tiles in place of the illustrated map
   recording: false,
   msg: '',
@@ -247,13 +248,17 @@ function themesView() {
   if (!C.themes) return `<div class="card stack" style="align-items:flex-start"><p class="prose">${t('ጽንሰ ሐሳቦቹ ገና አልተጫኑም። ገጹን እንደገና ይጫኑ።', 'The concepts have not loaded yet. Reload the page.')}</p><button class="btn fill" data-a="reload" data-k="reload-app">${t('እንደገና ጫን', 'Reload')}</button></div>`;
   return `<div class="grid themes">${C.themes.map((th, i) => {
     const url = `https://bibleproject.com/videos/${th.slug}/`;
-    opens.push({ b: th.p.b, c: th.p.c, f: th.p.f, to: th.p.to });
-    return `<div class="tile theme"><a href="${url}" target="_blank" rel="noopener" data-k="theme-pic-${i}" aria-label="${esc(tp(th.n))}: ${t('ቪዲዮውን ተመልከት', 'watch the video')}">${thumb(BP_IMG(th.set, th.slug), th.n[1])}</a>
+    const open = S.theme === i;
+    // The detail: a short commentary and the passages it rests on, each opening in the Study screen.
+    const detail = open ? `<p class="prose">${esc(tp(th.c))}</p>
+<b class="small muted">${t('ዋቢ ጥቅሶች', 'Bible references')}</b>
+<div class="row">${th.refs.map((p, j) => { opens.push({ b: p.b, c: p.c, f: p.f, to: p.to, title: th.n }); return `<button class="btn" data-a="open" data-v="${opens.length - 1}" data-k="theme-ref-${i}-${j}">${icon('book')}${esc(passRef(p))}</button>`; }).join('')}</div>` : '';
+    return `<div class="tile theme${open ? ' open' : ''}"><a href="${url}" target="_blank" rel="noopener" data-k="theme-pic-${i}" aria-label="${esc(tp(th.n))}: ${t('ቪዲዮውን ተመልከት', 'watch the video')}">${thumb(th.img, th.n[1])}</a>
 <b>${esc(tp(th.n))}</b><span class="muted small">${esc(tp(th.d))}</span>
 <div class="row"><a class="btn fill" href="${url}" target="_blank" rel="noopener" data-k="theme-vid-${i}">${icon('play')}${t('ቪዲዮ', 'Video')}</a>
-<button class="btn" data-a="open" data-v="${opens.length - 1}" data-k="theme-read-${i}">${icon('book')}${esc(bookName(th.p.b) + ' ' + th.p.c)}</button></div></div>`;
+<button class="btn" data-a="theme" data-v="${i}" data-k="theme-more-${i}" aria-expanded="${open}">${icon('note')}${open ? t('ዝጋ', 'Close') : t('ዝርዝር', 'Details')}</button></div>${detail}</div>`;
   }).join('')}</div>
-<p class="muted small">${t('ቪዲዮዎቹ የBibleProject ናቸው (በእንግሊዝኛ)፤ በድረ ገጻቸው ይከፈታሉ። ሥዕሎቹም ከእነሱ አገልጋይ ይታያሉ፤ በዚህ መተግበሪያ ውስጥ አይቀመጡም።', 'The videos are BibleProject’s and open on their website. The pictures are shown from their server and are not stored in this app.')}</p>`;
+<p class="muted small">${t('ቪዲዮዎቹ የBibleProject ናቸው (በእንግሊዝኛ)፤ በድረ ገጻቸው ይከፈታሉ። ሥዕሎቹም ከእነሱ አገልጋይ ይታያሉ፤ በዚህ መተግበሪያ ውስጥ አይቀመጡም። ማብራሪያዎቹ ለዚህ መተግበሪያ የተጻፉ አጫጭር ረቂቆች ናቸው፤ የBibleProject ጽሑፍ አይደሉም።', 'The videos are BibleProject’s and open on their website. The pictures are shown from their server and are not stored in this app. The commentaries are short drafts written for this app; they are not BibleProject’s text.')}</p>`;
 }
 
 function browseView() {
@@ -827,6 +832,7 @@ const actions = {
   lang() { S.en = !S.en; save('en'); },
   theme() { S.dark = !S.dark; save('dark'); },
   browse(v) { S.browse = v; save('browse'); },
+  theme(v) { S.theme = S.theme === +v ? null : +v; },
   open(v) { S.pass = opens[+v]; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen'); window.scrollTo(0, 0); },
   verse(v) { S.sel = S.sel === +v ? null : +v; S.more = 8; },
   hl(v) { S.highlights[hlKey(S.sel)] = v; save('highlights'); },
