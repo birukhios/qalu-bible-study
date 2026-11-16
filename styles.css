@@ -194,7 +194,7 @@ textarea { padding: 10px; min-height: 96px; resize: vertical; font-size: 16px; }
 .node.now .orb { margin: 8px 0 14px; box-shadow: 0 6px 0 rgba(0, 0, 0, .35), 0 0 0 6px var(--surface), 0 0 0 10px var(--era); animation: pulse 1.6s ease-in-out infinite; }
 @keyframes pulse { 50% { transform: scale(1.07); } }
 @media (prefers-reduced-motion: reduce) { .node.now .orb { animation: none; } }
-.pill.start { align-self: center; background: var(--era); color: #14161A; }
+.pill.start { align-self: center; background: var(--era); color: #14161A; min-height: 36px; padding: 6px 18px; font-size: 14px; font-weight: 700; }
 .stars, .hearts { display: inline-flex; gap: 3px; color: var(--ctl); }
 .stars .on { color: var(--gold); } .hearts .on { color: var(--heart); }
 .stars span, .hearts span { display: inline-flex; }

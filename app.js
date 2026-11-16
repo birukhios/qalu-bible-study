@@ -678,7 +678,7 @@ function journeyView() {
       const state = g.done[i] ? 'done' : i === cur ? 'now' : 'locked';
       return `<div class="node ${state}" style="--dx:${DX[j % DX.length]}px">
 <button class="orb" data-a="story" data-v="${i}" data-k="story-${i}" ${state === 'locked' ? 'disabled' : ''} aria-label="${esc(tp(it.n))}${state === 'locked' ? t(' (ተቆልፏል)', ' (locked)') : ''}">${icon(state === 'done' ? 'check' : state === 'now' ? 'play' : 'lock', 28)}</button>
-${state === 'done' ? marks('stars', 'star', g.done[i], 3, 16) : state === 'now' ? `<span class="pill start">${t('ጀምር', 'Start')}</span>` : ''}
+${state === 'done' ? marks('stars', 'star', g.done[i], 3, 16) : state === 'now' ? `<button class="pill start" data-a="story" data-v="${i}" data-k="start-${i}">${t('ጀምር', 'Start')}</button>` : ''}
 <b>${esc(tp(it.n))}</b><span class="muted small">${esc(tp(it.sub))}</span></div>`;
     }).join('');
     const n = era.items.filter((_, j) => g.done[start + j]).length;
