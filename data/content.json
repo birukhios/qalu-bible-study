@@ -4722,5 +4722,385 @@
     "Freely available Bible translations in many languages."
    ]
   }
+ ],
+ "themes": [
+  {
+   "slug": "god-video",
+   "set": "spiritual-beings",
+   "n": [
+    "እግዚአብሔር (ሥላሴ)",
+    "God (the Trinity)"
+   ],
+   "d": [
+    "እግዚአብሔር አንድ ነው፤ አብ፣ ወልድና መንፈስ ቅዱስ። መጽሐፍ ቅዱስ ማንነቱን እንዴት እንደሚገልጥ።",
+    "God is one: Father, Son and Holy Spirit. How the Bible reveals who he is."
+   ],
+   "p": {
+    "b": 42,
+    "c": 1,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "holy-spirit",
+   "set": "themes",
+   "n": [
+    "የእግዚአብሔር መንፈስ",
+    "Spirit of God"
+   ],
+   "d": [
+    "መንፈስ ቅዱስ ማን ነው? ከፍጥረት እስከ አዲስ ፍጥረት በዓለም ውስጥ የሚሠራው ሥራ።",
+    "Who the Holy Spirit is, and his work in the world from creation to new creation."
+   ],
+   "p": {
+    "b": 43,
+    "c": 2,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "messiah",
+   "set": "themes",
+   "n": [
+    "መሲሕ",
+    "The Messiah"
+   ],
+   "d": [
+    "ክፋትን ድል አድርጎ የሰውን ልጅ የሚያድን የተስፋ ቃል የተገባለት አዳኝ።",
+    "The promised deliverer who would defeat evil and rescue humanity."
+   ],
+   "p": {
+    "b": 22,
+    "c": 53,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "son-of-man",
+   "set": "themes",
+   "n": [
+    "የሰው ልጅ",
+    "Son of Man"
+   ],
+   "d": [
+    "ኢየሱስ ራሱን ብዙ ጊዜ የጠራበት ስምና ትርጉሙ።",
+    "The title Jesus most often used for himself, and what it means."
+   ],
+   "p": {
+    "b": 26,
+    "c": 7,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "image-of-god",
+   "set": "themes",
+   "n": [
+    "የእግዚአብሔር መልክ",
+    "Image of God"
+   ],
+   "d": [
+    "ሰው በእግዚአብሔር መልክ ተፈጠረ ማለት ምን ማለት ነው?",
+    "What it means that humans are made in God’s image."
+   ],
+   "p": {
+    "b": 0,
+    "c": 1,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "heaven-and-earth",
+   "set": "themes",
+   "n": [
+    "ሰማይና ምድር",
+    "Heaven and Earth"
+   ],
+   "d": [
+    "የእግዚአብሔር ስፍራና የሰው ስፍራ እንዴት እንደተለያዩና በኢየሱስ እንዴት እንደሚገናኙ።",
+    "How God’s space and ours were separated, and how they are joined again in Jesus."
+   ],
+   "p": {
+    "b": 65,
+    "c": 21,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "covenants",
+   "set": "themes",
+   "n": [
+    "ቃል ኪዳኖች",
+    "Covenants"
+   ],
+   "d": [
+    "እግዚአብሔር ከኖኅ፣ ከአብርሃም፣ ከእስራኤልና ከዳዊት ጋር የገባቸው ኪዳኖች፤ በኢየሱስም የተፈጸመው አዲስ ኪዳን።",
+    "God’s covenants with Noah, Abraham, Israel and David, and the new covenant fulfilled in Jesus."
+   ],
+   "p": {
+    "b": 0,
+    "c": 15,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "holiness",
+   "set": "themes",
+   "n": [
+    "ቅድስና",
+    "Holiness"
+   ],
+   "d": [
+    "የእግዚአብሔር ቅድስና ምንድን ነው? ለሰውስ ምን ማለት ነው?",
+    "What God’s holiness is, and what it means for people."
+   ],
+   "p": {
+    "b": 22,
+    "c": 6,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "gospel-kingdom",
+   "set": "themes",
+   "n": [
+    "የመንግሥቱ ወንጌል",
+    "Gospel of the Kingdom"
+   ],
+   "d": [
+    "ወንጌል የምሥራች ነው፤ የእግዚአብሔር መንግሥት በኢየሱስ እንደ መጣች የሚያውጅ።",
+    "The gospel is good news: the announcement that God’s kingdom has come in Jesus."
+   ],
+   "p": {
+    "b": 40,
+    "c": 1,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "day-of-the-lord",
+   "set": "themes",
+   "n": [
+    "የጌታ ቀን",
+    "Day of the Lord"
+   ],
+   "d": [
+    "እግዚአብሔር በክፋት ላይ የሚፈርድበትና ፍጥረትን የሚያድስበት ቀን።",
+    "The day when God judges evil and renews his creation."
+   ],
+   "p": {
+    "b": 28,
+    "c": 2,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "temple",
+   "set": "themes",
+   "n": [
+    "ቤተ መቅደስ",
+    "Temple"
+   ],
+   "d": [
+    "እግዚአብሔርና ሰው የሚገናኙበት ስፍራ፤ ወደ ኢየሱስም እንዴት እንደሚያመለክት።",
+    "The place where God and humanity meet, and how it points to Jesus."
+   ],
+   "p": {
+    "b": 10,
+    "c": 8,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "sabbath-video",
+   "set": "themes",
+   "n": [
+    "ሰንበት",
+    "Sabbath"
+   ],
+   "d": [
+    "እግዚአብሔር በሰባተኛው ቀን ዐረፈ፤ የዕረፍት ተስፋ በመጽሐፍ ቅዱስ ሁሉ።",
+    "God rested on the seventh day: the hope of rest through the whole Bible."
+   ],
+   "p": {
+    "b": 0,
+    "c": 2,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "tree-of-life",
+   "set": "themes",
+   "n": [
+    "የሕይወት ዛፍ",
+    "Tree of Life"
+   ],
+   "d": [
+    "ከዔድን ገነት እስከ ራእይ ድረስ የሚታየው የሕይወት ዛፍ።",
+    "The tree of life, from the garden of Eden to Revelation."
+   ],
+   "p": {
+    "b": 65,
+    "c": 22,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "water-of-life",
+   "set": "themes",
+   "n": [
+    "የሕይወት ውሃ",
+    "Water of Life"
+   ],
+   "d": [
+    "ምድረ በዳን ገነት የሚያደርግ ውሃ፤ ኢየሱስ የሚሰጠው የሕይወት ውሃ።",
+    "The water that turns wilderness into a garden, and the living water Jesus gives."
+   ],
+   "p": {
+    "b": 42,
+    "c": 4,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "exile",
+   "set": "themes",
+   "n": [
+    "ምርኮና ስደት",
+    "Exile"
+   ],
+   "d": [
+    "ከቤት መራቅና ወደ ቤት መመለስ፤ በመጽሐፍ ቅዱስ ታሪክ ውስጥ ያለ ዋና ጭብጥ።",
+    "Being far from home and coming home: a theme under the whole Bible story."
+   ],
+   "p": {
+    "b": 18,
+    "c": 137,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "justice",
+   "set": "themes",
+   "n": [
+    "ፍትሕ",
+    "Justice"
+   ],
+   "d": [
+    "እግዚአብሔር ስለ ፍትሕ የሚለው፤ ለተጨቆኑና ለደካሞች መቆም።",
+    "What God says about justice, and standing up for the vulnerable."
+   ],
+   "p": {
+    "b": 32,
+    "c": 6,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "generosity",
+   "set": "themes",
+   "n": [
+    "ልግስና",
+    "Generosity"
+   ],
+   "d": [
+    "እግዚአብሔር ለጋስ ነው፤ እኛም እንድንለግስ ይጠራናል።",
+    "God is a generous host, and he calls us to be generous too."
+   ],
+   "p": {
+    "b": 46,
+    "c": 9,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "the-exodus-way",
+   "set": "themes",
+   "n": [
+    "የዘፀአት መንገድ",
+    "The Exodus Way"
+   ],
+   "d": [
+    "ከባርነት መውጣት፣ በምድረ በዳ ማለፍ፣ ወደ ተስፋይቱ ምድር መግባት።",
+    "The way out of slavery, through the wilderness, and into the promised land."
+   ],
+   "p": {
+    "b": 1,
+    "c": 14,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "intro-spiritual-beings",
+   "set": "spiritual-beings",
+   "n": [
+    "መንፈሳዊ ፍጥረታት",
+    "Spiritual Beings"
+   ],
+   "d": [
+    "መላእክትና ሌሎች መንፈሳዊ ፍጥረታት በመጽሐፍ ቅዱስ ታሪክ ውስጥ።",
+    "Angels and other spiritual beings in the Bible’s story."
+   ],
+   "p": {
+    "b": 18,
+    "c": 82,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "the-test",
+   "set": "themes",
+   "n": [
+    "ፈተና",
+    "The Test"
+   ],
+   "d": [
+    "እግዚአብሔር የሕዝቡን እምነትና ታማኝነት የሚፈትንበት መንገድ።",
+    "How God tests the trust and loyalty of his people."
+   ],
+   "p": {
+    "b": 0,
+    "c": 22,
+    "f": 1,
+    "to": 0
+   }
+  },
+  {
+   "slug": "the-city",
+   "set": "themes",
+   "n": [
+    "ከተማ",
+    "The City"
+   ],
+   "d": [
+    "ከባቢሎን ግንብ እስከ አዲሲቱ ኢየሩሳሌም፤ ከተሞች በመጽሐፍ ቅዱስ።",
+    "Cities in the Bible, from the tower of Babel to the new Jerusalem."
+   ],
+   "p": {
+    "b": 0,
+    "c": 11,
+    "f": 1,
+    "to": 0
+   }
+  }
  ]
 }

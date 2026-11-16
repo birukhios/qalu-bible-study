@@ -223,21 +223,48 @@ ${nav('notes', 'note', t('ማስታወሻዎች', 'Notes'))}
 </nav>`;
 }
 
-function tile(title, sub, pass) {
+function tile(title, sub, pass, pic = '') {
   opens.push(pass);
-  return `<button class="tile" data-a="open" data-v="${opens.length - 1}" data-k="tile-${opens.length - 1}"><b>${esc(title)}</b><span class="muted small">${esc(sub)}</span></button>`;
+  return `<button class="tile" data-a="open" data-v="${opens.length - 1}" data-k="tile-${opens.length - 1}">${pic}<b>${esc(title)}</b><span class="muted small">${esc(sub)}</span></button>`;
+}
+
+// BibleProject's overview video for a book (and the part of the book a chapter falls in).
+// Thumbnails are shown from BibleProject's own server and link to their page; nothing of theirs is stored here.
+const BP_IMG = (set, slug) => `https://ik.imagekit.io/bpweb1/web/media/video-images/${set}/${slug}/tr:q-90,w-600/${slug}_16.9.jpg`;
+function videoFor(b, c) {
+  const list = C.videos[b] || [];
+  const v = list.find((x) => c >= x.from && c <= x.to) || list[0];
+  if (!v) return null;
+  // Most thumbnails are named after the page; these two were found to differ on BibleProject's pages.
+  const image = { 'song-songs': 'song-of-songs', '1-3-john': '123-john' }[v.slug] || v.slug;
+  return { title: v.title, url: `https://bibleproject.com/videos/${v.slug}/`, img: BP_IMG(b < 39 ? 'old-testament-overview' : 'new-testament-overview', image) };
+}
+// A 16:9 picture that falls back to a plain play mark (and an optional title) when the image cannot load.
+const thumb = (img, label = '') => `<span class="thumb"><span class="thumb-fallback" aria-hidden="true">${icon('play', 28)}${label ? `<b>${esc(label)}</b>` : ''}</span><img src="${img}" alt="" loading="lazy" onerror="this.remove()"></span>`;
+
+function themesView() {
+  return `<div class="grid themes">${C.themes.map((th, i) => {
+    const url = `https://bibleproject.com/videos/${th.slug}/`;
+    opens.push({ b: th.p.b, c: th.p.c, f: th.p.f, to: th.p.to });
+    return `<div class="tile theme"><a href="${url}" target="_blank" rel="noopener" data-k="theme-pic-${i}" aria-label="${esc(tp(th.n))}: ${t('ቪዲዮውን ተመልከት', 'watch the video')}">${thumb(BP_IMG(th.set, th.slug), th.n[1])}</a>
+<b>${esc(tp(th.n))}</b><span class="muted small">${esc(tp(th.d))}</span>
+<div class="row"><a class="btn fill" href="${url}" target="_blank" rel="noopener" data-k="theme-vid-${i}">${icon('play')}${t('ቪዲዮ', 'Video')}</a>
+<button class="btn" data-a="open" data-v="${opens.length - 1}" data-k="theme-read-${i}">${icon('book')}${esc(bookName(th.p.b) + ' ' + th.p.c)}</button></div></div>`;
+  }).join('')}</div>
+<p class="muted small">${t('ቪዲዮዎቹ የBibleProject ናቸው (በእንግሊዝኛ)፤ በድረ ገጻቸው ይከፈታሉ። ሥዕሎቹም ከእነሱ አገልጋይ ይታያሉ፤ በዚህ መተግበሪያ ውስጥ አይቀመጡም።', 'The videos are BibleProject’s and open on their website. The pictures are shown from their server and are not stored in this app.')}</p>`;
 }
 
 function browseView() {
-  const modes = [['timeline', t('የታሪክ መስመር', 'Story timeline')], ['chrono', t('በጊዜ ቅደም ተከተል', 'Chronological')], ['canon', t('መደበኛ ቅደም ተከተል', 'Traditional order')]];
+  const modes = [['timeline', t('የታሪክ መስመር', 'Story timeline')], ['chrono', t('በጊዜ ቅደም ተከተል', 'Chronological')], ['canon', t('መደበኛ ቅደም ተከተል', 'Traditional order')], ['themes', t('ጽንሰ ሐሳቦች', 'Concepts')]];
   const notes = {
     timeline: t('ዋና ዋና ታሪኮች በተፈጸሙበት ቅደም ተከተል።', 'Key stories in the order they happened.'),
     chrono: t('መጻሕፍቱ በሚተርኩት ዘመን ቅደም ተከተል፤ ግምታዊ ነው፥ ሊቃውንትም በአንዳንዶቹ ይለያያሉ።', 'Books by the period they describe. The order is approximate and scholars differ on some.'),
-    canon: t('66ቱ መጻሕፍት በመጽሐፍ ቅዱስ ውስጥ ባሉበት ቅደም ተከተል።', 'The 66 books in the order they appear in the Bible.')
+    canon: t('66ቱ መጻሕፍት በመጽሐፍ ቅዱስ ውስጥ ባሉበት ቅደም ተከተል።', 'The 66 books in the order they appear in the Bible.'),
+    themes: t('የመጽሐፍ ቅዱስ ዋና ዋና ጽንሰ ሐሳቦች፤ እያንዳንዱ ከአንድ የBibleProject ቪዲዮና ከአንድ ቁልፍ ምንባብ ጋር።', 'Key ideas of the Bible, each with a BibleProject video and a key passage to read.')
   };
-  const groups = C[S.browse].map((g) => {
+  const groups = S.browse === 'themes' ? [themesView()] : C[S.browse].map((g) => {
     const items = g.items
-      ? g.items.map((it) => tile(tp(it.n), tp(it.sub), { b: it.p.b, c: it.p.c, f: it.p.f, to: it.p.to, title: it.n, pl: it.pl }))
+      ? g.items.map((it) => { const v = videoFor(it.p.b, it.p.c); return tile(tp(it.n), tp(it.sub), { b: it.p.b, c: it.p.c, f: it.p.f, to: it.p.to, title: it.n, pl: it.pl }, v ? thumb(v.img) : ''); })
       : g.books.map((b) => tile(bookName(b), C.books[b].ch + ' ' + t('ምዕራፍ', C.books[b].ch === 1 ? 'chapter' : 'chapters'), { b, c: 1, f: 1, to: 0 }));
     return `<section class="group"><h2>${esc(tp(g.n))}</h2><div class="grid">${items.join('')}</div></section>`;
   });
@@ -321,18 +348,12 @@ ${videoCard()}
 <div class="seg" role="group">${tabs.map((x) => `<button data-a="tab" data-v="${x[0]}" data-k="tab-${x[0]}" aria-pressed="${S.tab === x[0]}">${x[1]}</button>`).join('')}</div>${body}</aside>`;
 }
 
-// BibleProject's overview video for the book (and part of the book) being read. The card links to
-// their page and shows their thumbnail from their own server; nothing of theirs is stored here.
-function videoCard() {
-  const list = C.videos[S.pass.b] || [];
-  const v = list.find((x) => S.pass.c >= x.from && S.pass.c <= x.to) || list[0];
+// The card for BibleProject's overview video of a book (and the part of the book a chapter falls in).
+function videoCard(b = S.pass.b, c = S.pass.c) {
+  const v = videoFor(b, c);
   if (!v) return '';
-  const set = S.pass.b < 39 ? 'old-testament-overview' : 'new-testament-overview';
-  // Most thumbnails are named after the page; these two were found to differ on BibleProject's pages.
-  const image = { 'song-songs': 'song-of-songs', '1-3-john': '123-john' }[v.slug] || v.slug;
-  const thumb = `https://ik.imagekit.io/bpweb1/web/media/video-images/${set}/${image}/tr:q-90,w-600/${image}_16.9.jpg`;
-  return `<a class="card video" href="https://bibleproject.com/videos/${v.slug}/" target="_blank" rel="noopener" data-k="video">
-<span class="thumb"><span class="thumb-fallback" aria-hidden="true">${icon('play', 28)}<b>${esc(v.title)}</b></span><img src="${thumb}" alt="" loading="lazy" onerror="this.remove()"></span>
+  return `<a class="card video" href="${v.url}" target="_blank" rel="noopener" data-k="video">
+${thumb(v.img, v.title)}
 <span class="stack" style="gap:4px"><span class="muted small"><b>BibleProject</b></span><b style="font-size:18px">${esc(v.title)}</b><span class="muted small">${t('የመጽሐፉ አጠቃላይ ቪዲዮ (በእንግሊዝኛ)፤ በBibleProject ድረ ገጽ ይከፈታል።', 'Book overview video. Opens on BibleProject’s website.')}</span><span class="btn fill" style="align-self:flex-start">${icon('play')}${t('ቪዲዮውን ተመልከት', 'Watch the video')}</span></span></a>`;
 }
 
@@ -612,6 +633,7 @@ function lessonView() {
     else if (!vs.list.length) text = `<p class="prose">${t('ለዚህ ክፍል በተመረጠው ትርጉም ጽሑፍ የለም።', 'The selected version has no text for this passage.')}</p>`;
     else text = `<div class="verses story-text" lang="${lang}">${vs.list.map((v) => `<p><sup>${v.n} </sup>${esc(v.text)}</p>`).join('')}</div>`;
     body = top(0, '') + `<div class="stack" style="gap:4px"><span class="pill" style="background:var(--era);color:#14161A">${esc(tp(era.n))} · ${p.i + 1} / ${stories().length}</span><h1>${esc(tp(st.n))}</h1><span class="muted small">${esc(passRef(st.p))}</span></div>
+${videoCard(st.p.b, st.p.c)}
 <article class="card stack">${text}</article>
 ${vs.state === 'ok' ? `<button class="btn fill go" data-a="storyQuiz" data-k="quiz">${vs.list.length ? t('ጥያቄዎቹን ጀምር', 'Start the quiz') : t('ቀጥል', 'Continue')}${icon('right')}</button>` : ''}`;
   } else if (p.step === 'quiz') {
@@ -927,6 +949,7 @@ async function start() {
   }
   try { const r = await fetch('data/fathers/index.json'); if (r.ok) F.index = await r.json(); } catch (e) { /* fathers data unavailable */ }
   if (!C.books[S.pass.b]) S.pass = DEFAULT_PASS;
+  if (!C[S.browse]) S.browse = 'timeline';
   render();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 }
