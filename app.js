@@ -388,9 +388,41 @@ function fold(text) {
   return out.length === text.length ? out : text.toLowerCase();
 }
 
-// "love mercy" finds verses with both words; "love, mercy" finds verses with either.
+// Words that carry no meaning in a question such as "where is the verse where Jesus says…".
+const STOP = new Set(('a an and are as at be been bible but by can chapter did do does find for from had has have he her him his how i if in is it its ' +
+  'me my of on or our passage please quote said say saying says scripture she show so talk talks tell tells that the their them there these they this to us ' +
+  'verse verses was we were what when where which who whom why will with you your about into than then also ' +
+  'የት ነው ናቸው ያለው የሚለው የሚናገረው ቁጥር ቁጥሩ ጥቅስ ጥቅሱ ስለ ምን ይላል ላይ ውስጥ እና ወይም ያ ይህ የትኛው መጽሐፍ ቅዱስ አሳየኝ ንገረኝ ፈልግ የሚል').split(' ').map(fold));
+// Names of speakers say little about which verse is meant, so they count for less.
+const LIGHT = new Set(['jesus', 'christ', 'god', 'lord', 'paul', 'ኢየሱስ', 'ክርስቶስ', 'እግዚአብሔር', 'ጌታ', 'ጳውሎስ'].map(fold));
+
+// A query becomes a list of alternatives (separated by commas), each a list of weighted words.
+// Without commas there is one alternative: the meaningful words of the question.
 function parseQuery(q) {
-  return q.split(/[,،፣]/).map((g) => fold(g).split(/\s+/).filter(Boolean)).filter((g) => g.length);
+  return q.split(/[,،፣]/).map((part) => {
+    const words = fold(part).split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 1);
+    const kept = words.filter((w) => !STOP.has(w));
+    const terms = (kept.length ? kept : words).map((w) => {
+      const stem = /^[a-z]{4,}s$/.test(w) && !w.endsWith('ss') ? w.slice(0, -1) : w;   // plural: "sins" also finds "sin"
+      return { term: stem, weight: LIGHT.has(w) ? 0.5 : 1 };
+    });
+    return { terms, words };
+  }).filter((g) => g.terms.length);
+}
+
+// The longest run of words that the question and a verse share in the same order. A verse that
+// repeats the reader's own phrase ("the Lord is my shepherd") should come before one that only
+// has the same words scattered through it.
+function sharedRun(a, b) {
+  let best = 0, prev = new Array(b.length + 1).fill(0);
+  for (let i = 1; i <= a.length; i++) {
+    const row = new Array(b.length + 1).fill(0);
+    for (let j = 1; j <= b.length; j++) {
+      if (a[i - 1] === b[j - 1]) { row[j] = prev[j - 1] + 1; if (row[j] > best) best = row[j]; }
+    }
+    prev = row;
+  }
+  return best;
 }
 
 async function loadWholeVersion(id, progress) {
@@ -414,7 +446,13 @@ async function runSearch() {
   S.searchOn = groups.length > 0;
   save('q', 'qv', 'searchOn');
   if (!groups.length) { S.results = null; render(); return; }
-  const id = versions[S.qv] ? S.qv : S.primary;
+  // Search a Bible in the language the question was typed in.
+  let id = versions[S.qv] ? S.qv : S.primary;
+  const ethiopic = /[ሀ-፿]/.test(S.q);
+  if (ethiopic && versions[id].language !== 'am') id = (Object.values(versions).find((v) => v.language === 'am') || versions[id]).id;
+  if (!ethiopic && /[a-z]/i.test(S.q) && versions[id].language === 'am') id = versions[S.secondary] && versions[S.secondary].language !== 'am' ? S.secondary : 'web';
+  S.qv = id;
+  save('qv');
   const run = (runSearch.run = (runSearch.run || 0) + 1);
   S.results = null;
   S.shown = 60;
@@ -426,8 +464,15 @@ async function runSearch() {
     if (note) note.textContent = t('እየተጫነ ነው… ' + n + ' / 66 መጻሕፍት', 'Loading… ' + n + ' of 66 books');
   });
   if (run !== runSearch.run) return;
+  // A verse scores the weight of the words it contains. With one or two words it must contain them all;
+  // with a longer question it must contain at least half, and the fullest matches come first.
   const found = [];
   const books = versions[id].books;
+  const needs = groups.map((g) => {
+    const total = g.terms.reduce((sum, w) => sum + w.weight, 0);
+    const solid = g.terms.filter((w) => w.weight === 1).length;     // a speaker's name alone is not required
+    return g.terms.length <= 2 ? (solid || total) : Math.max(total / 2, 1.5);
+  });
   for (let b = 0; b < 66; b++) {
     const chapters = books[b] || [];
     for (let c = 0; c < chapters.length; c++) {
@@ -436,11 +481,20 @@ async function runSearch() {
         const text = verses[v];
         if (!text) continue;
         const folded = fold(text);
-        const group = groups.find((g) => g.every((term) => folded.includes(term)));
-        if (group) found.push({ b, c: c + 1, v: v + 1, text, terms: group });
+        let best = null;
+        groups.forEach((g, gi) => {
+          const hit = g.terms.filter((w) => folded.includes(w.term));
+          let score = hit.reduce((sum, w) => sum + w.weight, 0);
+          if (score < needs[gi]) return;
+          const run = g.words.length > 1 ? sharedRun(g.words, folded.split(/[^\p{L}\p{N}]+/u)) : 0;
+          if (run > 1) score += (run - 1) * 0.75;
+          if (!best || score > best.score) best = { score, terms: hit.map((w) => w.term), full: hit.length === g.terms.length };
+        });
+        if (best) found.push({ b, c: c + 1, v: v + 1, text, terms: best.terms, score: best.score, full: best.full });
       }
     }
   }
+  found.sort((x, y) => y.score - x.score);      // the sort is stable, so equal scores stay in Bible order
   S.results = found;
   S.searchNote = '';
   render();
@@ -464,11 +518,11 @@ function searchBar() {
   const verOpts = Object.values(versions).map((v) => [v.id, v.name]);
   return `<form class="card searchbar" role="search" data-search>
 <div class="field wide" style="flex:3 1 260px"><label for="q">${t('በመጽሐፍ ቅዱስ ውስጥ ፈልግ', 'Search the Bible')}</label>
-<input id="q" data-k="q" type="search" value="${esc(S.q)}" placeholder="${t('ለምሳሌ፦ ፍቅር ወይም ምሕረት, ይቅርታ', 'For example: love, or mercy, forgive')}" autocomplete="off"></div>
+<input id="q" data-k="q" type="search" value="${esc(S.q)}" placeholder="${t('ቃል ወይም ጥያቄ ይጻፉ፦ ፍቅር፣ ወይም “ስለ ገንዘብ ፍቅር የሚናገረው ቁጥር የት ነው?”', 'Type a word or a question: love, or “where does it say money is the root of evil?”')}" autocomplete="off"></div>
 <div class="field" style="flex:1 1 180px"><label for="qv">${t('ትርጉም', 'Version')}</label><select id="qv" data-c="qv" data-k="qv">${options(verOpts, versions[S.qv] ? S.qv : S.primary)}</select></div>
 <button class="btn fill" type="submit" data-k="q-go">${icon('search')}${t('ፈልግ', 'Search')}</button>
 ${S.searchOn ? `<button class="btn" type="button" data-a="clearSearch" data-k="q-clear">${t('አጽዳ', 'Clear')}</button>` : ''}
-<p class="muted small" style="flex:1 1 100%;margin:0">${t('ክፍተት ያላቸው ቃላት ሁሉም ያሉባቸውን ቁጥሮች ያመጣሉ፤ በነጠላ ሰረዝ (,) የተለዩት ከአንዳቸው አንዱ ያለባቸውን።', 'Words separated by spaces must all be in the verse; words separated by commas find verses with any of them.')}</p>
+<p class="muted small" style="flex:1 1 100%;margin:0">${t('ቃል ወይም ሙሉ ጥያቄ መጻፍ ይችላሉ፤ ፍለጋው ዋና ዋና ቃላቱን ወስዶ ብዙዎቹን የያዙትን ቁጥሮች ቀድሞ ያሳያል። በነጠላ ሰረዝ (,) የተለዩ ቃላት ከአንዳቸው አንዱ ያለባቸውን ያመጣሉ።', 'Type a word or a whole question. The search takes its key words and shows the verses with most of them first. Words separated by commas find verses with any of them.')}</p>
 </form>`;
 }
 
@@ -476,8 +530,14 @@ function searchResults() {
   if (S.results === null) return `<p id="searchnote" class="muted prose" role="status">${esc(S.searchNote || t('እየፈለገ ነው…', 'Searching…'))}</p>`;
   const id = versions[S.qv] ? S.qv : S.primary;
   if (!S.results.length) return `<div class="card"><p class="prose">${t('በ' + versions[id].name + ' ውስጥ ምንም አልተገኘም። ሌላ ቃል ወይም ሌላ ትርጉም ይሞክሩ።', 'Nothing found in the ' + versions[id].name + '. Try another word or another version.')}</p></div>`;
-  const rows = S.results.slice(0, S.shown).map((r, i) => `<button class="result" data-a="openResult" data-v="${i}" data-k="res-${i}"><b>${esc(bookName(r.b))} ${r.c}${t('፥', ':')}${r.v}</b><span lang="${versions[id].language}">${markTerms(r.text, r.terms)}</span></button>`).join('');
-  return `<p class="muted" role="status"><b>${S.results.length}</b> ${t('ቁጥሮች ተገኝተዋል በ', 'verses found in the ')}${esc(versions[id].name)}</p>
+  const ref = (r) => `${esc(bookName(r.b))} ${r.c}${t('፥', ':')}${r.v}`;
+  const top = S.results[0];
+  const ranked = S.results.some((r) => !r.full);
+  const rows = S.results.slice(1, S.shown).map((r, i) => `<button class="result" data-a="openResult" data-v="${i + 1}" data-k="res-${i + 1}"><b>${ref(r)}</b><span lang="${versions[id].language}">${markTerms(r.text, r.terms)}</span></button>`).join('');
+  return `<div class="card stack best" role="status"><span class="muted small"><b>${t('በጣም የሚቀርበው ቁጥር', 'Closest verse')}</b></span>
+<b style="font-size:22px">${ref(top)}</b><p class="prose" style="font-size:19px" lang="${versions[id].language}">${markTerms(top.text, top.terms)}</p>
+<button class="btn fill" style="align-self:flex-start" data-a="openResult" data-v="0" data-k="res-0">${t('ምዕራፉን ክፈት', 'Open the chapter')}</button></div>
+<p class="muted"><b>${S.results.length}</b> ${t('ቁጥሮች ተገኝተዋል በ', 'verses found in the ')}${esc(versions[id].name)}${ranked ? t('፤ በጣም የሚቀርቡት ቀድመው ተቀምጠዋል።', '; the closest come first.') : ''}</p>
 <div class="stack" style="gap:8px">${rows}</div>
 ${S.results.length > S.shown ? `<button class="btn" data-a="moreResults" data-k="res-more">${t('ተጨማሪ አሳይ', 'Show more')} (${S.results.length - S.shown})</button>` : ''}`;
 }

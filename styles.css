@@ -274,3 +274,4 @@ textarea { padding: 10px; min-height: 96px; resize: vertical; font-size: 16px; }
 .result:hover { border-color: var(--muted); }
 .result b { font-size: 14px; color: var(--muted); }
 mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; }
+.best { border: 2px solid var(--accent); gap: 8px; }
