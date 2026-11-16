@@ -2250,5 +2250,302 @@
     "to": 22
    }
   ]
+ ],
+ "places": [
+  {
+   "n": [
+    "ኢየሩሳሌም",
+    "Jerusalem"
+   ],
+   "lat": 31.778,
+   "lon": 35.235,
+   "stories": [
+    "The Binding of Isaac",
+    "The Wisdom of Solomon",
+    "Rebuilding the Wall",
+    "The Cross and Resurrection",
+    "Pentecost"
+   ],
+   "note": [
+    "የሞሪያ ተራራ በትውፊት ከኢየሩሳሌም ጋር ይያያዛል።",
+    "Mount Moriah is traditionally identified with Jerusalem."
+   ]
+  },
+  {
+   "n": [
+    "ቤተ ልሔም",
+    "Bethlehem"
+   ],
+   "lat": 31.705,
+   "lon": 35.203,
+   "stories": [
+    "Ruth",
+    "The Birth of Jesus"
+   ]
+  },
+  {
+   "n": [
+    "ኢያሪኮ",
+    "Jericho"
+   ],
+   "lat": 31.871,
+   "lon": 35.444,
+   "stories": [
+    "Jericho"
+   ]
+  },
+  {
+   "n": [
+    "ከኢየሩሳሌም ወደ ኢያሪኮ የሚወስደው መንገድ",
+    "The road from Jerusalem to Jericho"
+   ],
+   "lat": 31.82,
+   "lon": 35.36,
+   "stories": [
+    "The Good Samaritan"
+   ],
+   "note": [
+    "ምሳሌው የተቀመጠበት መንገድ።",
+    "The road on which the parable is set."
+   ]
+  },
+  {
+   "n": [
+    "የኤላ ሸለቆ",
+    "Valley of Elah"
+   ],
+   "lat": 31.69,
+   "lon": 34.96,
+   "stories": [
+    "David and Goliath"
+   ]
+  },
+  {
+   "n": [
+    "ቤርሳቤህ",
+    "Beersheba"
+   ],
+   "lat": 31.245,
+   "lon": 34.79,
+   "stories": [
+    "Jacob and Esau"
+   ]
+  },
+  {
+   "n": [
+    "የብፁዓን ተራራ",
+    "Mount of Beatitudes"
+   ],
+   "lat": 32.881,
+   "lon": 35.556,
+   "stories": [
+    "The Sermon on the Mount"
+   ],
+   "note": [
+    "በገሊላ ባሕር አጠገብ ያለ በትውፊት የሚታወቅ ስፍራ።",
+    "The traditional site, beside the Sea of Galilee."
+   ]
+  },
+  {
+   "n": [
+    "ደማስቆ",
+    "Damascus"
+   ],
+   "lat": 33.513,
+   "lon": 36.292,
+   "stories": [
+    "The Conversion of Saul"
+   ]
+  },
+  {
+   "n": [
+    "ካራን",
+    "Haran"
+   ],
+   "lat": 36.865,
+   "lon": 39.03,
+   "stories": [
+    "The Call of Abraham"
+   ]
+  },
+  {
+   "n": [
+    "ባቢሎን",
+    "Babylon"
+   ],
+   "lat": 32.54,
+   "lon": 44.42,
+   "stories": [
+    "The Tower of Babel",
+    "Daniel in the Lions’ Den"
+   ]
+  },
+  {
+   "n": [
+    "ሱሳ",
+    "Susa"
+   ],
+   "lat": 32.19,
+   "lon": 48.26,
+   "stories": [
+    "Esther"
+   ]
+  },
+  {
+   "n": [
+    "የአራራት ተራሮች",
+    "Mountains of Ararat"
+   ],
+   "lat": 39.7,
+   "lon": 44.3,
+   "stories": [
+    "Noah and the Ark"
+   ],
+   "note": [
+    "በትውፊት የሚታወቀው ስፍራ።",
+    "The traditional location."
+   ]
+  },
+  {
+   "n": [
+    "ግብፅ (ጌሤም)",
+    "Egypt (Goshen)"
+   ],
+   "lat": 30.8,
+   "lon": 31.8,
+   "stories": [
+    "Joseph in Egypt",
+    "The Passover"
+   ]
+  },
+  {
+   "n": [
+    "ቀይ ባሕር",
+    "The Red Sea"
+   ],
+   "lat": 29.95,
+   "lon": 32.55,
+   "stories": [
+    "The Red Sea"
+   ],
+   "note": [
+    "የተሻገሩበት ትክክለኛ ስፍራ አይታወቅም፤ ይህ ግምታዊ ምልክት ነው።",
+    "The exact place of the crossing is not known; this pin is approximate."
+   ]
+  },
+  {
+   "n": [
+    "የሲና ተራራ",
+    "Mount Sinai"
+   ],
+   "lat": 28.54,
+   "lon": 33.975,
+   "stories": [
+    "The Call of Moses",
+    "The Ten Commandments"
+   ],
+   "note": [
+    "በትውፊት የሚታወቀው ስፍራ።",
+    "The traditional location."
+   ]
+  },
+  {
+   "n": [
+    "አንጾኪያ",
+    "Antioch"
+   ],
+   "lat": 36.2,
+   "lon": 36.16,
+   "stories": [
+    "Paul’s Journeys"
+   ],
+   "note": [
+    "የጳውሎስ ጉዞዎች መነሻ።",
+    "Where Paul’s journeys set out from."
+   ]
+  },
+  {
+   "n": [
+    "ሮም",
+    "Rome"
+   ],
+   "lat": 41.9,
+   "lon": 12.5,
+   "stories": [
+    "Paul’s Journeys"
+   ],
+   "note": [
+    "የጳውሎስ የመጨረሻ ጉዞ መድረሻ።",
+    "Where Paul’s last journey ends."
+   ]
+  }
+ ],
+ "links": [
+  {
+   "n": [
+    "BibleProject ቪዲዮዎች",
+    "BibleProject videos"
+   ],
+   "url": "https://bibleproject.com/",
+   "d": [
+    "ስለ እያንዳንዱ መጽሐፍና ጭብጥ አጫጭር የተብራሩ ቪዲዮዎች (በእንግሊዝኛ)።",
+    "Short animated videos on every book and many themes."
+   ]
+  },
+  {
+   "n": [
+    "የአማርኛ ULB በDoor43",
+    "Amharic Unlocked Literal Bible on Door43"
+   ],
+   "url": "https://door43.org/u/STR/am_ulb/master/",
+   "d": [
+    "በዚህ መተግበሪያ ውስጥ ያለው የአማርኛ ትርጉም ምንጭ።",
+    "The source of the Amharic version built into this app."
+   ]
+  },
+  {
+   "n": [
+    "አዲሱ መደበኛ ትርጒም በYouVersion",
+    "New Amharic Standard Version on YouVersion"
+   ],
+   "url": "https://www.bible.com/versions/1260-nasv-amharic-bible-new-amharic-standard-version",
+   "d": [
+    "አዲሱን መደበኛ ትርጒም በመስመር ላይ ያንብቡ።",
+    "Read the New Amharic Standard Version online."
+   ]
+  },
+  {
+   "n": [
+    "unfoldingWord የትርጉም ማስታወሻዎች",
+    "unfoldingWord Translation Notes"
+   ],
+   "url": "https://www.unfoldingword.org/utn",
+   "d": [
+    "በ“ዳራ” ትር ውስጥ ያሉት የመጽሐፍና የምዕራፍ ማብራሪያዎች ምንጭ።",
+    "The source of the book and chapter notes in the Context tab."
+   ]
+  },
+  {
+   "n": [
+    "የአባቶች ትርጓሜ ስብስብ",
+    "Church fathers commentary database"
+   ],
+   "url": "https://github.com/HistoricalChristianFaith/Commentaries-Database",
+   "d": [
+    "በ“አባቶች” ትር ውስጥ ያሉት ጥቅሶች የተወሰዱበት ስብስብ።",
+    "The collection the quotations in the Fathers tab come from."
+   ]
+  },
+  {
+   "n": [
+    "eBible.org",
+    "eBible.org"
+   ],
+   "url": "https://ebible.org/",
+   "d": [
+    "በብዙ ቋንቋዎች በነጻ የሚገኙ የመጽሐፍ ቅዱስ ትርጉሞች።",
+    "Freely available Bible translations in many languages."
+   ]
+  }
  ]
 }

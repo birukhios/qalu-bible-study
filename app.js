@@ -49,10 +49,12 @@ const S = {
   more: 8,
   picker: false,
   intro: false,
+  place: 0,
   recording: false,
   msg: ''
 };
 let C = null; // stories, book names and study content
+let M = null; // outline maps
 const versions = {
   amulb: { id: 'amulb', name: 'አማርኛ ULB (Unlocked Literal Bible)', language: 'am', dir: 'data/amulb', books: {},
     credit: 'Amharic Unlocked Literal Bible. Original work available at https://door43.org/. Licensed CC BY-SA 4.0.' },
@@ -186,6 +188,7 @@ const ICONS = {
   left: '<path d="M15 5l-7 7 7 7"/>',
   right: '<path d="M9 5l7 7-7 7"/>',
   sliders: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
+  pin: '<path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
   trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'
 };
 const icon = (name, size = 18) => `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
@@ -197,6 +200,7 @@ function sideMenu() {
 <div class="brand">${icon('logo', 26)}<span>ቃሉ</span></div>
 ${nav('browse', 'grid', t('መጽሐፍ ቅዱስ', 'Bible'))}
 ${nav('study', 'book', t('ጥናት', 'Study'))}
+${M ? nav('map', 'pin', t('ካርታ', 'Map')) : ''}
 ${nav('notes', 'note', t('ማስታወሻዎች', 'Notes'))}
 <div class="spacer"></div>
 <button class="nav" data-a="lang" data-k="lang">${icon('globe', 20)}${t('English', 'አማርኛ')}</button>
@@ -380,6 +384,46 @@ ${credits ? `<p class="muted small" lang="en">${esc(credits)}</p>` : ''}
 </div>`;
 }
 
+// One outline map with numbered pins. Pins are real buttons laid over the drawing.
+function mapFigure(key, label, places) {
+  const m = M[key], [w, s, e, n] = m.bbox;
+  const pins = places.map((pl) => {
+    const i = C.places.indexOf(pl);
+    return `<button class="pin" style="left:${((pl.lon - w) / (e - w) * 100).toFixed(2)}%;top:${((n - pl.lat) / (n - s) * 100).toFixed(2)}%" data-a="place" data-v="${i}" data-k="pin-${key}-${i}" aria-pressed="${S.place === i}" aria-label="${esc(tp(pl.n))}" title="${esc(tp(pl.n))}"><span>${i + 1}</span></button>`;
+  }).join('');
+  let frame = '';
+  const inner = { wide: 'land', land: 'judea' }[key];      // the closer map, drawn here as a dashed box
+  if (inner) {
+    const [lw, ls, le, ln] = M[inner].bbox, kx = m.w / (e - w), ky = m.h / (n - s);
+    frame = `<rect x="${((lw - w) * kx).toFixed(1)}" y="${((n - ln) * ky).toFixed(1)}" width="${((le - lw) * kx).toFixed(1)}" height="${((ln - ls) * ky).toFixed(1)}" fill="none" stroke="var(--text)" stroke-width="2" stroke-dasharray="6 5"/>`;
+  }
+  return `<figure class="map ${key}"><figcaption class="muted small"><b>${esc(label)}</b></figcaption><div class="mapbox" style="aspect-ratio:${m.w}/${m.h}">
+<svg viewBox="0 0 ${m.w} ${m.h}" role="img" aria-label="${esc(label)}"><rect width="${m.w}" height="${m.h}" fill="var(--sea)"/><path d="${m.land}" fill="var(--land)" stroke="var(--line)" stroke-width="1"/><path d="${m.rivers}" fill="none" stroke="var(--sea)" stroke-width="${key === 'wide' ? 2 : 4}" stroke-linecap="round"/><path d="${m.lakes}" fill="var(--sea)" stroke="var(--line)" stroke-width="1"/>${frame}</svg>${pins}</div></figure>`;
+}
+
+function mapView() {
+  const inside = (p, key) => { const [w, s, e, n] = M[key].bbox; return p.lon >= w && p.lon <= e && p.lat >= s && p.lat <= n; };
+  const core = C.places.filter((p) => inside(p, 'judea'));
+  const near = C.places.filter((p) => inside(p, 'land') && !core.includes(p));
+  const far = C.places.filter((p) => !inside(p, 'land'));
+  const stories = {};
+  C.timeline.forEach((g) => g.items.forEach((it) => { stories[it.n[1]] = it; }));
+  const pl = C.places[S.place];
+  const chosen = `<div class="card stack"><div class="row"><span class="pin static" aria-hidden="true"><span>${S.place + 1}</span></span><b style="font-size:20px">${esc(tp(pl.n))}</b></div>
+${pl.note ? `<p class="muted prose">${esc(tp(pl.note))}</p>` : ''}
+<div class="grid">${pl.stories.map((name) => { const it = stories[name]; return tile(tp(it.n), tp(it.sub), { b: it.p.b, c: it.p.c, f: it.p.f, to: it.p.to, title: it.n }); }).join('')}</div></div>`;
+  const list = C.places.map((p, i) => `<button class="btn place" data-a="place" data-v="${i}" data-k="place-${i}" aria-pressed="${S.place === i}"><b>${i + 1}</b>${esc(tp(p.n))}</button>`).join('');
+  const links = C.links.map((l, i) => `<a class="tile" href="${esc(l.url)}" target="_blank" rel="noopener" data-k="link-${i}"><b>${esc(tp(l.n))}</b><span class="muted small">${esc(tp(l.d))}</span></a>`).join('');
+  return `<div class="wrap">
+<div class="stack"><h1>${t('የመጽሐፍ ቅዱስ ካርታ', 'Bible map')}</h1><p class="muted">${t('ታሪኮቹ የተፈጸሙባቸው ስፍራዎች። በነጠብጣብ የተከበበው ክፍል በቀጣዩ ካርታ ቀርቦ ይታያል። ምልክት ይንኩ፤ ከዚያ ታሪኩን ይክፈቱ።', 'Where the stories took place. Each dashed box is shown closer in the next map. Choose a pin, then open its story.')}</p></div>
+<div class="maps">${mapFigure('wide', t('የመጽሐፍ ቅዱስ አገሮች፦ ከሮም እስከ ሱሳ', 'The Bible lands, from Rome to Susa'), far)}${mapFigure('land', t('ቅድስት አገር', 'The Holy Land'), near)}${mapFigure('judea', t('ኢየሩሳሌምና አካባቢዋ', 'Around Jerusalem'), core)}
+<div class="stack mapside">${chosen}<div class="row">${list}</div>
+<p class="muted small">${t('የፍጥረትና የውድቀት ታሪኮች ስፍራ (ኤደን) አይታወቅም፤ የጠፋው ልጅም ምሳሌ ስለ ሆነ ምልክት የለውም። ካርታው ከNatural Earth (public domain) የተሠራ ነው።', 'Creation and the Fall have no pin because the location of Eden is not known, and the Prodigal Son has none because it is a parable. Map outlines are from Natural Earth (public domain).')}</p></div></div>
+<h2>${t('ጠቃሚ ማስፈንጠሪያዎች', 'Helpful links')}</h2>
+<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">${links}</div>
+</div>`;
+}
+
 function notesView() {
   const body = S.notes.length
     ? S.notes.map(noteCard).join('')
@@ -399,7 +443,7 @@ function render() {
   root.dataset.theme = S.dark ? 'dark' : 'light';
   document.documentElement.lang = S.en ? 'en' : 'am';
   document.body.style.background = S.dark ? '#27292C' : '#F5F5F6';
-  const view = S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : browseView();
+  const view = S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'map' ? mapView() : browseView();
   root.innerHTML = sideMenu() + '<main>' + view + '</main>';
   const newPanel = root.querySelector('.sidepanel');
   if (newPanel && panelTop) newPanel.scrollTop = panelTop;     // keep the side panel where the reader left it
@@ -462,6 +506,7 @@ const actions = {
   hl(v) { S.highlights[hlKey(S.sel)] = v; save('highlights'); },
   clearHl() { delete S.highlights[hlKey(S.sel)]; save('highlights'); },
   tab(v) { S.tab = v; },
+  place(v) { S.place = +v; },
   picker() { S.picker = !S.picker; },
   intro() { S.intro = !S.intro; },
   prevCh() {
@@ -574,6 +619,8 @@ async function start() {
     root.innerHTML = '<main><p role="alert" style="padding:24px">The app could not load its content. Check your connection and reload the page.</p></main>';
     return;
   }
+  try { const r = await fetch('data/map.json'); if (r.ok) M = await r.json(); } catch (e) { /* map unavailable */ }
+  if (!M && S.screen === 'map') S.screen = 'browse';
   try { const r = await fetch('data/fathers/index.json'); if (r.ok) F.index = await r.json(); } catch (e) { /* fathers data unavailable */ }
   if (!C.books[S.pass.b]) S.pass = DEFAULT_PASS;
   render();

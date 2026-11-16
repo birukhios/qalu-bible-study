@@ -6,6 +6,7 @@ A personal Bible study web app with an Amharic interface (English toggle), built
 
 - **Browse three ways:** a story timeline, the books in chronological order, or the traditional order of the 66 books.
 - **Study screen:** pick any book, chapter and verse range; click a verse to highlight it or attach a note.
+- **Bible map:** two outline maps with a pin for each place in the story timeline; choosing a pin lists its stories. Built from [Natural Earth](https://www.naturalearthdata.com/) data (public domain) by `tools/build_map.py`. Pin positions are approximate, and several are traditional sites.
 - **Split view:** a second version beside the first, verse by verse.
 - **Fathers, Context, Notes:** side tabs for the early fathers' readings, background, and your own notes.
 - **Voice notes:** recorded with the microphone and kept in the browser.
