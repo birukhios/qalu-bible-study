@@ -290,7 +290,7 @@ function themesView() {
     return `<div class="tile theme${open ? ' open' : ''}">${vlink(v, 'pic', 'theme-pic-' + i, thumb(th.img, th.n[1]), tp(th.n) + ': ' + t('ቪዲዮውን ተመልከት', 'watch the video'))}
 <b>${esc(tp(th.n))}</b><span class="muted small">${esc(tp(th.d))}</span>
 <div class="row">${vlink(v, 'btn fill', 'theme-vid-' + i, icon('play') + t('ቪዲዮ', 'Video'))}
-<button class="btn" data-a="theme" data-v="${i}" data-k="theme-more-${i}" aria-expanded="${open}">${icon('note')}${open ? t('ዝጋ', 'Close') : t('ዝርዝር', 'Details')}</button></div>${detail}</div>`;
+<button class="btn" data-a="concept" data-v="${i}" data-k="theme-more-${i}" aria-expanded="${open}">${icon('note')}${open ? t('ዝጋ', 'Close') : t('ዝርዝር', 'Details')}</button></div>${detail}</div>`;
   }).join('')}</div>
 <p class="muted small">${t('ቪዲዮዎቹ የBibleProject ናቸው (በእንግሊዝኛ)። ሥዕሎቹም ከእነሱ አገልጋይ ይታያሉ፤ በዚህ መተግበሪያ ውስጥ አይቀመጡም። ማብራሪያዎቹ ለዚህ መተግበሪያ የተጻፉ አጫጭር ረቂቆች ናቸው፤ የBibleProject ጽሑፍ አይደሉም።', 'The videos are BibleProject’s (in English). The pictures are shown from their server and are not stored in this app. The commentaries are short drafts written for this app; they are not BibleProject’s text.')}</p>`;
 }
@@ -866,7 +866,7 @@ const actions = {
   lang() { S.en = !S.en; save('en'); },
   theme() { S.dark = !S.dark; save('dark'); },
   browse(v) { S.browse = v; save('browse'); },
-  theme(v) { S.theme = S.theme === +v ? null : +v; },
+  concept(v) { S.theme = S.theme === +v ? null : +v; },
   open(v) { S.pass = opens[+v]; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen'); window.scrollTo(0, 0); },
   verse(v) { S.sel = S.sel === +v ? null : +v; S.more = 8; },
   hl(v) { S.highlights[hlKey(S.sel)] = v; save('highlights'); },
