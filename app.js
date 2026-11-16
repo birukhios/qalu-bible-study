@@ -39,7 +39,7 @@ const S = {
   sel: ls.get('sel', null),
   tab: ls.get('tab', 'fathers'),
   split: ls.get('split', true),
-  layout: ls.get('layout', 'stack'),
+  layout: ls.get('layout2', 'verse'), // 'verse' = each verse with its second version under it; 'stack' = two panes; 'side' = two columns
   focus: false,
   size: ls.get('size', 1),
   primary: ls.get('primary', ''),
@@ -288,18 +288,20 @@ function sideMenu() {
   const nav = (screen, ic, label) => `<button class="nav" data-a="nav" data-v="${screen}" data-k="nav-${screen}" ${S.screen === screen ? 'aria-current="page"' : ''}>${icon(ic, 20)}${esc(label)}</button>`;
   return `<nav class="side" aria-label="${t('ዋና ማውጫ', 'Main')}">
 <div class="brand">${icon('logo', 26)}<span>ቃሉ</span></div>
+<div class="navmain">
 ${nav('journey', 'flag', t('ጉዞ', 'Journey'))}
 ${nav('browse', 'grid', t('መጽሐፍ ቅዱስ', 'Bible'))}
 ${nav('study', 'book', t('ጥናት', 'Study'))}
 ${nav('map', 'pin', t('ካርታ', 'Map'))}
 ${nav('notes', 'note', t('ማስታወሻዎች', 'Notes'))}
+</div>
 <div class="spacer"></div>
 ${S.user
     ? `<div class="who">${S.user.picture ? `<img src="${esc(S.user.picture)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}<span><b>${esc(S.user.name || '')}</b><span class="muted small">${esc(S.user.email || '')}</span></span></div>
-<button class="nav" data-a="signOut" data-k="signout">${icon('exit', 20)}${t('ውጣ', 'Sign out')}</button>`
-    : `<button class="nav" data-a="signIn" data-k="signin">${icon('user', 20)}${t('ግባ', 'Sign in')}</button>`}
-<button class="nav" data-a="lang" data-k="lang">${icon('globe', 20)}${t('English', 'አማርኛ')}</button>
-<button class="nav" data-a="theme" data-k="theme">${icon('moon', 20)}${S.dark ? t('ብሩህ ገጽታ', 'Light mode') : t('ጨለማ ገጽታ', 'Dark mode')}</button>
+<button class="nav extra" data-a="signOut" data-k="signout" aria-label="${t('ውጣ', 'Sign out')}">${icon('exit', 20)}<span class="lbl">${t('ውጣ', 'Sign out')}</span></button>`
+    : `<button class="nav extra" data-a="signIn" data-k="signin" aria-label="${t('ግባ', 'Sign in')}">${icon('user', 20)}<span class="lbl">${t('ግባ', 'Sign in')}</span></button>`}
+<button class="nav extra" data-a="lang" data-k="lang" aria-label="${t('English', 'አማርኛ')}">${icon('globe', 20)}<span>${t('English', 'አማርኛ')}</span></button>
+<button class="nav extra" data-a="theme" data-k="theme" aria-label="${S.dark ? t('ብሩህ ገጽታ', 'Light mode') : t('ጨለማ ገጽታ', 'Dark mode')}">${icon('moon', 20)}<span class="lbl">${S.dark ? t('ብሩህ ገጽታ', 'Light mode') : t('ጨለማ ገጽታ', 'Dark mode')}</span></button>
 </nav>`;
 }
 
@@ -352,7 +354,15 @@ function closeVideo() {
   if (modalReturn && document.contains(modalReturn)) modalReturn.focus();
 }
 modal.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) closeVideo(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeVideo(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeVideo();
+  // On the Study screen the arrow keys turn the chapter, unless the reader is typing or choosing.
+  if (S.screen !== 'study' || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+    const btn = document.querySelector(e.key === 'ArrowLeft' ? '[data-k="prev-top"]' : '[data-k="next-top"]');
+    if (btn && !btn.disabled) { e.preventDefault(); btn.click(); }
+  }
+});
 
 function themesView() {
   // An older copy of the content file (kept by the browser for a few minutes after an update) has no concepts yet.
@@ -684,7 +694,7 @@ function studyView() {
 <div class="row" style="align-items:flex-end">
 <div class="field wide"><label for="pk-v1">${t('ትርጉም', 'Version')}</label><select id="pk-v1" data-c="primary" data-k="pk-v1">${options(verOpts, S.primary)}</select></div>
 ${S.split ? `<div class="field wide"><label for="pk-v2">${t('ሁለተኛ ትርጉም', 'Second version')}</label><select id="pk-v2" data-c="secondary" data-k="pk-v2">${options(verOpts, S.secondary)}</select></div>` : ''}
-${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትርጉሞች አቀማመጥ', 'Layout of the two versions')}"><button data-a="layout" data-v="stack" data-k="lay-stack" aria-pressed="${S.layout === 'stack'}">${t('ላይና ታች', 'Top and bottom')}</button><button data-a="layout" data-v="side" data-k="lay-side" aria-pressed="${S.layout === 'side'}">${t('ጎን ለጎን', 'Side by side')}</button></div>` : ''}
+${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትርጉሞች አቀማመጥ', 'Layout of the two versions')}"><button data-a="layout" data-v="verse" data-k="lay-verse" aria-pressed="${S.layout === 'verse'}">${t('ቁጥር በቁጥር', 'Verse by verse')}</button><button data-a="layout" data-v="stack" data-k="lay-stack" aria-pressed="${S.layout === 'stack'}">${t('ላይና ታች', 'Top and bottom')}</button><button data-a="layout" data-v="side" data-k="lay-side" aria-pressed="${S.layout === 'side'}">${t('ጎን ለጎን', 'Side by side')}</button></div>` : ''}
 <button class="btn" data-a="import" data-k="import">${t('የመጽሐፍ ቅዱስ ፋይል አስገባ…', 'Import a Bible file…')}</button>
 </div></div>`;
 
@@ -695,7 +705,7 @@ ${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትር�
   else if (main.state === 'error') verses = `<p class="prose" style="padding:12px" role="alert">${t('ጽሑፉን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱና ገጹን እንደገና ይክፈቱ።', 'The text could not be loaded. Check your connection and reload the page.')}</p>`;
   else if (!nums.length) verses = `<p class="prose" style="padding:12px">${t('ለዚህ ክፍል በተመረጠው ትርጉም ጽሑፍ የለም።', 'The selected version has no text for this passage.')}</p>`;
   else {
-    verses = nums.map((n) => `<button class="verse" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span lang="${versions[S.primary].language}"><sup>${n} </sup>${esc(main.verses[n - 1] || '')}</span>${S.split && !stacked ? `<span class="alt" lang="${versions[S.secondary].language}">${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>`).join('');
+    verses = nums.map((n) => `<button class="verse${S.split && S.layout === 'verse' ? ' inter' : ''}" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span lang="${versions[S.primary].language}"><sup>${n} </sup>${esc(main.verses[n - 1] || '')}</span>${S.split && !stacked ? `<span class="alt" lang="${versions[S.secondary].language}">${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>`).join('');
   }
   if (stacked) {
     // The second version gets its own pane under the first, with the same verse range.
@@ -719,22 +729,28 @@ ${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl
 <button class="btn" data-a="clearHl" data-k="hl-clear">${t('አጥፋ', 'Clear')}</button>
 <button class="btn" data-a="noteTab" data-k="note-open">${icon('pen')}${t('ማስታወሻ', 'Note')}</button>${voiceButton('rec-bar')}</div>`
     : `<p class="muted small" style="padding:6px 12px">${t('ለማቅለም ወይም ማስታወሻ ለመያዝ አንድ ቁጥር ይንኩ።', 'Click a verse to highlight it or add a note.')}</p>`;
-  const heads = S.split && !stacked ? `<div class="row muted small" style="padding:0 12px;gap:16px"><b style="flex:1 1 220px">${esc(versions[S.primary].name)}</b><b style="flex:1 1 220px">${esc(versions[S.secondary].name)}</b></div>` : '';
+  const heads = S.split && S.layout === 'side' ? `<div class="row muted small" style="padding:0 12px;gap:16px"><b style="flex:1 1 220px">${esc(versions[S.primary].name)}</b><b style="flex:1 1 220px">${esc(versions[S.secondary].name)}</b></div>` : '';
 
   const title = passTitle(p), ref = passRef(p);
   const first = p.b === 0 && p.c === 1, last = p.b === 65 && p.c === C.books[65].ch;
   const stepper = (key) => `<div class="row">
 <button class="btn" data-a="prevCh" data-k="prev-${key}" ${first ? 'disabled' : ''}>${icon('left')}${t('ያለፈው ምዕራፍ', 'Previous chapter')}</button>
 <button class="btn" data-a="nextCh" data-k="next-${key}" ${last ? 'disabled' : ''}>${t('ቀጣዩ ምዕራፍ', 'Next chapter')}${icon('right')}</button></div>`;
+  const tb = (action, key, ic, label, pressed, extra = '') => `<button class="btn tb" data-a="${action}" data-k="${key}" title="${label}" aria-label="${label}"${pressed === undefined ? '' : ` aria-pressed="${pressed}"`} ${extra}>${ic}<span class="lbl">${label}</span></button>`;
   return `<div class="wrap">
-<div class="row between"><div class="stack" style="gap:2px"><h1>${esc(title)}</h1>${ref !== title ? `<span class="muted small">${esc(ref)}</span>` : ''}</div>
-<div class="row" role="toolbar" aria-label="${t('የንባብ መሣሪያዎች', 'Reading tools')}">
-${p.pl ? `<button class="btn" data-a="showPlace" data-k="show-place">${icon('pin')}${t('ካርታ ላይ አሳይ', 'Show on the map')}</button>` : ''}
-<button class="btn" data-a="picker" data-k="picker" aria-expanded="${S.picker}" aria-pressed="${S.picker}">${icon('sliders')}${t('ክፍልና ትርጉም', 'Passage and version')}</button>
-<button class="btn" data-a="smaller" data-k="smaller" aria-label="${t('ጽሑፉን አሳንስ', 'Smaller text')}"><b style="font-size:13px">A−</b></button>
-<button class="btn" data-a="larger" data-k="larger" aria-label="${t('ጽሑፉን አሳድግ', 'Larger text')}"><b style="font-size:18px">A+</b></button>
-<button class="btn" data-a="split" data-k="split" aria-pressed="${S.split}">${icon('split')}${t('ሁለት ትርጉም', 'Two versions')}</button>
-<button class="btn" data-a="focus" data-k="focus" aria-pressed="${S.focus}">${icon('focus')}${t('ትኩረት', 'Focus')}</button>
+<div class="readhead">
+<div class="row titlebar">
+<button class="btn round" data-a="prevCh" data-k="prev-top" ${first ? 'disabled' : ''} aria-label="${t('ያለፈው ምዕራፍ', 'Previous chapter')}" title="${t('ያለፈው ምዕራፍ', 'Previous chapter')} (←)">${icon('left')}</button>
+<button class="titlebtn" data-a="picker" data-k="title" aria-expanded="${S.picker}" title="${t('ክፍልና ትርጉም ለመቀየር', 'Change passage or version')}"><h1>${esc(title)}</h1>${ref !== title ? `<span class="muted small">${esc(ref)}</span>` : `<span class="muted small">${esc(versions[S.primary].name)}${S.split ? ' · ' + esc(versions[S.secondary].name) : ''}</span>`}</button>
+<button class="btn round" data-a="nextCh" data-k="next-top" ${last ? 'disabled' : ''} aria-label="${t('ቀጣዩ ምዕራፍ', 'Next chapter')}" title="${t('ቀጣዩ ምዕራፍ', 'Next chapter')} (→)">${icon('right')}</button>
+</div>
+<div class="row tools" role="toolbar" aria-label="${t('የንባብ መሣሪያዎች', 'Reading tools')}">
+${tb('picker', 'picker', icon('sliders'), t('ክፍልና ትርጉም', 'Passage and version'), S.picker)}
+${tb('split', 'split', icon('split'), t('ሁለት ትርጉም', 'Two versions'), S.split)}
+${tb('smaller', 'smaller', '<b style="font-size:13px">A−</b>', t('ጽሑፉን አሳንስ', 'Smaller text'))}
+${tb('larger', 'larger', '<b style="font-size:18px">A+</b>', t('ጽሑፉን አሳድግ', 'Larger text'))}
+${tb('focus', 'focus', icon('focus'), t('ትኩረት', 'Focus'), S.focus)}
+${p.pl ? tb('showPlace', 'show-place', icon('pin'), t('ካርታ ላይ አሳይ', 'Show on the map')) : ''}
 </div></div>
 ${S.picker ? picker : ''}
 <div class="cols"><article class="card stack reader${S.split || !S.focus ? '' : ' single'}">${selbar}${heads}<div class="verses" style="font-size:${[16, 19, 22, 25][S.size]}px">${verses}</div>${stepper('bottom')}</article>${S.focus ? '' : sidePanel()}</div>
@@ -1222,7 +1238,7 @@ const actions = {
   },
   more() { S.more += 12; },
   split() { S.split = !S.split; save('split'); },
-  layout(v) { S.layout = v; save('layout'); },
+  layout(v) { S.layout = v; ls.set('layout2', v); },
   focus() { S.focus = !S.focus; },
   smaller() { S.size = Math.max(0, S.size - 1); save('size'); },
   larger() { S.size = Math.min(3, S.size + 1); save('size'); },
