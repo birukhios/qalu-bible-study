@@ -243,6 +243,8 @@ function videoFor(b, c) {
 const thumb = (img, label = '') => `<span class="thumb"><span class="thumb-fallback" aria-hidden="true">${icon('play', 28)}${label ? `<b>${esc(label)}</b>` : ''}</span><img src="${img}" alt="" loading="lazy" onerror="this.remove()"></span>`;
 
 function themesView() {
+  // An older copy of the content file (kept by the browser for a few minutes after an update) has no concepts yet.
+  if (!C.themes) return `<div class="card stack" style="align-items:flex-start"><p class="prose">${t('ጽንሰ ሐሳቦቹ ገና አልተጫኑም። ገጹን እንደገና ይጫኑ።', 'The concepts have not loaded yet. Reload the page.')}</p><button class="btn fill" data-a="reload" data-k="reload-app">${t('እንደገና ጫን', 'Reload')}</button></div>`;
   return `<div class="grid themes">${C.themes.map((th, i) => {
     const url = `https://bibleproject.com/videos/${th.slug}/`;
     opens.push({ b: th.p.b, c: th.p.c, f: th.p.f, to: th.p.to });
@@ -883,6 +885,7 @@ const actions = {
     S.tab = 'notes';
     save('pass', 'screen');
   },
+  reload() { location.reload(); return false; },
   import() { fileInput.click(); return false; }
 };
 
@@ -940,7 +943,7 @@ async function start() {
   } catch (e) { /* no stored Bibles */ }
   pickVersions();
   try {
-    const res = await fetch('data/content.json');
+    const res = await fetch('data/content.json', { cache: 'no-cache' }); // always ask the server, so content and code stay in step
     if (!res.ok) throw new Error(res.status);
     C = await res.json();
   } catch (e) {

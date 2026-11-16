@@ -1,5 +1,5 @@
 // Offline support. App files: network first, cached copy as fallback. Bible data: cached after first use.
-const CACHE = 'qalu-v15';
+const CACHE = 'qalu-v16';
 const SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'icon.svg', 'manifest.webmanifest', 'data/content.json', 'data/fathers/index.json', 'data/land.json', 'vendor/leaflet/leaflet.js', 'vendor/leaflet/leaflet.css'];
 
 self.addEventListener('install', (event) => {
@@ -23,6 +23,7 @@ self.addEventListener('fetch', (event) => {
   if (bigData) {
     event.respondWith(caches.match(event.request).then((hit) => hit || fetch(event.request).then(store)));
   } else {
-    event.respondWith(fetch(event.request).then(store).catch(() => caches.match(event.request)));
+    // 'no-cache' makes the browser check with the server each time, so an update never mixes new code with old content.
+    event.respondWith(fetch(event.request, { cache: 'no-cache' }).then(store).catch(() => caches.match(event.request)));
   }
 });
