@@ -57,7 +57,9 @@ const S = {
   msg: '',
   game: ls.get('game', { xp: 0, streak: 0, last: '', done: {} }), // done: story number -> stars earned (1 to 3)
   play: null, // the story lesson in progress on the Journey screen
-  jump: true
+  jump: true,
+  user: ls.get('user', null), // { name, email, picture, sub } from Google sign-in
+  guest: ls.get('guest', false) // chose to use the app without signing in
 };
 let C = null; // stories, book names and study content
 // The interactive map is created once and moved into place on each render, so it keeps its zoom.
@@ -197,6 +199,8 @@ const ICONS = {
   right: '<path d="M9 5l7 7-7 7"/>',
   sliders: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
   pin: '<path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  exit: '<path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/>',
   trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
   flag: '<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',
   star: '<path d="M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8z"/>',
@@ -210,6 +214,66 @@ const ICONS = {
 const icon = (name, size = 18) => `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
 
 // ---------- views ----------
+// ---------- sign-in ----------
+// "Sign in with Google" runs entirely in the browser: Google returns a signed ID token and the app reads
+// the name, email and picture from it. This greets the reader and labels the session; it does not protect
+// anything, because the site and its data are public.
+const CLIENT_ID = (window.QALU_CONFIG || {}).googleClientId || '';
+let gsiState = '';      // '', 'loading', 'ready' or 'failed'
+
+function onCredential(response) {
+  try {
+    const part = response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const bytes = Uint8Array.from(atob(part), (ch) => ch.charCodeAt(0));
+    const data = JSON.parse(new TextDecoder().decode(bytes));
+    S.user = { name: data.name || data.email || '', email: data.email || '', picture: data.picture || '', sub: data.sub || '' };
+    S.guest = false;
+    save('user', 'guest');
+  } catch (e) {
+    S.msg = t('መግባት አልተቻለም። እንደገና ይሞክሩ።', 'Sign-in did not work. Please try again.');
+  }
+  render();
+}
+
+function mountGoogleButton() {
+  const slot = document.getElementById('gbtn');
+  if (!slot || !CLIENT_ID) return;
+  const draw = () => {
+    if (!document.getElementById('gbtn')) return;
+    if (!mountGoogleButton.started) {
+      google.accounts.id.initialize({ client_id: CLIENT_ID, callback: onCredential, auto_select: true });
+      mountGoogleButton.started = true;
+    }
+    google.accounts.id.renderButton(document.getElementById('gbtn'), { theme: S.dark ? 'filled_black' : 'outline', size: 'large', shape: 'pill', text: 'continue_with', locale: S.en ? 'en' : 'am', width: 280 });
+  };
+  if (gsiState === 'ready') { draw(); return; }
+  if (gsiState === 'loading') return;
+  gsiState = 'loading';
+  const script = document.createElement('script');
+  script.src = 'https://accounts.google.com/gsi/client';
+  script.async = true;
+  script.onload = () => { gsiState = 'ready'; draw(); };
+  script.onerror = () => { gsiState = 'failed'; render(); };
+  document.head.appendChild(script);
+}
+
+function loginView() {
+  let google;
+  if (!CLIENT_ID) google = `<p class="muted small">${t('በGoogle መግባት ገና አልተዘጋጀም።', 'Google sign-in has not been set up yet.')}</p>`;
+  else if (gsiState === 'failed') google = `<p class="small" role="alert">${t('የGoogle መግቢያን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱ።', 'Google sign-in could not be loaded. Check your connection.')}</p>`;
+  else google = `<div id="gbtn" class="gbtn" aria-label="${t('በGoogle ይግቡ', 'Sign in with Google')}"></div>`;
+  return `<main class="login"><div class="card stack logincard">
+<div class="brand" style="padding:0;font-size:26px">${icon('logo', 38)}<span>ቃሉ</span></div>
+<h1>${t('እንኳን ደህና መጡ', 'Welcome')}</h1>
+<p class="muted">${t('መጽሐፍ ቅዱስን ከቀደሙት አባቶች ጋር ያጥኑ። ለመጀመር ይግቡ ወይም አዲስ መለያ ይፍጠሩ፤ ሁለቱም በGoogle መለያዎ ነው።', 'Study the Bible alongside the early church fathers. Sign in or sign up to begin; both use your Google account.')}</p>
+${google}
+${S.msg ? `<p class="small" role="alert">${esc(S.msg)}</p>` : ''}
+<button class="btn" data-a="guest" data-k="guest">${t('ያለ መግቢያ ቀጥል', 'Continue without signing in')}</button>
+<p class="muted small">${t('ስምዎ፣ ኢሜይልዎና ሥዕልዎ በዚህ አሳሽ ውስጥ ብቻ ይቀመጣሉ። ማስታወሻዎችዎም በዚህ መሣሪያ ላይ ይቆያሉ።', 'Your name, email and picture are kept only in this browser. Your notes also stay on this device.')}</p>
+<button class="btn" style="align-self:center;background:transparent" data-a="lang" data-k="lang">${icon('globe')}${t('English', 'አማርኛ')}</button>
+</div></main>`;
+}
+
 function sideMenu() {
   const nav = (screen, ic, label) => `<button class="nav" data-a="nav" data-v="${screen}" data-k="nav-${screen}" ${S.screen === screen ? 'aria-current="page"' : ''}>${icon(ic, 20)}${esc(label)}</button>`;
   return `<nav class="side" aria-label="${t('ዋና ማውጫ', 'Main')}">
@@ -220,6 +284,10 @@ ${nav('study', 'book', t('ጥናት', 'Study'))}
 ${nav('map', 'pin', t('ካርታ', 'Map'))}
 ${nav('notes', 'note', t('ማስታወሻዎች', 'Notes'))}
 <div class="spacer"></div>
+${S.user
+    ? `<div class="who">${S.user.picture ? `<img src="${esc(S.user.picture)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}<span><b>${esc(S.user.name || '')}</b><span class="muted small">${esc(S.user.email || '')}</span></span></div>
+<button class="nav" data-a="signOut" data-k="signout">${icon('exit', 20)}${t('ውጣ', 'Sign out')}</button>`
+    : `<button class="nav" data-a="signIn" data-k="signin">${icon('user', 20)}${t('ግባ', 'Sign in')}</button>`}
 <button class="nav" data-a="lang" data-k="lang">${icon('globe', 20)}${t('English', 'አማርኛ')}</button>
 <button class="nav" data-a="theme" data-k="theme">${icon('moon', 20)}${S.dark ? t('ብሩህ ገጽታ', 'Light mode') : t('ጨለማ ገጽታ', 'Dark mode')}</button>
 </nav>`;
@@ -750,6 +818,11 @@ function render() {
   root.dataset.play = S.screen === 'journey' && S.play ? '1' : ''; // small screens hide the menu during a lesson
   document.documentElement.lang = S.en ? 'en' : 'am';
   document.body.style.background = S.dark ? '#27292C' : '#F5F5F6';
+  if (!S.user && !S.guest) {            // the login page comes first
+    root.innerHTML = loginView();
+    mountGoogleButton();
+    return;
+  }
   const view = S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'map' ? mapView() : browseView();
   root.innerHTML = sideMenu() + '<main>' + view + '</main>';
   const newPanel = root.querySelector('.sidepanel');
@@ -864,6 +937,12 @@ const actions = {
     window.scrollTo(0, 0);
   },
   lang() { S.en = !S.en; save('en'); },
+  guest() { S.guest = true; S.msg = ''; save('guest'); },
+  signIn() { S.guest = false; S.msg = ''; save('guest'); },
+  signOut() {
+    S.user = null; S.guest = false; save('user', 'guest');
+    if (window.google && google.accounts) google.accounts.id.disableAutoSelect();   // do not sign straight back in
+  },
   theme() { S.dark = !S.dark; save('dark'); },
   browse(v) { S.browse = v; save('browse'); },
   concept(v) { S.theme = S.theme === +v ? null : +v; },

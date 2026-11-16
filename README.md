@@ -14,6 +14,14 @@ A personal Bible study web app with an Amharic interface (English toggle), built
 - **Charcoal theme** with a light mode, adjustable text size, and a focus mode.
 - **Installable and offline:** in Safari use File › Add to Dock; in Chrome use the install button in the address bar.
 
+## Sign-in
+
+The app opens on a login page with "Sign in with Google" and a "Continue without signing in" option. Sign-up and sign-in are the same step: Google creates the session the first time someone uses the button.
+
+To switch the Google button on, create an OAuth client ID in the Google Cloud Console (APIs & Services › Credentials › Create credentials › OAuth client ID › Web application), add the site's address (for example `https://birukhios.github.io`) under Authorized JavaScript origins, and paste the client ID into `config.js`. The client ID is public by design.
+
+What it does and does not do: sign-in runs entirely in the browser and shows the reader's name and picture. It does not restrict access, because the site and repository are public, and it does not sync notes between devices; those would need a server.
+
 ## Running it
 
 It is a static site with no build step. Serve the folder with any web server:
