@@ -4,9 +4,9 @@ A personal Bible study web app with an Amharic interface (English toggle), built
 
 ## What it does
 
-- **Browse three ways:** a story timeline, the books in chronological order, or the traditional order of the 66 books.
+- **Browse three ways:** a timeline of 135 stories in nine eras, the books in chronological order, or the traditional order of the 66 books.
 - **Study screen:** pick any book, chapter and verse range; click a verse to highlight it or attach a note.
-- **Bible map:** two outline maps with a pin for each place in the story timeline; choosing a pin lists its stories. Built from [Natural Earth](https://www.naturalearthdata.com/) data (public domain) by `tools/build_map.py`. Pin positions are approximate, and several are traditional sites.
+- **Bible map:** an interactive map (drag and zoom) with a pin for each place in the story timeline; choosing a pin lists the stories set there. It uses [Leaflet](https://leafletjs.com/) (BSD 2-Clause, in `vendor/leaflet/`) with map tiles from [OpenStreetMap](https://www.openstreetmap.org/copyright), so it shows the present-day world and needs a connection; without one, the pins sit on a plain land outline built from [Natural Earth](https://www.naturalearthdata.com/) data (public domain, `tools/build_land.py`). Pin positions are approximate, and several are traditional sites.
 - **Two versions at once:** the second version in its own pane under the first, or side by side verse by verse.
 - **Fathers, Context, Notes:** side tabs for the early fathers' readings, background, and your own notes.
 - **Voice notes:** recorded with the microphone and kept in the browser.

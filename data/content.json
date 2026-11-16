@@ -504,8 +504,24 @@
     },
     {
      "n": [
-      "ኖኅና መርከቡ",
-      "Noah and the Ark"
+      "ቃየንና አቤል",
+      "Cain and Abel"
+     ],
+     "sub": [
+      "ዘፍጥረት 4",
+      "Genesis 4"
+     ],
+     "p": {
+      "b": 0,
+      "c": 4,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ኖኅና የጥፋት ውሃ",
+      "Noah and the Flood"
      ],
      "sub": [
       "ዘፍጥረት 6–9",
@@ -516,7 +532,8 @@
       "c": 6,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "ararat"
     },
     {
      "n": [
@@ -524,15 +541,16 @@
       "The Tower of Babel"
      ],
      "sub": [
-      "ዘፍጥረት 11",
-      "Genesis 11"
+      "ዘፍጥረት 11፥1–9",
+      "Genesis 11:1–9"
      ],
      "p": {
       "b": 0,
       "c": 11,
       "f": 1,
-      "to": 0
-     }
+      "to": 9
+     },
+     "pl": "babylon"
     }
    ]
   },
@@ -544,8 +562,8 @@
    "items": [
     {
      "n": [
-      "የአብርሃም ጥሪ",
-      "The Call of Abraham"
+      "የአብራም ጥሪ",
+      "The Call of Abram"
      ],
      "sub": [
       "ዘፍጥረት 12",
@@ -556,7 +574,110 @@
       "c": 12,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "haran"
+    },
+    {
+     "n": [
+      "አብራምና ሎጥ ተለያዩ",
+      "Abram and Lot Part Ways"
+     ],
+     "sub": [
+      "ዘፍጥረት 13",
+      "Genesis 13"
+     ],
+     "p": {
+      "b": 0,
+      "c": 13,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "bethel"
+    },
+    {
+     "n": [
+      "እግዚአብሔር ከአብራም ጋር የገባው ኪዳን",
+      "God’s Covenant with Abram"
+     ],
+     "sub": [
+      "ዘፍጥረት 15",
+      "Genesis 15"
+     ],
+     "p": {
+      "b": 0,
+      "c": 15,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "hebron"
+    },
+    {
+     "n": [
+      "አጋርና እስማኤል",
+      "Hagar and Ishmael"
+     ],
+     "sub": [
+      "ዘፍጥረት 16",
+      "Genesis 16"
+     ],
+     "p": {
+      "b": 0,
+      "c": 16,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "hebron"
+    },
+    {
+     "n": [
+      "ሦስቱ እንግዶች",
+      "The Three Visitors"
+     ],
+     "sub": [
+      "ዘፍጥረት 18",
+      "Genesis 18"
+     ],
+     "p": {
+      "b": 0,
+      "c": 18,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "hebron"
+    },
+    {
+     "n": [
+      "ሰዶምና ገሞራ",
+      "Sodom and Gomorrah"
+     ],
+     "sub": [
+      "ዘፍጥረት 19",
+      "Genesis 19"
+     ],
+     "p": {
+      "b": 0,
+      "c": 19,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "sodom"
+    },
+    {
+     "n": [
+      "የይስሐቅ ልደት",
+      "The Birth of Isaac"
+     ],
+     "sub": [
+      "ዘፍጥረት 21",
+      "Genesis 21"
+     ],
+     "p": {
+      "b": 0,
+      "c": 21,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "beersheba"
     },
     {
      "n": [
@@ -572,7 +693,25 @@
       "c": 22,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ለይስሐቅ ሚስት፦ ርብቃ",
+      "A Wife for Isaac: Rebekah"
+     ],
+     "sub": [
+      "ዘፍጥረት 24",
+      "Genesis 24"
+     ],
+     "p": {
+      "b": 0,
+      "c": 24,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "haran"
     },
     {
      "n": [
@@ -580,28 +719,165 @@
       "Jacob and Esau"
      ],
      "sub": [
-      "ዘፍጥረት 25–33",
-      "Genesis 25–33"
+      "ዘፍጥረት 25–27",
+      "Genesis 25–27"
      ],
      "p": {
       "b": 0,
       "c": 25,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "beersheba"
     },
     {
      "n": [
-      "ዮሴፍ በግብፅ",
-      "Joseph in Egypt"
+      "የያዕቆብ መሰላል",
+      "Jacob’s Ladder"
      ],
      "sub": [
-      "ዘፍጥረት 37–50",
-      "Genesis 37–50"
+      "ዘፍጥረት 28",
+      "Genesis 28"
+     ],
+     "p": {
+      "b": 0,
+      "c": 28,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "bethel"
+    },
+    {
+     "n": [
+      "ያዕቆብ፣ ልያና ራሔል",
+      "Jacob, Leah and Rachel"
+     ],
+     "sub": [
+      "ዘፍጥረት 29",
+      "Genesis 29"
+     ],
+     "p": {
+      "b": 0,
+      "c": 29,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "haran"
+    },
+    {
+     "n": [
+      "ያዕቆብ ከእግዚአብሔር ጋር ታገለ",
+      "Jacob Wrestles with God"
+     ],
+     "sub": [
+      "ዘፍጥረት 32",
+      "Genesis 32"
+     ],
+     "p": {
+      "b": 0,
+      "c": 32,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "peniel"
+    },
+    {
+     "n": [
+      "ዮሴፍ በወንድሞቹ ተሸጠ",
+      "Joseph Sold by His Brothers"
+     ],
+     "sub": [
+      "ዘፍጥረት 37",
+      "Genesis 37"
      ],
      "p": {
       "b": 0,
       "c": 37,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "dothan"
+    },
+    {
+     "n": [
+      "ዮሴፍ በጲጥፋራ ቤትና በእስር ቤት",
+      "Joseph in Potiphar’s House and in Prison"
+     ],
+     "sub": [
+      "ዘፍጥረት 39–40",
+      "Genesis 39–40"
+     ],
+     "p": {
+      "b": 0,
+      "c": 39,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "egypt"
+    },
+    {
+     "n": [
+      "ዮሴፍ የፈርዖንን ሕልም ፈታ",
+      "Joseph Interprets Pharaoh’s Dreams"
+     ],
+     "sub": [
+      "ዘፍጥረት 41",
+      "Genesis 41"
+     ],
+     "p": {
+      "b": 0,
+      "c": 41,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "egypt"
+    },
+    {
+     "n": [
+      "ዮሴፍ ከወንድሞቹ ጋር ተገናኘ",
+      "Joseph Reunited with His Brothers"
+     ],
+     "sub": [
+      "ዘፍጥረት 42–45",
+      "Genesis 42–45"
+     ],
+     "p": {
+      "b": 0,
+      "c": 42,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "egypt"
+    },
+    {
+     "n": [
+      "የያዕቆብ ቤተ ሰብ ወደ ግብፅ ወረደ",
+      "Jacob’s Family Moves to Egypt"
+     ],
+     "sub": [
+      "ዘፍጥረት 46–47",
+      "Genesis 46–47"
+     ],
+     "p": {
+      "b": 0,
+      "c": 46,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "goshen"
+    },
+    {
+     "n": [
+      "የኢዮብ መከራ",
+      "The Suffering of Job"
+     ],
+     "sub": [
+      "ኢዮብ 1–2",
+      "Job 1–2"
+     ],
+     "p": {
+      "b": 17,
+      "c": 1,
       "f": 1,
       "to": 0
      }
@@ -616,8 +892,25 @@
    "items": [
     {
      "n": [
-      "የሙሴ ጥሪ",
-      "The Call of Moses"
+      "የሙሴ ልደት",
+      "The Birth of Moses"
+     ],
+     "sub": [
+      "ዘፀአት 2",
+      "Exodus 2"
+     ],
+     "p": {
+      "b": 1,
+      "c": 2,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "egypt"
+    },
+    {
+     "n": [
+      "የሚነድደው ቍጥቋጦ",
+      "The Burning Bush"
      ],
      "sub": [
       "ዘፀአት 3",
@@ -628,7 +921,25 @@
       "c": 3,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "sinai"
+    },
+    {
+     "n": [
+      "አሥሩ መቅሠፍቶች",
+      "The Ten Plagues"
+     ],
+     "sub": [
+      "ዘፀአት 7–11",
+      "Exodus 7–11"
+     ],
+     "p": {
+      "b": 1,
+      "c": 7,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "egypt"
     },
     {
      "n": [
@@ -644,12 +955,13 @@
       "c": 12,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "goshen"
     },
     {
      "n": [
-      "ቀይ ባሕር",
-      "The Red Sea"
+      "ቀይ ባሕርን መሻገር",
+      "Crossing the Red Sea"
      ],
      "sub": [
       "ዘፀአት 14",
@@ -658,6 +970,39 @@
      "p": {
       "b": 1,
       "c": 14,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "redsea"
+    },
+    {
+     "n": [
+      "መናና ድርጭት",
+      "Manna and Quail"
+     ],
+     "sub": [
+      "ዘፀአት 16",
+      "Exodus 16"
+     ],
+     "p": {
+      "b": 1,
+      "c": 16,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ከዐለት የፈለቀ ውሃ",
+      "Water from the Rock"
+     ],
+     "sub": [
+      "ዘፀአት 17",
+      "Exodus 17"
+     ],
+     "p": {
+      "b": 1,
+      "c": 17,
       "f": 1,
       "to": 0
      }
@@ -676,20 +1021,155 @@
       "c": 20,
       "f": 1,
       "to": 0
+     },
+     "pl": "sinai"
+    },
+    {
+     "n": [
+      "የወርቅ ጥጃ",
+      "The Golden Calf"
+     ],
+     "sub": [
+      "ዘፀአት 32",
+      "Exodus 32"
+     ],
+     "p": {
+      "b": 1,
+      "c": 32,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "sinai"
+    },
+    {
+     "n": [
+      "የማደሪያው ድንኳን",
+      "The Tabernacle"
+     ],
+     "sub": [
+      "ዘፀአት 40",
+      "Exodus 40"
+     ],
+     "p": {
+      "b": 1,
+      "c": 40,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "sinai"
+    },
+    {
+     "n": [
+      "አሥራ ሁለቱ ሰላዮች",
+      "The Twelve Spies"
+     ],
+     "sub": [
+      "ዘኍልቍ 13–14",
+      "Numbers 13–14"
+     ],
+     "p": {
+      "b": 3,
+      "c": 13,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "kadesh"
+    },
+    {
+     "n": [
+      "የናስ እባብ",
+      "The Bronze Serpent"
+     ],
+     "sub": [
+      "ዘኍልቍ 21፥4–9",
+      "Numbers 21:4–9"
+     ],
+     "p": {
+      "b": 3,
+      "c": 21,
+      "f": 4,
+      "to": 9
      }
+    },
+    {
+     "n": [
+      "በለዓምና አህያው",
+      "Balaam and His Donkey"
+     ],
+     "sub": [
+      "ዘኍልቍ 22",
+      "Numbers 22"
+     ],
+     "p": {
+      "b": 3,
+      "c": 22,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "የሙሴ ሞት",
+      "The Death of Moses"
+     ],
+     "sub": [
+      "ዘዳግም 34",
+      "Deuteronomy 34"
+     ],
+     "p": {
+      "b": 4,
+      "c": 34,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "nebo"
     }
    ]
   },
   {
    "n": [
-    "ምድሪቱና ነገሥታት",
-    "The Land and the Kings"
+    "ምድሪቱን መውረስና መሳፍንት",
+    "Conquest and Judges"
    ],
    "items": [
     {
      "n": [
-      "ኢያሪኮ",
-      "Jericho"
+      "ረዓብና ሰላዮቹ",
+      "Rahab and the Spies"
+     ],
+     "sub": [
+      "ኢያሱ 2",
+      "Joshua 2"
+     ],
+     "p": {
+      "b": 5,
+      "c": 2,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jericho"
+    },
+    {
+     "n": [
+      "ዮርዳኖስን መሻገር",
+      "Crossing the Jordan"
+     ],
+     "sub": [
+      "ኢያሱ 3–4",
+      "Joshua 3–4"
+     ],
+     "p": {
+      "b": 5,
+      "c": 3,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jordan"
+    },
+    {
+     "n": [
+      "የኢያሪኮ ቅጥር መውደቅ",
+      "The Fall of Jericho"
      ],
      "sub": [
       "ኢያሱ 6",
@@ -700,7 +1180,92 @@
       "c": 6,
       "f": 1,
       "to": 0
+     },
+     "pl": "jericho"
+    },
+    {
+     "n": [
+      "ፀሐይ ቆመች",
+      "The Sun Stands Still"
+     ],
+     "sub": [
+      "ኢያሱ 10፥1–15",
+      "Joshua 10:1–15"
+     ],
+     "p": {
+      "b": 5,
+      "c": 10,
+      "f": 1,
+      "to": 15
+     },
+     "pl": "gibeon"
+    },
+    {
+     "n": [
+      "የኢያሱ የስንብት ቃል",
+      "Joshua’s Farewell"
+     ],
+     "sub": [
+      "ኢያሱ 24",
+      "Joshua 24"
+     ],
+     "p": {
+      "b": 5,
+      "c": 24,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "shechem"
+    },
+    {
+     "n": [
+      "ዲቦራና ባርቅ",
+      "Deborah and Barak"
+     ],
+     "sub": [
+      "መሳፍንት 4–5",
+      "Judges 4–5"
+     ],
+     "p": {
+      "b": 6,
+      "c": 4,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "tabor"
+    },
+    {
+     "n": [
+      "ጌዴዎን",
+      "Gideon"
+     ],
+     "sub": [
+      "መሳፍንት 6–7",
+      "Judges 6–7"
+     ],
+     "p": {
+      "b": 6,
+      "c": 6,
+      "f": 1,
+      "to": 0
      }
+    },
+    {
+     "n": [
+      "ሶምሶን",
+      "Samson"
+     ],
+     "sub": [
+      "መሳፍንት 13–16",
+      "Judges 13–16"
+     ],
+     "p": {
+      "b": 6,
+      "c": 13,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "gaza"
     },
     {
      "n": [
@@ -716,7 +1281,83 @@
       "c": 1,
       "f": 1,
       "to": 0
+     },
+     "pl": "bethlehem"
+    },
+    {
+     "n": [
+      "የሐና ጸሎትና የሳሙኤል ልደት",
+      "Hannah’s Prayer and the Birth of Samuel"
+     ],
+     "sub": [
+      "1 ሳሙኤል 1",
+      "1 Samuel 1"
+     ],
+     "p": {
+      "b": 8,
+      "c": 1,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "shiloh"
+    },
+    {
+     "n": [
+      "እግዚአብሔር ሳሙኤልን ጠራው",
+      "God Calls Samuel"
+     ],
+     "sub": [
+      "1 ሳሙኤል 3",
+      "1 Samuel 3"
+     ],
+     "p": {
+      "b": 8,
+      "c": 3,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "shiloh"
+    }
+   ]
+  },
+  {
+   "n": [
+    "የተባበረው መንግሥት",
+    "The United Kingdom"
+   ],
+   "items": [
+    {
+     "n": [
+      "ሳኦል ንጉሥ ሆነ",
+      "Saul Becomes King"
+     ],
+     "sub": [
+      "1 ሳሙኤል 9–10",
+      "1 Samuel 9–10"
+     ],
+     "p": {
+      "b": 8,
+      "c": 9,
+      "f": 1,
+      "to": 0
      }
+    },
+    {
+     "n": [
+      "ዳዊት ተቀባ",
+      "David Is Anointed"
+     ],
+     "sub": [
+      "1 ሳሙኤል 16",
+      "1 Samuel 16"
+     ],
+     "p": {
+      "b": 8,
+      "c": 16,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "bethlehem"
     },
     {
      "n": [
@@ -732,12 +1373,113 @@
       "c": 17,
       "f": 1,
       "to": 0
+     },
+     "pl": "elah"
+    },
+    {
+     "n": [
+      "ዳዊትና ዮናታን",
+      "David and Jonathan"
+     ],
+     "sub": [
+      "1 ሳሙኤል 18–20",
+      "1 Samuel 18–20"
+     ],
+     "p": {
+      "b": 8,
+      "c": 18,
+      "f": 1,
+      "to": 0
      }
     },
     {
      "n": [
-      "የሰሎሞን ጥበብ",
-      "The Wisdom of Solomon"
+      "ዳዊት ለሳኦል ራራለት",
+      "David Spares Saul"
+     ],
+     "sub": [
+      "1 ሳሙኤል 24",
+      "1 Samuel 24"
+     ],
+     "p": {
+      "b": 8,
+      "c": 24,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "engedi"
+    },
+    {
+     "n": [
+      "ዳዊት ታቦቱን ወደ ኢየሩሳሌም አመጣ",
+      "David Brings the Ark to Jerusalem"
+     ],
+     "sub": [
+      "2 ሳሙኤል 6",
+      "2 Samuel 6"
+     ],
+     "p": {
+      "b": 9,
+      "c": 6,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "እግዚአብሔር ከዳዊት ጋር የገባው ኪዳን",
+      "God’s Covenant with David"
+     ],
+     "sub": [
+      "2 ሳሙኤል 7",
+      "2 Samuel 7"
+     ],
+     "p": {
+      "b": 9,
+      "c": 7,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ዳዊትና ቤርሳቤህ",
+      "David and Bathsheba"
+     ],
+     "sub": [
+      "2 ሳሙኤል 11–12",
+      "2 Samuel 11–12"
+     ],
+     "p": {
+      "b": 9,
+      "c": 11,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "የአቤሴሎም ዐመፅ",
+      "Absalom’s Rebellion"
+     ],
+     "sub": [
+      "2 ሳሙኤል 15–18",
+      "2 Samuel 15–18"
+     ],
+     "p": {
+      "b": 9,
+      "c": 15,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "ሰሎሞን ጥበብን ለመነ",
+      "Solomon Asks for Wisdom"
      ],
      "sub": [
       "1 ነገሥት 3",
@@ -748,7 +1490,268 @@
       "c": 3,
       "f": 1,
       "to": 0
+     },
+     "pl": "gibeon"
+    },
+    {
+     "n": [
+      "ሰሎሞን ቤተ መቅደሱን ሠራ",
+      "Solomon Builds the Temple"
+     ],
+     "sub": [
+      "1 ነገሥት 6–8",
+      "1 Kings 6–8"
+     ],
+     "p": {
+      "b": 10,
+      "c": 6,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "የሳባ ንግሥት ጉብኝት",
+      "The Queen of Sheba’s Visit"
+     ],
+     "sub": [
+      "1 ነገሥት 10፥1–13",
+      "1 Kings 10:1–13"
+     ],
+     "p": {
+      "b": 10,
+      "c": 10,
+      "f": 1,
+      "to": 13
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "መንግሥቱ ተከፈለ",
+      "The Kingdom Divides"
+     ],
+     "sub": [
+      "1 ነገሥት 12",
+      "1 Kings 12"
+     ],
+     "p": {
+      "b": 10,
+      "c": 12,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "shechem"
+    }
+   ]
+  },
+  {
+   "n": [
+    "ነገሥታትና ነቢያት",
+    "Kings and Prophets"
+   ],
+   "items": [
+    {
+     "n": [
+      "ኤልያስና የሰራፕታዋ መበለት",
+      "Elijah and the Widow of Zarephath"
+     ],
+     "sub": [
+      "1 ነገሥት 17",
+      "1 Kings 17"
+     ],
+     "p": {
+      "b": 10,
+      "c": 17,
+      "f": 1,
+      "to": 0
      }
+    },
+    {
+     "n": [
+      "ኤልያስ በቀርሜሎስ ተራራ",
+      "Elijah on Mount Carmel"
+     ],
+     "sub": [
+      "1 ነገሥት 18",
+      "1 Kings 18"
+     ],
+     "p": {
+      "b": 10,
+      "c": 18,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "carmel"
+    },
+    {
+     "n": [
+      "ኤልያስ በኮሬብ፦ የለሆሳስ ድምፅ",
+      "Elijah at Horeb: The Still Small Voice"
+     ],
+     "sub": [
+      "1 ነገሥት 19",
+      "1 Kings 19"
+     ],
+     "p": {
+      "b": 10,
+      "c": 19,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "sinai"
+    },
+    {
+     "n": [
+      "ኤልያስ ወደ ሰማይ ተወሰደ",
+      "Elijah Taken Up to Heaven"
+     ],
+     "sub": [
+      "2 ነገሥት 2",
+      "2 Kings 2"
+     ],
+     "p": {
+      "b": 11,
+      "c": 2,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jordan"
+    },
+    {
+     "n": [
+      "ኤልሳዕና የመበለቲቱ ዘይት",
+      "Elisha and the Widow’s Oil"
+     ],
+     "sub": [
+      "2 ነገሥት 4",
+      "2 Kings 4"
+     ],
+     "p": {
+      "b": 11,
+      "c": 4,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "የንዕማን መፈወስ",
+      "Naaman Is Healed"
+     ],
+     "sub": [
+      "2 ነገሥት 5",
+      "2 Kings 5"
+     ],
+     "p": {
+      "b": 11,
+      "c": 5,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jordan"
+    },
+    {
+     "n": [
+      "ዮናስ",
+      "Jonah"
+     ],
+     "sub": [
+      "ዮናስ 1–4",
+      "Jonah 1–4"
+     ],
+     "p": {
+      "b": 31,
+      "c": 1,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "nineveh"
+    },
+    {
+     "n": [
+      "የኢሳይያስ ጥሪ",
+      "Isaiah’s Call"
+     ],
+     "sub": [
+      "ኢሳይያስ 6",
+      "Isaiah 6"
+     ],
+     "p": {
+      "b": 22,
+      "c": 6,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ሕዝቅያስና ሰናክሬም",
+      "Hezekiah and Sennacherib"
+     ],
+     "sub": [
+      "2 ነገሥት 18–19",
+      "2 Kings 18–19"
+     ],
+     "p": {
+      "b": 11,
+      "c": 18,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ኢዮስያስ የሕጉን መጽሐፍ አገኘ",
+      "Josiah Finds the Book of the Law"
+     ],
+     "sub": [
+      "2 ነገሥት 22–23",
+      "2 Kings 22–23"
+     ],
+     "p": {
+      "b": 11,
+      "c": 22,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "የኤርምያስ ጥሪ",
+      "Jeremiah’s Call"
+     ],
+     "sub": [
+      "ኤርምያስ 1",
+      "Jeremiah 1"
+     ],
+     "p": {
+      "b": 23,
+      "c": 1,
+      "f": 1,
+      "to": 0
+     }
+    },
+    {
+     "n": [
+      "የኢየሩሳሌም መውደቅ",
+      "The Fall of Jerusalem"
+     ],
+     "sub": [
+      "2 ነገሥት 25",
+      "2 Kings 25"
+     ],
+     "p": {
+      "b": 11,
+      "c": 25,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
     }
    ]
   },
@@ -758,6 +1761,91 @@
     "Exile and Return"
    ],
    "items": [
+    {
+     "n": [
+      "የደረቁ አጥንቶች ሸለቆ",
+      "The Valley of Dry Bones"
+     ],
+     "sub": [
+      "ሕዝቅኤል 37፥1–14",
+      "Ezekiel 37:1–14"
+     ],
+     "p": {
+      "b": 25,
+      "c": 37,
+      "f": 1,
+      "to": 14
+     },
+     "pl": "babylon"
+    },
+    {
+     "n": [
+      "ዳንኤልና የንጉሡ ማዕድ",
+      "Daniel and the King’s Food"
+     ],
+     "sub": [
+      "ዳንኤል 1",
+      "Daniel 1"
+     ],
+     "p": {
+      "b": 26,
+      "c": 1,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "babylon"
+    },
+    {
+     "n": [
+      "የናቡከደነፆር ሕልም",
+      "Nebuchadnezzar’s Dream"
+     ],
+     "sub": [
+      "ዳንኤል 2",
+      "Daniel 2"
+     ],
+     "p": {
+      "b": 26,
+      "c": 2,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "babylon"
+    },
+    {
+     "n": [
+      "የእሳቱ እቶን",
+      "The Fiery Furnace"
+     ],
+     "sub": [
+      "ዳንኤል 3",
+      "Daniel 3"
+     ],
+     "p": {
+      "b": 26,
+      "c": 3,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "babylon"
+    },
+    {
+     "n": [
+      "በግንብ ላይ የተጻፈው ጽሑፍ",
+      "The Writing on the Wall"
+     ],
+     "sub": [
+      "ዳንኤል 5",
+      "Daniel 5"
+     ],
+     "p": {
+      "b": 26,
+      "c": 5,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "babylon"
+    },
     {
      "n": [
       "ዳንኤል በአንበሶች ጉድጓድ",
@@ -772,7 +1860,25 @@
       "c": 6,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "babylon"
+    },
+    {
+     "n": [
+      "ከምርኮ መመለስ",
+      "The Return from Exile"
+     ],
+     "sub": [
+      "ዕዝራ 1",
+      "Ezra 1"
+     ],
+     "p": {
+      "b": 14,
+      "c": 1,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
     },
     {
      "n": [
@@ -788,12 +1894,13 @@
       "c": 1,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "susa"
     },
     {
      "n": [
-      "የኢየሩሳሌም ቅጥር",
-      "Rebuilding the Wall"
+      "ነህምያ የኢየሩሳሌምን ቅጥር ሠራ",
+      "Nehemiah Rebuilds the Wall"
      ],
      "sub": [
       "ነህምያ 1–6",
@@ -804,7 +1911,25 @@
       "c": 1,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ዕዝራ ሕጉን አነበበ",
+      "Ezra Reads the Law"
+     ],
+     "sub": [
+      "ነህምያ 8",
+      "Nehemiah 8"
+     ],
+     "p": {
+      "b": 15,
+      "c": 8,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
     }
    ]
   },
@@ -816,19 +1941,190 @@
    "items": [
     {
      "n": [
-      "ልደት",
+      "የመጥምቁ ዮሐንስ ልደት ተነገረ",
+      "The Birth of John the Baptist Foretold"
+     ],
+     "sub": [
+      "ሉቃስ 1፥5–25",
+      "Luke 1:5–25"
+     ],
+     "p": {
+      "b": 41,
+      "c": 1,
+      "f": 5,
+      "to": 25
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ብሥራት",
+      "The Annunciation"
+     ],
+     "sub": [
+      "ሉቃስ 1፥26–38",
+      "Luke 1:26–38"
+     ],
+     "p": {
+      "b": 41,
+      "c": 1,
+      "f": 26,
+      "to": 38
+     },
+     "pl": "nazareth"
+    },
+    {
+     "n": [
+      "የኢየሱስ ልደት",
       "The Birth of Jesus"
      ],
      "sub": [
-      "ሉቃስ 2",
-      "Luke 2"
+      "ሉቃስ 2፥1–20",
+      "Luke 2:1–20"
      ],
      "p": {
       "b": 41,
       "c": 2,
       "f": 1,
+      "to": 20
+     },
+     "pl": "bethlehem"
+    },
+    {
+     "n": [
+      "ሰብአ ሰገል",
+      "The Wise Men"
+     ],
+     "sub": [
+      "ማቴዎስ 2",
+      "Matthew 2"
+     ],
+     "p": {
+      "b": 39,
+      "c": 2,
+      "f": 1,
       "to": 0
-     }
+     },
+     "pl": "bethlehem"
+    },
+    {
+     "n": [
+      "ብላቴናው ኢየሱስ በቤተ መቅደስ",
+      "The Boy Jesus in the Temple"
+     ],
+     "sub": [
+      "ሉቃስ 2፥41–52",
+      "Luke 2:41–52"
+     ],
+     "p": {
+      "b": 41,
+      "c": 2,
+      "f": 41,
+      "to": 52
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "የኢየሱስ ጥምቀት",
+      "The Baptism of Jesus"
+     ],
+     "sub": [
+      "ማቴዎስ 3",
+      "Matthew 3"
+     ],
+     "p": {
+      "b": 39,
+      "c": 3,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jordan"
+    },
+    {
+     "n": [
+      "የኢየሱስ መፈተን",
+      "The Temptation of Jesus"
+     ],
+     "sub": [
+      "ማቴዎስ 4፥1–11",
+      "Matthew 4:1–11"
+     ],
+     "p": {
+      "b": 39,
+      "c": 4,
+      "f": 1,
+      "to": 11
+     },
+     "pl": "wilderness"
+    },
+    {
+     "n": [
+      "የመጀመሪያዎቹ ደቀ መዛሙርት ጥሪ",
+      "The Calling of the First Disciples"
+     ],
+     "sub": [
+      "ሉቃስ 5፥1–11",
+      "Luke 5:1–11"
+     ],
+     "p": {
+      "b": 41,
+      "c": 5,
+      "f": 1,
+      "to": 11
+     },
+     "pl": "galilee"
+    },
+    {
+     "n": [
+      "የቃና ሰርግ",
+      "The Wedding at Cana"
+     ],
+     "sub": [
+      "ዮሐንስ 2፥1–11",
+      "John 2:1–11"
+     ],
+     "p": {
+      "b": 42,
+      "c": 2,
+      "f": 1,
+      "to": 11
+     },
+     "pl": "cana"
+    },
+    {
+     "n": [
+      "ኒቆዲሞስ",
+      "Nicodemus"
+     ],
+     "sub": [
+      "ዮሐንስ 3፥1–21",
+      "John 3:1–21"
+     ],
+     "p": {
+      "b": 42,
+      "c": 3,
+      "f": 1,
+      "to": 21
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ሳምራዊቷ ሴት",
+      "The Samaritan Woman"
+     ],
+     "sub": [
+      "ዮሐንስ 4፥1–42",
+      "John 4:1–42"
+     ],
+     "p": {
+      "b": 42,
+      "c": 4,
+      "f": 1,
+      "to": 42
+     },
+     "pl": "shechem"
     },
     {
      "n": [
@@ -844,7 +2140,144 @@
       "c": 5,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "beatitudes"
+    },
+    {
+     "n": [
+      "ሽባው ተፈወሰ",
+      "The Healing of the Paralytic"
+     ],
+     "sub": [
+      "ማርቆስ 2፥1–12",
+      "Mark 2:1–12"
+     ],
+     "p": {
+      "b": 40,
+      "c": 2,
+      "f": 1,
+      "to": 12
+     },
+     "pl": "capernaum"
+    },
+    {
+     "n": [
+      "የዘሪው ምሳሌ",
+      "The Parable of the Sower"
+     ],
+     "sub": [
+      "ማቴዎስ 13፥1–23",
+      "Matthew 13:1–23"
+     ],
+     "p": {
+      "b": 39,
+      "c": 13,
+      "f": 1,
+      "to": 23
+     },
+     "pl": "galilee"
+    },
+    {
+     "n": [
+      "ማዕበሉን ጸጥ ማድረግ",
+      "Calming the Storm"
+     ],
+     "sub": [
+      "ማርቆስ 4፥35–41",
+      "Mark 4:35–41"
+     ],
+     "p": {
+      "b": 40,
+      "c": 4,
+      "f": 35,
+      "to": 41
+     },
+     "pl": "galilee"
+    },
+    {
+     "n": [
+      "የኢያኢሮስ ልጅ",
+      "Jairus’s Daughter"
+     ],
+     "sub": [
+      "ማርቆስ 5፥21–43",
+      "Mark 5:21–43"
+     ],
+     "p": {
+      "b": 40,
+      "c": 5,
+      "f": 21,
+      "to": 43
+     },
+     "pl": "capernaum"
+    },
+    {
+     "n": [
+      "አምስት ሺህ ሰዎችን መመገብ",
+      "Feeding the Five Thousand"
+     ],
+     "sub": [
+      "ዮሐንስ 6፥1–15",
+      "John 6:1–15"
+     ],
+     "p": {
+      "b": 42,
+      "c": 6,
+      "f": 1,
+      "to": 15
+     },
+     "pl": "galilee"
+    },
+    {
+     "n": [
+      "ኢየሱስ በውሃ ላይ ሄደ",
+      "Jesus Walks on the Water"
+     ],
+     "sub": [
+      "ማቴዎስ 14፥22–33",
+      "Matthew 14:22–33"
+     ],
+     "p": {
+      "b": 39,
+      "c": 14,
+      "f": 22,
+      "to": 33
+     },
+     "pl": "galilee"
+    },
+    {
+     "n": [
+      "የጴጥሮስ ምስክርነት",
+      "Peter’s Confession"
+     ],
+     "sub": [
+      "ማቴዎስ 16፥13–20",
+      "Matthew 16:13–20"
+     ],
+     "p": {
+      "b": 39,
+      "c": 16,
+      "f": 13,
+      "to": 20
+     },
+     "pl": "caesareaphilippi"
+    },
+    {
+     "n": [
+      "የኢየሱስ መልክ መለወጥ",
+      "The Transfiguration"
+     ],
+     "sub": [
+      "ማቴዎስ 17፥1–13",
+      "Matthew 17:1–13"
+     ],
+     "p": {
+      "b": 39,
+      "c": 17,
+      "f": 1,
+      "to": 13
+     },
+     "pl": "tabor"
     },
     {
      "n": [
@@ -852,14 +2285,48 @@
       "The Good Samaritan"
      ],
      "sub": [
-      "ሉቃስ 10",
-      "Luke 10"
+      "ሉቃስ 10፥25–37",
+      "Luke 10:25–37"
      ],
      "p": {
       "b": 41,
       "c": 10,
+      "f": 25,
+      "to": 37
+     },
+     "pl": "jerichoroad"
+    },
+    {
+     "n": [
+      "ማርያምና ማርታ",
+      "Mary and Martha"
+     ],
+     "sub": [
+      "ሉቃስ 10፥38–42",
+      "Luke 10:38–42"
+     ],
+     "p": {
+      "b": 41,
+      "c": 10,
+      "f": 38,
+      "to": 42
+     },
+     "pl": "bethany"
+    },
+    {
+     "n": [
+      "የጠፋው በግ",
+      "The Lost Sheep"
+     ],
+     "sub": [
+      "ሉቃስ 15፥1–7",
+      "Luke 15:1–7"
+     ],
+     "p": {
+      "b": 41,
+      "c": 15,
       "f": 1,
-      "to": 0
+      "to": 7
      }
     },
     {
@@ -868,8 +2335,8 @@
       "The Prodigal Son"
      ],
      "sub": [
-      "ሉቃስ 15",
-      "Luke 15"
+      "ሉቃስ 15፥11–32",
+      "Luke 15:11–32"
      ],
      "p": {
       "b": 41,
@@ -880,19 +2347,189 @@
     },
     {
      "n": [
-      "ስቅለትና ትንሣኤ",
-      "The Cross and Resurrection"
+      "ባለጠጋው ወጣት",
+      "The Rich Young Ruler"
      ],
      "sub": [
-      "ዮሐንስ 19–20",
-      "John 19–20"
+      "ማርቆስ 10፥17–31",
+      "Mark 10:17–31"
+     ],
+     "p": {
+      "b": 40,
+      "c": 10,
+      "f": 17,
+      "to": 31
+     }
+    },
+    {
+     "n": [
+      "ዘኬዎስ",
+      "Zacchaeus"
+     ],
+     "sub": [
+      "ሉቃስ 19፥1–10",
+      "Luke 19:1–10"
+     ],
+     "p": {
+      "b": 41,
+      "c": 19,
+      "f": 1,
+      "to": 10
+     },
+     "pl": "jericho"
+    },
+    {
+     "n": [
+      "የአልዓዛር መነሣት",
+      "The Raising of Lazarus"
+     ],
+     "sub": [
+      "ዮሐንስ 11",
+      "John 11"
+     ],
+     "p": {
+      "b": 42,
+      "c": 11,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "bethany"
+    },
+    {
+     "n": [
+      "በክብር ወደ ኢየሩሳሌም መግባት",
+      "The Triumphal Entry"
+     ],
+     "sub": [
+      "ማቴዎስ 21፥1–11",
+      "Matthew 21:1–11"
+     ],
+     "p": {
+      "b": 39,
+      "c": 21,
+      "f": 1,
+      "to": 11
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "የመጨረሻው እራት",
+      "The Last Supper"
+     ],
+     "sub": [
+      "ሉቃስ 22፥7–38",
+      "Luke 22:7–38"
+     ],
+     "p": {
+      "b": 41,
+      "c": 22,
+      "f": 7,
+      "to": 38
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ጌቴሴማኒ",
+      "Gethsemane"
+     ],
+     "sub": [
+      "ማቴዎስ 26፥36–56",
+      "Matthew 26:36–56"
+     ],
+     "p": {
+      "b": 39,
+      "c": 26,
+      "f": 36,
+      "to": 56
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ስቅለት",
+      "The Crucifixion"
+     ],
+     "sub": [
+      "ዮሐንስ 19",
+      "John 19"
      ],
      "p": {
       "b": 42,
       "c": 19,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ትንሣኤ",
+      "The Resurrection"
+     ],
+     "sub": [
+      "ዮሐንስ 20",
+      "John 20"
+     ],
+     "p": {
+      "b": 42,
+      "c": 20,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "የኤማሁስ መንገድ",
+      "The Road to Emmaus"
+     ],
+     "sub": [
+      "ሉቃስ 24፥13–35",
+      "Luke 24:13–35"
+     ],
+     "p": {
+      "b": 41,
+      "c": 24,
+      "f": 13,
+      "to": 35
+     },
+     "pl": "emmaus"
+    },
+    {
+     "n": [
+      "ታላቁ ተልእኮ",
+      "The Great Commission"
+     ],
+     "sub": [
+      "ማቴዎስ 28፥16–20",
+      "Matthew 28:16–20"
+     ],
+     "p": {
+      "b": 39,
+      "c": 28,
+      "f": 16,
+      "to": 20
+     },
+     "pl": "galilee"
+    },
+    {
+     "n": [
+      "ዕርገት",
+      "The Ascension"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 1፥1–11",
+      "Acts 1:1–11"
+     ],
+     "p": {
+      "b": 43,
+      "c": 1,
+      "f": 1,
+      "to": 11
+     },
+     "pl": "jerusalem"
     }
    ]
   },
@@ -916,7 +2553,59 @@
       "c": 2,
       "f": 1,
       "to": 0
-     }
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ጴጥሮስ ሽባውን ፈወሰ",
+      "Peter Heals the Lame Man"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 3",
+      "Acts 3"
+     ],
+     "p": {
+      "b": 43,
+      "c": 3,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "እስጢፋኖስ",
+      "Stephen"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 6–7",
+      "Acts 6–7"
+     ],
+     "p": {
+      "b": 43,
+      "c": 6,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "ፊልጶስና ኢትዮጵያዊው ጃንደረባ",
+      "Philip and the Ethiopian Official"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 8፥26–40",
+      "Acts 8:26–40"
+     ],
+     "p": {
+      "b": 43,
+      "c": 8,
+      "f": 26,
+      "to": 40
+     },
+     "pl": "gazaroad"
     },
     {
      "n": [
@@ -924,28 +2613,199 @@
       "The Conversion of Saul"
      ],
      "sub": [
-      "የሐዋርያት ሥራ 9",
-      "Acts 9"
+      "የሐዋርያት ሥራ 9፥1–19",
+      "Acts 9:1–19"
      ],
      "p": {
       "b": 43,
       "c": 9,
       "f": 1,
-      "to": 0
-     }
+      "to": 19
+     },
+     "pl": "damascus"
     },
     {
      "n": [
-      "የጳውሎስ ጉዞዎች",
-      "Paul’s Journeys"
+      "ጴጥሮስና ቆርኔሌዎስ",
+      "Peter and Cornelius"
      ],
      "sub": [
-      "የሐዋርያት ሥራ 13–28",
-      "Acts 13–28"
+      "የሐዋርያት ሥራ 10",
+      "Acts 10"
+     ],
+     "p": {
+      "b": 43,
+      "c": 10,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "caesarea"
+    },
+    {
+     "n": [
+      "ጴጥሮስ ከእስር ቤት ወጣ",
+      "Peter Freed from Prison"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 12",
+      "Acts 12"
+     ],
+     "p": {
+      "b": 43,
+      "c": 12,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "የጳውሎስ የመጀመሪያ ጉዞ",
+      "Paul’s First Journey"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 13–14",
+      "Acts 13–14"
      ],
      "p": {
       "b": 43,
       "c": 13,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "antioch"
+    },
+    {
+     "n": [
+      "የኢየሩሳሌም ጉባኤ",
+      "The Jerusalem Council"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 15",
+      "Acts 15"
+     ],
+     "p": {
+      "b": 43,
+      "c": 15,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "jerusalem"
+    },
+    {
+     "n": [
+      "የፊልጵስዩስ የወህኒ ጠባቂ",
+      "The Philippian Jailer"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 16፥16–40",
+      "Acts 16:16–40"
+     ],
+     "p": {
+      "b": 43,
+      "c": 16,
+      "f": 16,
+      "to": 40
+     },
+     "pl": "philippi"
+    },
+    {
+     "n": [
+      "ጳውሎስ በአቴና",
+      "Paul in Athens"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 17፥16–34",
+      "Acts 17:16–34"
+     ],
+     "p": {
+      "b": 43,
+      "c": 17,
+      "f": 16,
+      "to": 34
+     },
+     "pl": "athens"
+    },
+    {
+     "n": [
+      "በኤፌሶን የተነሣው ሁከት",
+      "The Riot in Ephesus"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 19",
+      "Acts 19"
+     ],
+     "p": {
+      "b": 43,
+      "c": 19,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "ephesus"
+    },
+    {
+     "n": [
+      "የጳውሎስ መርከብ መሰበር",
+      "Paul’s Shipwreck"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 27",
+      "Acts 27"
+     ],
+     "p": {
+      "b": 43,
+      "c": 27,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "malta"
+    },
+    {
+     "n": [
+      "ጳውሎስ በሮም",
+      "Paul in Rome"
+     ],
+     "sub": [
+      "የሐዋርያት ሥራ 28",
+      "Acts 28"
+     ],
+     "p": {
+      "b": 43,
+      "c": 28,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "rome"
+    },
+    {
+     "n": [
+      "የዮሐንስ ራእይ በፍጥሞ",
+      "John’s Vision on Patmos"
+     ],
+     "sub": [
+      "ራእይ 1",
+      "Revelation 1"
+     ],
+     "p": {
+      "b": 65,
+      "c": 1,
+      "f": 1,
+      "to": 0
+     },
+     "pl": "patmos"
+    },
+    {
+     "n": [
+      "አዲስ ሰማይና አዲስ ምድር",
+      "A New Heaven and a New Earth"
+     ],
+     "sub": [
+      "ራእይ 21–22",
+      "Revelation 21–22"
+     ],
+     "p": {
+      "b": 65,
+      "c": 21,
       "f": 1,
       "to": 0
      }
@@ -2253,231 +4113,497 @@
  ],
  "places": [
   {
+   "id": "jerusalem",
    "n": [
     "ኢየሩሳሌም",
     "Jerusalem"
    ],
    "lat": 31.778,
-   "lon": 35.235,
-   "stories": [
-    "The Binding of Isaac",
-    "The Wisdom of Solomon",
-    "Rebuilding the Wall",
-    "The Cross and Resurrection",
-    "Pentecost"
-   ],
-   "note": [
-    "የሞሪያ ተራራ በትውፊት ከኢየሩሳሌም ጋር ይያያዛል።",
-    "Mount Moriah is traditionally identified with Jerusalem."
-   ]
+   "lon": 35.235
   },
   {
+   "id": "bethlehem",
    "n": [
     "ቤተ ልሔም",
     "Bethlehem"
    ],
    "lat": 31.705,
-   "lon": 35.203,
-   "stories": [
-    "Ruth",
-    "The Birth of Jesus"
-   ]
+   "lon": 35.203
   },
   {
+   "id": "jericho",
    "n": [
     "ኢያሪኮ",
     "Jericho"
    ],
    "lat": 31.871,
-   "lon": 35.444,
-   "stories": [
-    "Jericho"
-   ]
+   "lon": 35.444
   },
   {
+   "id": "jerichoroad",
    "n": [
     "ከኢየሩሳሌም ወደ ኢያሪኮ የሚወስደው መንገድ",
     "The road from Jerusalem to Jericho"
    ],
    "lat": 31.82,
    "lon": 35.36,
-   "stories": [
-    "The Good Samaritan"
-   ],
    "note": [
     "ምሳሌው የተቀመጠበት መንገድ።",
     "The road on which the parable is set."
    ]
   },
   {
+   "id": "elah",
    "n": [
     "የኤላ ሸለቆ",
     "Valley of Elah"
    ],
    "lat": 31.69,
-   "lon": 34.96,
-   "stories": [
-    "David and Goliath"
-   ]
+   "lon": 34.96
   },
   {
+   "id": "beersheba",
    "n": [
     "ቤርሳቤህ",
     "Beersheba"
    ],
    "lat": 31.245,
-   "lon": 34.79,
-   "stories": [
-    "Jacob and Esau"
-   ]
+   "lon": 34.79
   },
   {
+   "id": "beatitudes",
    "n": [
     "የብፁዓን ተራራ",
     "Mount of Beatitudes"
    ],
    "lat": 32.881,
    "lon": 35.556,
-   "stories": [
-    "The Sermon on the Mount"
-   ],
    "note": [
-    "በገሊላ ባሕር አጠገብ ያለ በትውፊት የሚታወቅ ስፍራ።",
-    "The traditional site, beside the Sea of Galilee."
+    "በትውፊት የሚታወቀው ስፍራ።",
+    "The traditional site."
    ]
   },
   {
+   "id": "damascus",
    "n": [
     "ደማስቆ",
     "Damascus"
    ],
    "lat": 33.513,
-   "lon": 36.292,
-   "stories": [
-    "The Conversion of Saul"
-   ]
+   "lon": 36.292
   },
   {
+   "id": "haran",
    "n": [
     "ካራን",
     "Haran"
    ],
    "lat": 36.865,
-   "lon": 39.03,
-   "stories": [
-    "The Call of Abraham"
-   ]
+   "lon": 39.03
   },
   {
+   "id": "babylon",
    "n": [
     "ባቢሎን",
     "Babylon"
    ],
    "lat": 32.54,
-   "lon": 44.42,
-   "stories": [
-    "The Tower of Babel",
-    "Daniel in the Lions’ Den"
-   ]
+   "lon": 44.42
   },
   {
+   "id": "susa",
    "n": [
     "ሱሳ",
     "Susa"
    ],
    "lat": 32.19,
-   "lon": 48.26,
-   "stories": [
-    "Esther"
-   ]
+   "lon": 48.26
   },
   {
+   "id": "ararat",
    "n": [
     "የአራራት ተራሮች",
     "Mountains of Ararat"
    ],
    "lat": 39.7,
    "lon": 44.3,
-   "stories": [
-    "Noah and the Ark"
-   ],
    "note": [
     "በትውፊት የሚታወቀው ስፍራ።",
     "The traditional location."
    ]
   },
   {
+   "id": "egypt",
    "n": [
-    "ግብፅ (ጌሤም)",
-    "Egypt (Goshen)"
+    "ግብፅ",
+    "Egypt"
    ],
-   "lat": 30.8,
-   "lon": 31.8,
-   "stories": [
-    "Joseph in Egypt",
-    "The Passover"
+   "lat": 29.85,
+   "lon": 31.25,
+   "note": [
+    "ግምታዊ ምልክት፤ በአባይ ወንዝ ዳር።",
+    "An approximate pin, on the Nile."
    ]
   },
   {
+   "id": "goshen",
+   "n": [
+    "ጌሤም (ግብፅ)",
+    "Goshen (Egypt)"
+   ],
+   "lat": 30.8,
+   "lon": 31.8
+  },
+  {
+   "id": "redsea",
    "n": [
     "ቀይ ባሕር",
     "The Red Sea"
    ],
    "lat": 29.95,
    "lon": 32.55,
-   "stories": [
-    "The Red Sea"
-   ],
    "note": [
     "የተሻገሩበት ትክክለኛ ስፍራ አይታወቅም፤ ይህ ግምታዊ ምልክት ነው።",
     "The exact place of the crossing is not known; this pin is approximate."
    ]
   },
   {
+   "id": "sinai",
    "n": [
-    "የሲና ተራራ",
-    "Mount Sinai"
+    "የሲና ተራራ (ኮሬብ)",
+    "Mount Sinai (Horeb)"
    ],
    "lat": 28.54,
    "lon": 33.975,
-   "stories": [
-    "The Call of Moses",
-    "The Ten Commandments"
-   ],
    "note": [
     "በትውፊት የሚታወቀው ስፍራ።",
     "The traditional location."
    ]
   },
   {
+   "id": "antioch",
    "n": [
     "አንጾኪያ",
     "Antioch"
    ],
    "lat": 36.2,
-   "lon": 36.16,
-   "stories": [
-    "Paul’s Journeys"
-   ],
-   "note": [
-    "የጳውሎስ ጉዞዎች መነሻ።",
-    "Where Paul’s journeys set out from."
-   ]
+   "lon": 36.16
   },
   {
+   "id": "rome",
    "n": [
     "ሮም",
     "Rome"
    ],
    "lat": 41.9,
-   "lon": 12.5,
-   "stories": [
-    "Paul’s Journeys"
+   "lon": 12.5
+  },
+  {
+   "id": "hebron",
+   "n": [
+    "ኬብሮን (መምሬ)",
+    "Hebron (Mamre)"
    ],
+   "lat": 31.53,
+   "lon": 35.1
+  },
+  {
+   "id": "sodom",
+   "n": [
+    "ሰዶምና ገሞራ",
+    "Sodom and Gomorrah"
+   ],
+   "lat": 31.1,
+   "lon": 35.42,
    "note": [
-    "የጳውሎስ የመጨረሻ ጉዞ መድረሻ።",
-    "Where Paul’s last journey ends."
+    "ትክክለኛው ስፍራ አይታወቅም፤ በሙት ባሕር ደቡብ እንደ ነበሩ ይገመታል።",
+    "The exact site is not known; they are thought to have stood near the south of the Dead Sea."
    ]
+  },
+  {
+   "id": "bethel",
+   "n": [
+    "ቤቴል",
+    "Bethel"
+   ],
+   "lat": 31.93,
+   "lon": 35.22
+  },
+  {
+   "id": "peniel",
+   "n": [
+    "ጵንኤል (የያቦቅ ወንዝ)",
+    "Peniel (the Jabbok)"
+   ],
+   "lat": 32.18,
+   "lon": 35.7,
+   "note": [
+    "ግምታዊ ምልክት።",
+    "An approximate pin."
+   ]
+  },
+  {
+   "id": "dothan",
+   "n": [
+    "ዶታይን",
+    "Dothan"
+   ],
+   "lat": 32.41,
+   "lon": 35.24
+  },
+  {
+   "id": "kadesh",
+   "n": [
+    "ቃዴስ በርኔ",
+    "Kadesh Barnea"
+   ],
+   "lat": 30.69,
+   "lon": 34.49
+  },
+  {
+   "id": "nebo",
+   "n": [
+    "የናባው ተራራ",
+    "Mount Nebo"
+   ],
+   "lat": 31.77,
+   "lon": 35.725
+  },
+  {
+   "id": "jordan",
+   "n": [
+    "የዮርዳኖስ ወንዝ",
+    "The Jordan River"
+   ],
+   "lat": 31.837,
+   "lon": 35.55,
+   "note": [
+    "ከኢያሪኮ አጠገብ ያለው መሻገሪያ፤ በትውፊት የጥምቀት ስፍራ።",
+    "The crossing near Jericho, the traditional site of the baptism."
+   ]
+  },
+  {
+   "id": "gibeon",
+   "n": [
+    "ገባዖን",
+    "Gibeon"
+   ],
+   "lat": 31.85,
+   "lon": 35.18
+  },
+  {
+   "id": "shechem",
+   "n": [
+    "ሴኬም (ሲካር)",
+    "Shechem (Sychar)"
+   ],
+   "lat": 32.21,
+   "lon": 35.28
+  },
+  {
+   "id": "tabor",
+   "n": [
+    "የታቦር ተራራ",
+    "Mount Tabor"
+   ],
+   "lat": 32.687,
+   "lon": 35.39
+  },
+  {
+   "id": "gaza",
+   "n": [
+    "ጋዛ",
+    "Gaza"
+   ],
+   "lat": 31.5,
+   "lon": 34.47
+  },
+  {
+   "id": "shiloh",
+   "n": [
+    "ሴሎ",
+    "Shiloh"
+   ],
+   "lat": 32.056,
+   "lon": 35.29
+  },
+  {
+   "id": "engedi",
+   "n": [
+    "ዓይንጋዲ",
+    "En Gedi"
+   ],
+   "lat": 31.46,
+   "lon": 35.39
+  },
+  {
+   "id": "carmel",
+   "n": [
+    "የቀርሜሎስ ተራራ",
+    "Mount Carmel"
+   ],
+   "lat": 32.73,
+   "lon": 35.05
+  },
+  {
+   "id": "nineveh",
+   "n": [
+    "ነነዌ",
+    "Nineveh"
+   ],
+   "lat": 36.36,
+   "lon": 43.15
+  },
+  {
+   "id": "nazareth",
+   "n": [
+    "ናዝሬት",
+    "Nazareth"
+   ],
+   "lat": 32.7,
+   "lon": 35.3
+  },
+  {
+   "id": "cana",
+   "n": [
+    "ቃና ዘገሊላ",
+    "Cana of Galilee"
+   ],
+   "lat": 32.75,
+   "lon": 35.34,
+   "note": [
+    "በትውፊት የሚታወቀው ስፍራ።",
+    "The traditional site."
+   ]
+  },
+  {
+   "id": "capernaum",
+   "n": [
+    "ቅፍርናሆም",
+    "Capernaum"
+   ],
+   "lat": 32.88,
+   "lon": 35.575
+  },
+  {
+   "id": "galilee",
+   "n": [
+    "የገሊላ ባሕር",
+    "The Sea of Galilee"
+   ],
+   "lat": 32.8,
+   "lon": 35.59
+  },
+  {
+   "id": "caesareaphilippi",
+   "n": [
+    "ፊልጶስ ቂሣርያ",
+    "Caesarea Philippi"
+   ],
+   "lat": 33.25,
+   "lon": 35.69
+  },
+  {
+   "id": "bethany",
+   "n": [
+    "ቢታንያ",
+    "Bethany"
+   ],
+   "lat": 31.77,
+   "lon": 35.26
+  },
+  {
+   "id": "wilderness",
+   "n": [
+    "የይሁዳ ምድረ በዳ",
+    "The Judean wilderness"
+   ],
+   "lat": 31.7,
+   "lon": 35.4,
+   "note": [
+    "ግምታዊ ምልክት።",
+    "An approximate pin."
+   ]
+  },
+  {
+   "id": "emmaus",
+   "n": [
+    "ኤማሁስ",
+    "Emmaus"
+   ],
+   "lat": 31.84,
+   "lon": 34.99,
+   "note": [
+    "ትክክለኛው ስፍራ አከራካሪ ነው፤ ይህ ከተለመዱት ግምቶች አንዱ ነው።",
+    "The site is disputed; this is one of the usual candidates."
+   ]
+  },
+  {
+   "id": "gazaroad",
+   "n": [
+    "ወደ ጋዛ የሚወስደው መንገድ",
+    "The road to Gaza"
+   ],
+   "lat": 31.6,
+   "lon": 34.75,
+   "note": [
+    "ግምታዊ ምልክት፤ ከኢየሩሳሌም ወደ ጋዛ በሚወርደው መንገድ ላይ።",
+    "An approximate pin on the road down from Jerusalem to Gaza."
+   ]
+  },
+  {
+   "id": "caesarea",
+   "n": [
+    "ቂሣርያ",
+    "Caesarea"
+   ],
+   "lat": 32.5,
+   "lon": 34.89
+  },
+  {
+   "id": "philippi",
+   "n": [
+    "ፊልጵስዩስ",
+    "Philippi"
+   ],
+   "lat": 41.01,
+   "lon": 24.29
+  },
+  {
+   "id": "athens",
+   "n": [
+    "አቴና",
+    "Athens"
+   ],
+   "lat": 37.97,
+   "lon": 23.73
+  },
+  {
+   "id": "ephesus",
+   "n": [
+    "ኤፌሶን",
+    "Ephesus"
+   ],
+   "lat": 37.94,
+   "lon": 27.34
+  },
+  {
+   "id": "malta",
+   "n": [
+    "መላጥያ (ማልታ)",
+    "Malta"
+   ],
+   "lat": 35.9,
+   "lon": 14.4
+  },
+  {
+   "id": "patmos",
+   "n": [
+    "ፍጥሞ",
+    "Patmos"
+   ],
+   "lat": 37.31,
+   "lon": 26.55
   }
  ],
  "links": [
