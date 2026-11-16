@@ -90,6 +90,18 @@ h2 { font-size: 18px; font-weight: 700; }
 textarea { padding: 10px; min-height: 96px; resize: vertical; font-size: 16px; }
 .cols { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
 .reader { flex: 1 1 420px; min-width: 0; }
+/* The Bible text sits on a paper-coloured page with dark ink, in both themes. */
+.reader {
+  --bg: #F7F1E3; --surface: #EFE7D3; --line: #D6CAAE; --text: #2B2620; --muted: #65594A;
+  --accent: #2B2D31; --on-accent: #FFFFFF; --ctl: #E4D9BF; --danger: #B3261E; --side: #FFFFFF;
+  --hl-yellow: #FFE07A; --hl-green: #BFE6B4; --hl-blue: #BBD8FA; --hl-pink: #F9C2D4;
+  background: var(--bg); color: var(--text); border-color: var(--line);
+}
+.app[data-theme="dark"] .reader { --bg: #E9DFC9; --surface: #DFD4BB; --line: #C9BC9D; --ctl: #D6CAAD; --muted: #5E5345; }
+/* On wide windows the side panel stays in place and scrolls on its own, apart from the text. */
+@media (min-width: 1100px) {
+  .sidepanel { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+}
 .sidepanel { flex: 1 1 340px; max-width: 100%; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
 @media (min-width: 1100px) { .sidepanel { flex: 0 0 380px; } }
 .verse {

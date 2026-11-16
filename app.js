@@ -391,12 +391,18 @@ function render() {
   if (!C) return;
   const active = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.k : null;
   const caret = active === 'draft' ? document.activeElement.selectionStart : null;
+  const panel = root.querySelector('.sidepanel');
+  const panelKey = S.screen + '|' + S.tab + '|' + S.pass.b + '.' + S.pass.c;
+  const panelTop = panel && render.panelKey === panelKey ? panel.scrollTop : 0;
+  render.panelKey = panelKey;
   opens = [];
   root.dataset.theme = S.dark ? 'dark' : 'light';
   document.documentElement.lang = S.en ? 'en' : 'am';
   document.body.style.background = S.dark ? '#27292C' : '#F5F5F6';
   const view = S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : browseView();
   root.innerHTML = sideMenu() + '<main>' + view + '</main>';
+  const newPanel = root.querySelector('.sidepanel');
+  if (newPanel && panelTop) newPanel.scrollTop = panelTop;     // keep the side panel where the reader left it
   if (active) {
     const el = root.querySelector('[data-k="' + active + '"]');
     if (el) { el.focus({ preventScroll: true }); if (caret != null) el.setSelectionRange(caret, caret); }
