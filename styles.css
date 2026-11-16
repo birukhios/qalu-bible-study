@@ -259,3 +259,18 @@ textarea { padding: 10px; min-height: 96px; resize: vertical; font-size: 16px; }
 .who span { display: flex; flex-direction: column; min-width: 0; }
 .who b, .who .small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
 .who .small { font-size: 12px; }
+
+/* Bible screen: search, section shortcuts and the chapter picker */
+.searchbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 14px 18px; }
+.field input { min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 16px; width: 100%; }
+.chip { min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--ctl); font-size: 14px; font-weight: 500; }
+.chip:hover { background: var(--line); }
+.chapters { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
+.chap { min-width: 44px; min-height: 44px; border-radius: 10px; background: var(--ctl); font-size: 15px; font-weight: 600; }
+.chap:hover { background: var(--line); }
+.chap[aria-current="true"] { background: var(--accent); color: var(--on-accent); }
+.tile[aria-pressed="true"] { border-color: var(--accent); }
+.result { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 12px 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); line-height: 1.7; font-size: 16px; }
+.result:hover { border-color: var(--muted); }
+.result b { font-size: 14px; color: var(--muted); }
+mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; }

@@ -36,8 +36,8 @@ const S = {
   screen: ls.get('screen', 'browse'),
   browse: ls.get('browse', 'timeline'),
   pass: ls.get('pass', DEFAULT_PASS),
-  sel: null,
-  tab: 'fathers',
+  sel: ls.get('sel', null),
+  tab: ls.get('tab', 'fathers'),
   split: ls.get('split', true),
   layout: ls.get('layout', 'stack'),
   focus: false,
@@ -50,7 +50,7 @@ const S = {
   more: 8,
   picker: false,
   intro: false,
-  place: 0,
+  place: ls.get('place', 0),
   theme: null, // the concept whose detail is open
   tiles: ls.get('tiles', false), // show the present-day map tiles in place of the illustrated map
   recording: false,
@@ -58,6 +58,15 @@ const S = {
   game: ls.get('game', { xp: 0, streak: 0, last: '', done: {} }), // done: story number -> stars earned (1 to 3)
   play: null, // the story lesson in progress on the Journey screen
   jump: true,
+  openBook: ls.get('openBook', null), // the book whose chapter list is open on the Bible screen
+  q: ls.get('q', ''),                // the search box
+  qv: ls.get('qv', ''),              // the version being searched
+  searchOn: ls.get('searchOn', false),
+  results: null,                     // verses found by the last search
+  searchNote: '',
+  shown: 60,
+  scrolls: ls.get('scrolls', {}),    // where each screen was scrolled to
+  goVerse: null,                     // a verse to bring into view once its chapter is on screen
   user: ls.get('user', null), // { name, email, picture, sub } from Google sign-in
   guest: ls.get('guest', false) // chose to use the app without signing in
 };
@@ -201,6 +210,7 @@ const ICONS = {
   pin: '<path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
   exit: '<path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
   trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
   flag: '<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',
   star: '<path d="M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8z"/>',
@@ -363,6 +373,115 @@ function themesView() {
 <p class="muted small">${t('ቪዲዮዎቹ የBibleProject ናቸው (በእንግሊዝኛ)። ሥዕሎቹም ከእነሱ አገልጋይ ይታያሉ፤ በዚህ መተግበሪያ ውስጥ አይቀመጡም። ማብራሪያዎቹ ለዚህ መተግበሪያ የተጻፉ አጫጭር ረቂቆች ናቸው፤ የBibleProject ጽሑፍ አይደሉም።', 'The videos are BibleProject’s (in English). The pictures are shown from their server and are not stored in this app. The commentaries are short drafts written for this app; they are not BibleProject’s text.')}</p>`;
 }
 
+// ---------- search ----------
+// Amharic has letters that sound alike and are often interchanged in spelling (ሀ ሐ ኀ, ሰ ሠ, አ ዐ, ጸ ፀ).
+// Search treats each set as one letter. The mapping keeps the text the same length, so match positions
+// in the folded text line up with the original.
+const FOLD = [[0x1210, 0x1200], [0x1280, 0x1200], [0x1220, 0x1230], [0x12D0, 0x12A0], [0x1340, 0x1338]];
+function fold(text) {
+  let out = '';
+  for (const ch of text.toLowerCase()) {
+    const code = ch.charCodeAt(0);
+    const row = FOLD.find((r) => code >= r[0] && code < r[0] + 8);
+    out += row ? String.fromCharCode(row[1] + code - row[0]) : ch;
+  }
+  return out.length === text.length ? out : text.toLowerCase();
+}
+
+// "love mercy" finds verses with both words; "love, mercy" finds verses with either.
+function parseQuery(q) {
+  return q.split(/[,،፣]/).map((g) => fold(g).split(/\s+/).filter(Boolean)).filter((g) => g.length);
+}
+
+async function loadWholeVersion(id, progress) {
+  const v = versions[id];
+  if (!v.dir) return;
+  const missing = [];
+  for (let b = 0; b < 66; b++) if (!v.books[b]) missing.push(b);
+  let done = 66 - missing.length;
+  const worker = async () => {
+    while (missing.length) {
+      const b = missing.shift();
+      try { const r = await fetch(v.dir + '/' + b + '.json'); if (r.ok) v.books[b] = await r.json(); } catch (e) { /* skip this book */ }
+      progress(++done);
+    }
+  };
+  await Promise.all(Array.from({ length: 8 }, worker));
+}
+
+async function runSearch() {
+  const groups = parseQuery(S.q);
+  S.searchOn = groups.length > 0;
+  save('q', 'qv', 'searchOn');
+  if (!groups.length) { S.results = null; render(); return; }
+  const id = versions[S.qv] ? S.qv : S.primary;
+  const run = (runSearch.run = (runSearch.run || 0) + 1);
+  S.results = null;
+  S.shown = 60;
+  S.searchNote = t('መጽሐፍ ቅዱሱ እየተጫነ ነው…', 'Loading the Bible…');
+  render();
+  await loadWholeVersion(id, (n) => {
+    if (run !== runSearch.run) return;
+    const note = document.getElementById('searchnote');
+    if (note) note.textContent = t('እየተጫነ ነው… ' + n + ' / 66 መጻሕፍት', 'Loading… ' + n + ' of 66 books');
+  });
+  if (run !== runSearch.run) return;
+  const found = [];
+  const books = versions[id].books;
+  for (let b = 0; b < 66; b++) {
+    const chapters = books[b] || [];
+    for (let c = 0; c < chapters.length; c++) {
+      const verses = chapters[c] || [];
+      for (let v = 0; v < verses.length; v++) {
+        const text = verses[v];
+        if (!text) continue;
+        const folded = fold(text);
+        const group = groups.find((g) => g.every((term) => folded.includes(term)));
+        if (group) found.push({ b, c: c + 1, v: v + 1, text, terms: group });
+      }
+    }
+  }
+  S.results = found;
+  S.searchNote = '';
+  render();
+}
+
+function markTerms(text, terms) {
+  const folded = fold(text);
+  const spans = [];
+  terms.forEach((term) => { for (let i = folded.indexOf(term); i >= 0; i = folded.indexOf(term, i + term.length)) spans.push([i, i + term.length]); });
+  spans.sort((x, y) => x[0] - y[0]);
+  let out = '', at = 0;
+  spans.forEach(([from, to]) => {
+    if (from < at) return;
+    out += esc(text.slice(at, from)) + '<mark>' + esc(text.slice(from, to)) + '</mark>';
+    at = to;
+  });
+  return out + esc(text.slice(at));
+}
+
+function searchBar() {
+  const verOpts = Object.values(versions).map((v) => [v.id, v.name]);
+  return `<form class="card searchbar" role="search" data-search>
+<div class="field wide" style="flex:3 1 260px"><label for="q">${t('በመጽሐፍ ቅዱስ ውስጥ ፈልግ', 'Search the Bible')}</label>
+<input id="q" data-k="q" type="search" value="${esc(S.q)}" placeholder="${t('ለምሳሌ፦ ፍቅር ወይም ምሕረት, ይቅርታ', 'For example: love, or mercy, forgive')}" autocomplete="off"></div>
+<div class="field" style="flex:1 1 180px"><label for="qv">${t('ትርጉም', 'Version')}</label><select id="qv" data-c="qv" data-k="qv">${options(verOpts, versions[S.qv] ? S.qv : S.primary)}</select></div>
+<button class="btn fill" type="submit" data-k="q-go">${icon('search')}${t('ፈልግ', 'Search')}</button>
+${S.searchOn ? `<button class="btn" type="button" data-a="clearSearch" data-k="q-clear">${t('አጽዳ', 'Clear')}</button>` : ''}
+<p class="muted small" style="flex:1 1 100%;margin:0">${t('ክፍተት ያላቸው ቃላት ሁሉም ያሉባቸውን ቁጥሮች ያመጣሉ፤ በነጠላ ሰረዝ (,) የተለዩት ከአንዳቸው አንዱ ያለባቸውን።', 'Words separated by spaces must all be in the verse; words separated by commas find verses with any of them.')}</p>
+</form>`;
+}
+
+function searchResults() {
+  if (S.results === null) return `<p id="searchnote" class="muted prose" role="status">${esc(S.searchNote || t('እየፈለገ ነው…', 'Searching…'))}</p>`;
+  const id = versions[S.qv] ? S.qv : S.primary;
+  if (!S.results.length) return `<div class="card"><p class="prose">${t('በ' + versions[id].name + ' ውስጥ ምንም አልተገኘም። ሌላ ቃል ወይም ሌላ ትርጉም ይሞክሩ።', 'Nothing found in the ' + versions[id].name + '. Try another word or another version.')}</p></div>`;
+  const rows = S.results.slice(0, S.shown).map((r, i) => `<button class="result" data-a="openResult" data-v="${i}" data-k="res-${i}"><b>${esc(bookName(r.b))} ${r.c}${t('፥', ':')}${r.v}</b><span lang="${versions[id].language}">${markTerms(r.text, r.terms)}</span></button>`).join('');
+  return `<p class="muted" role="status"><b>${S.results.length}</b> ${t('ቁጥሮች ተገኝተዋል በ', 'verses found in the ')}${esc(versions[id].name)}</p>
+<div class="stack" style="gap:8px">${rows}</div>
+${S.results.length > S.shown ? `<button class="btn" data-a="moreResults" data-k="res-more">${t('ተጨማሪ አሳይ', 'Show more')} (${S.results.length - S.shown})</button>` : ''}`;
+}
+
 function browseView() {
   const modes = [['timeline', t('የታሪክ መስመር', 'Story timeline')], ['chrono', t('በጊዜ ቅደም ተከተል', 'Chronological')], ['canon', t('መደበኛ ቅደም ተከተል', 'Traditional order')], ['themes', t('ጽንሰ ሐሳቦች', 'Concepts')]];
   const notes = {
@@ -371,18 +490,35 @@ function browseView() {
     canon: t('66ቱ መጻሕፍት በመጽሐፍ ቅዱስ ውስጥ ባሉበት ቅደም ተከተል።', 'The 66 books in the order they appear in the Bible.'),
     themes: t('የመጽሐፍ ቅዱስ ዋና ዋና ጽንሰ ሐሳቦች፤ እያንዳንዱ ከአንድ የBibleProject ቪዲዮና ከአንድ ቁልፍ ምንባብ ጋር።', 'Key ideas of the Bible, each with a BibleProject video and a key passage to read.')
   };
-  const groups = S.browse === 'themes' ? [themesView()] : C[S.browse].map((g) => {
-    const items = g.items
-      ? g.items.map((it) => { const v = videoFor(it.p.b, it.p.c); return tile(tp(it.n), tp(it.sub), { b: it.p.b, c: it.p.c, f: it.p.f, to: it.p.to, title: it.n, pl: it.pl }, v ? thumb(v.img) : ''); })
-      : g.books.map((b) => tile(bookName(b), C.books[b].ch + ' ' + t('ምዕራፍ', C.books[b].ch === 1 ? 'chapter' : 'chapters'), { b, c: 1, f: 1, to: 0 }));
-    return `<section class="group"><h2>${esc(tp(g.n))}</h2><div class="grid">${items.join('')}</div></section>`;
+  const groups = S.browse === 'themes' ? [themesView()] : C[S.browse].map((g, gi) => {
+    let items;
+    if (g.items) {
+      items = g.items.map((it) => { const v = videoFor(it.p.b, it.p.c); return tile(tp(it.n), tp(it.sub), { b: it.p.b, c: it.p.c, f: it.p.f, to: it.p.to, title: it.n, pl: it.pl }, v ? thumb(v.img) : ''); }).join('');
+    } else {
+      // A book tile opens its list of chapters, so any chapter is two clicks away.
+      items = g.books.map((b) => {
+        const open = S.openBook === b;
+        const card = `<button class="tile" data-a="book" data-v="${b}" data-k="book-${b}" aria-expanded="${open}" aria-pressed="${open}"><b>${esc(bookName(b))}</b><span class="muted small">${C.books[b].ch} ${t('ምዕራፍ', C.books[b].ch === 1 ? 'chapter' : 'chapters')}</span></button>`;
+        if (!open) return card;
+        const chapters = Array.from({ length: C.books[b].ch }, (_, i) => `<button class="chap" data-a="chapter" data-v="${b}.${i + 1}" data-k="ch-${b}-${i + 1}" ${S.pass.b === b && S.pass.c === i + 1 ? 'aria-current="true"' : ''}>${i + 1}</button>`).join('');
+        return card + `<div class="chapters" role="group" aria-label="${esc(bookName(b))}">${chapters}</div>`;
+      }).join('');
+    }
+    return `<section class="group" id="g-${gi}"><h2>${esc(tp(g.n))}</h2><div class="grid">${items}</div></section>`;
   });
-  return `<div class="wrap" style="max-width:980px">
-<div class="stack"><h1>${t('መጽሐፍ ቅዱስን ያስሱ', 'Browse the Bible')}</h1><p class="muted">${notes[S.browse]}</p></div>
-<div class="seg" role="group" aria-label="${t('የማሰሻ መንገድ', 'Browse by')}">${modes.map((m) => `<button data-a="browse" data-v="${m[0]}" data-k="mode-${m[0]}" aria-pressed="${S.browse === m[0]}">${m[1]}</button>`).join('')}</div>
+  const shortcuts = S.browse !== 'themes' ? `<div class="row" role="group" aria-label="${t('ወደ ክፍል ዝለል', 'Jump to a section')}">${C[S.browse].map((g, gi) => `<button class="chip" data-a="jumpTo" data-v="g-${gi}" data-k="jump-${gi}">${esc(tp(g.n))}</button>`).join('')}</div>` : '';
+  const main = S.searchOn
+    ? searchResults()
+    : `<div class="seg" role="group" aria-label="${t('የማሰሻ መንገድ', 'Browse by')}">${modes.map((m) => `<button data-a="browse" data-v="${m[0]}" data-k="mode-${m[0]}" aria-pressed="${S.browse === m[0]}">${m[1]}</button>`).join('')}</div>
+<p class="muted">${notes[S.browse]}</p>
 <div class="card row between"><div class="stack" style="gap:4px"><span class="muted small"><b>${t('ካቆሙበት ይቀጥሉ', 'Continue where you left off')}</b></span><span style="font-size:21px;font-weight:700">${esc(passTitle(S.pass))}</span><span class="muted small">${esc(passRef(S.pass))}</span></div>
 <button class="btn fill" data-a="nav" data-v="study" data-k="continue">${t('ክፈት', 'Open')}</button></div>
-${groups.join('')}
+${shortcuts}
+${groups.join('')}`;
+  return `<div class="wrap" style="max-width:980px">
+<h1>${t('መጽሐፍ ቅዱስ', 'Bible')}</h1>
+${searchBar()}
+${main}
 </div>`;
 }
 
@@ -801,10 +937,43 @@ ${eras.join('')}
 </div>`;
 }
 
+// Each screen remembers how far down it was scrolled, also after the app is closed and reopened.
+function scrollKey() {
+  if (S.screen === 'study') return 'study:' + S.pass.b + '.' + S.pass.c;
+  if (S.screen === 'browse') return 'browse:' + (S.searchOn ? 'search' : S.browse);
+  return S.screen;
+}
+function restoreScroll() {
+  if (!restoreScroll.want || S.screen === 'journey') { restoreScroll.want = false; return; }
+  const top = S.scrolls[scrollKey()] || 0;
+  // Content may still be loading; wait until the page is tall enough, for a few renders at most.
+  restoreScroll.tries = (restoreScroll.tries || 0) + 1;
+  if (document.documentElement.scrollHeight - window.innerHeight >= top - 4 || restoreScroll.tries > 6) {
+    restoreScroll.lock = true;
+    window.scrollTo(0, top);
+    restoreScroll.want = false;
+    restoreScroll.tries = 0;
+    setTimeout(() => { restoreScroll.lock = false; }, 100);
+  }
+}
+restoreScroll.want = true;       // on opening the app, go back to where the reader was
+let scrollTimer = null;
+window.addEventListener('scroll', () => {
+  if (restoreScroll.lock || restoreScroll.want || !C) return;
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(() => {
+    const key = scrollKey();
+    S.scrolls[key] = Math.round(window.scrollY);
+    const studyKeys = Object.keys(S.scrolls).filter((k) => k.startsWith('study:') && k !== key);
+    studyKeys.slice(0, Math.max(0, studyKeys.length - 20)).forEach((k) => delete S.scrolls[k]);   // keep the list short
+    save('scrolls');
+  }, 250);
+}, { passive: true });
+
 function render() {
   if (!C) return;
   const active = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.k : null;
-  const caret = active === 'draft' ? document.activeElement.selectionStart : null;
+  const caret = active === 'draft' || active === 'q' ? document.activeElement.selectionStart : null;
   const panel = root.querySelector('.sidepanel');
   const panelKey = S.screen + '|' + S.tab + '|' + S.pass.b + '.' + S.pass.c;
   const panelTop = panel && render.panelKey === panelKey ? panel.scrollTop : 0;
@@ -849,6 +1018,15 @@ function render() {
     if (el && (el.offsetTop < pane.scrollTop + 36 || el.offsetTop + el.offsetHeight > pane.scrollTop + pane.clientHeight)) pane.scrollTop = el.offsetTop - 44;
   });
   render.lastSel = S.sel;
+  if (S.goVerse) {
+    // Arriving from a search result: bring the verse into view once its chapter has loaded.
+    const el = root.querySelector('.verse[data-v="' + S.goVerse + '"]');
+    if (el) {
+      if (!el.closest('.pane')) el.scrollIntoView({ block: 'center' });
+      S.goVerse = null;
+      restoreScroll.want = false;
+    }
+  } else restoreScroll();
   if (active) {
     const el = root.querySelector('[data-k="' + active + '"]');
     if (el) { el.focus({ preventScroll: true }); if (caret != null) el.setSelectionRange(caret, caret); }
@@ -861,7 +1039,7 @@ function setPass(change) {
   S.pass = Object.assign({ b: S.pass.b, c: S.pass.c, f: S.pass.f, to: S.pass.to }, change);
   S.sel = null;
   S.more = 8;
-  save('pass');
+  save('pass', 'sel');
 }
 
 async function startRecording() {
@@ -899,7 +1077,7 @@ async function startRecording() {
 }
 
 const actions = {
-  nav(v) { S.screen = v; S.play = null; S.jump = true; save('screen'); },
+  nav(v) { S.screen = v; S.play = null; S.jump = true; save('screen'); restoreScroll.want = true; },
   story(v) {
     const i = +v;
     if (i > 0 && !S.game.done[i - 1]) return false;
@@ -945,13 +1123,26 @@ const actions = {
   },
   theme() { S.dark = !S.dark; save('dark'); },
   browse(v) { S.browse = v; save('browse'); },
+  book(v) { S.openBook = S.openBook === +v ? null : +v; save('openBook'); },
+  chapter(v) { const [b, c] = v.split('.').map(Number); S.pass = { b, c, f: 1, to: 0 }; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen', 'sel'); window.scrollTo(0, 0); },
+  jumpTo(v) { const el = document.getElementById(v); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return false; },
+  clearSearch() { S.q = ''; S.searchOn = false; S.results = null; save('q', 'searchOn'); },
+  moreResults() { S.shown += 100; },
+  openResult(v) {
+    const r = S.results[+v];
+    // Show the version that was searched without changing the reader's main version.
+    const id = versions[S.qv] ? S.qv : S.primary;
+    if (id !== S.primary && (id !== S.secondary || !S.split)) { S.secondary = id; S.split = true; save('split'); }
+    S.pass = { b: r.b, c: r.c, f: 1, to: 0 }; S.sel = r.v; S.goVerse = r.v; S.more = 8; S.screen = 'study';
+    save('pass', 'screen', 'sel', 'primary', 'secondary');
+  },
   concept(v) { S.theme = S.theme === +v ? null : +v; },
   open(v) { S.pass = opens[+v]; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen'); window.scrollTo(0, 0); },
-  verse(v) { S.sel = S.sel === +v ? null : +v; S.more = 8; },
+  verse(v) { S.sel = S.sel === +v ? null : +v; S.more = 8; save('sel'); },
   hl(v) { S.highlights[hlKey(S.sel)] = v; save('highlights'); },
   clearHl() { delete S.highlights[hlKey(S.sel)]; save('highlights'); },
-  tab(v) { S.tab = v; },
-  place(v) { S.place = +v; const p = C.places[S.place]; if (lmap) lmap.setView([p.lat, p.lon], Math.max(lmap.getZoom(), 9)); },
+  tab(v) { S.tab = v; save('tab'); },
+  place(v) { S.place = +v; save('place'); const p = C.places[S.place]; if (lmap) lmap.setView([p.lat, p.lon], Math.max(lmap.getZoom(), 9)); },
   mapView(v) { if (lmap) lmap.fitBounds(MAP_VIEWS[v](), { padding: [30, 30] }); return false; },
   tiles() { S.tiles = !S.tiles; save('tiles'); },
   showPlace() { const i = C.places.findIndex((p) => p.id === S.pass.pl); if (i < 0) return false; S.place = i; S.screen = 'map'; save('screen'); setTimeout(() => { if (lmap) lmap.setView([C.places[i].lat, C.places[i].lon], 10); }, 0); },
@@ -1015,7 +1206,8 @@ const changes = {
   from(v) { setPass({ f: +v, to: S.pass.to && S.pass.to < +v ? 0 : S.pass.to }); },
   to(v) { setPass({ to: +v, f: +v && S.pass.f > +v ? 1 : S.pass.f }); },
   primary(v) { S.primary = v; pickVersions(); save('primary', 'secondary'); },
-  secondary(v) { S.secondary = v; save('secondary'); }
+  secondary(v) { S.secondary = v; save('secondary'); },
+  qv(v) { S.qv = v; save('qv'); if (S.searchOn) { runSearch(); } }
 };
 
 root.addEventListener('click', (e) => {
@@ -1032,6 +1224,12 @@ root.addEventListener('change', (e) => {
 });
 root.addEventListener('input', (e) => {
   if (e.target.id === 'draft') S.draft = e.target.value;
+  if (e.target.id === 'q') S.q = e.target.value;
+});
+root.addEventListener('submit', (e) => {
+  if (!e.target.matches('[data-search]')) return;
+  e.preventDefault();
+  runSearch();
 });
 
 // Importing a Bible file keeps it in this browser only; nothing is uploaded.
@@ -1075,6 +1273,7 @@ async function start() {
   if (!C.books[S.pass.b]) S.pass = DEFAULT_PASS;
   if (!C[S.browse]) S.browse = 'timeline';
   render();
+  if (S.searchOn && S.screen === 'browse' && (S.user || S.guest)) runSearch();   // bring back the last search
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 start();
