@@ -1,5 +1,5 @@
 // Offline support. App files: network first, cached copy as fallback. Bible data: cached after first use.
-const CACHE = 'qalu-v9';
+const CACHE = 'qalu-v10';
 const SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'icon.svg', 'manifest.webmanifest', 'data/content.json', 'data/map.json', 'data/fathers/index.json'];
 
 self.addEventListener('install', (event) => {

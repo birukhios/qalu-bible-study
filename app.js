@@ -39,6 +39,7 @@ const S = {
   sel: null,
   tab: 'fathers',
   split: ls.get('split', true),
+  layout: ls.get('layout', 'stack'),
   focus: false,
   size: ls.get('size', 1),
   primary: ls.get('primary', ''),
@@ -321,6 +322,7 @@ function videoCard() {
 
 function studyView() {
   const p = S.pass;
+  const stacked = S.split && S.layout === 'stack';
   const main = chapter(S.primary);
   const alt = S.split ? chapter(S.secondary) : { state: 'ok', verses: [] };
   const count = main.verses.length;
@@ -341,6 +343,7 @@ function studyView() {
 <div class="row" style="align-items:flex-end">
 <div class="field wide"><label for="pk-v1">${t('ትርጉም', 'Version')}</label><select id="pk-v1" data-c="primary" data-k="pk-v1">${options(verOpts, S.primary)}</select></div>
 ${S.split ? `<div class="field wide"><label for="pk-v2">${t('ሁለተኛ ትርጉም', 'Second version')}</label><select id="pk-v2" data-c="secondary" data-k="pk-v2">${options(verOpts, S.secondary)}</select></div>` : ''}
+${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትርጉሞች አቀማመጥ', 'Layout of the two versions')}"><button data-a="layout" data-v="stack" data-k="lay-stack" aria-pressed="${S.layout === 'stack'}">${t('ላይና ታች', 'Top and bottom')}</button><button data-a="layout" data-v="side" data-k="lay-side" aria-pressed="${S.layout === 'side'}">${t('ጎን ለጎን', 'Side by side')}</button></div>` : ''}
 <button class="btn" data-a="import" data-k="import">${t('የመጽሐፍ ቅዱስ ፋይል አስገባ…', 'Import a Bible file…')}</button>
 </div></div>`;
 
@@ -351,7 +354,20 @@ ${S.split ? `<div class="field wide"><label for="pk-v2">${t('ሁለተኛ ትር
   else if (main.state === 'error') verses = `<p class="prose" style="padding:12px" role="alert">${t('ጽሑፉን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱና ገጹን እንደገና ይክፈቱ።', 'The text could not be loaded. Check your connection and reload the page.')}</p>`;
   else if (!nums.length) verses = `<p class="prose" style="padding:12px">${t('ለዚህ ክፍል በተመረጠው ትርጉም ጽሑፍ የለም።', 'The selected version has no text for this passage.')}</p>`;
   else {
-    verses = nums.map((n) => `<button class="verse" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span lang="${versions[S.primary].language}"><sup>${n} </sup>${esc(main.verses[n - 1] || '')}</span>${S.split ? `<span class="alt" lang="${versions[S.secondary].language}">${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>`).join('');
+    verses = nums.map((n) => `<button class="verse" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span lang="${versions[S.primary].language}"><sup>${n} </sup>${esc(main.verses[n - 1] || '')}</span>${S.split && !stacked ? `<span class="alt" lang="${versions[S.secondary].language}">${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>`).join('');
+  }
+  if (stacked) {
+    // The second version gets its own pane under the first, with the same verse range.
+    let lower;
+    const hi2 = p.to ? Math.min(p.to, alt.verses.length) : alt.verses.length;
+    if (alt.state === 'loading') lower = `<p class="muted prose" style="padding:12px" role="status">${t('ጽሑፉ እየተጫነ ነው…', 'Loading the text…')}</p>`;
+    else if (alt.state === 'error') lower = `<p class="prose" style="padding:12px" role="alert">${t('ጽሑፉን መጫን አልተቻለም።', 'The text could not be loaded.')}</p>`;
+    else if (lo > hi2) lower = `<p class="prose" style="padding:12px">${t('ይህ ትርጉም ለዚህ ክፍል ጽሑፍ የለውም።', 'This version has no text for this passage.')}</p>`;
+    else {
+      lower = '';
+      for (let n = lo; n <= hi2; n++) lower += `<button class="verse" data-a="verse" data-v="${n}" data-k="w-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span lang="${versions[S.secondary].language}"><sup>${n} </sup>${esc(alt.verses[n - 1] || '')}</span></button>`;
+    }
+    verses = `<div class="panes"><div class="pane" data-pane="1"><div class="pane-head">${esc(versions[S.primary].name)}</div>${verses}</div><div class="pane" data-pane="2"><div class="pane-head">${esc(versions[S.secondary].name)}</div>${lower}</div></div>`;
   }
 
   const credits = [S.primary].concat(S.split ? [S.secondary] : []).map((id) => versions[id].credit).filter(Boolean).join(' ');
@@ -362,7 +378,7 @@ ${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl
 <button class="btn" data-a="clearHl" data-k="hl-clear">${t('አጥፋ', 'Clear')}</button>
 <button class="btn" data-a="noteTab" data-k="note-open">${icon('pen')}${t('ማስታወሻ', 'Note')}</button>${voiceButton('rec-bar')}</div>`
     : `<p class="muted small" style="padding:6px 12px">${t('ለማቅለም ወይም ማስታወሻ ለመያዝ አንድ ቁጥር ይንኩ።', 'Click a verse to highlight it or add a note.')}</p>`;
-  const heads = S.split ? `<div class="row muted small" style="padding:0 12px;gap:16px"><b style="flex:1 1 220px">${esc(versions[S.primary].name)}</b><b style="flex:1 1 220px">${esc(versions[S.secondary].name)}</b></div>` : '';
+  const heads = S.split && !stacked ? `<div class="row muted small" style="padding:0 12px;gap:16px"><b style="flex:1 1 220px">${esc(versions[S.primary].name)}</b><b style="flex:1 1 220px">${esc(versions[S.secondary].name)}</b></div>` : '';
 
   const title = passTitle(p), ref = passRef(p);
   const first = p.b === 0 && p.c === 1, last = p.b === 65 && p.c === C.books[65].ch;
@@ -375,7 +391,7 @@ ${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl
 <button class="btn" data-a="picker" data-k="picker" aria-expanded="${S.picker}" aria-pressed="${S.picker}">${icon('sliders')}${t('ክፍልና ትርጉም', 'Passage and version')}</button>
 <button class="btn" data-a="smaller" data-k="smaller" aria-label="${t('ጽሑፉን አሳንስ', 'Smaller text')}"><b style="font-size:13px">A−</b></button>
 <button class="btn" data-a="larger" data-k="larger" aria-label="${t('ጽሑፉን አሳድግ', 'Larger text')}"><b style="font-size:18px">A+</b></button>
-<button class="btn" data-a="split" data-k="split" aria-pressed="${S.split}">${icon('split')}${t('ጎን ለጎን', 'Split view')}</button>
+<button class="btn" data-a="split" data-k="split" aria-pressed="${S.split}">${icon('split')}${t('ሁለት ትርጉም', 'Two versions')}</button>
 <button class="btn" data-a="focus" data-k="focus" aria-pressed="${S.focus}">${icon('focus')}${t('ትኩረት', 'Focus')}</button>
 </div></div>
 ${S.picker ? picker : ''}
@@ -439,6 +455,9 @@ function render() {
   const panelKey = S.screen + '|' + S.tab + '|' + S.pass.b + '.' + S.pass.c;
   const panelTop = panel && render.panelKey === panelKey ? panel.scrollTop : 0;
   render.panelKey = panelKey;
+  const paneKey = S.pass.b + '.' + S.pass.c + '|' + S.primary + '|' + S.secondary;
+  const paneTops = render.paneKey === paneKey ? [...root.querySelectorAll('.pane')].map((el) => el.scrollTop) : [];
+  render.paneKey = paneKey;
   opens = [];
   root.dataset.theme = S.dark ? 'dark' : 'light';
   document.documentElement.lang = S.en ? 'en' : 'am';
@@ -447,6 +466,13 @@ function render() {
   root.innerHTML = sideMenu() + '<main>' + view + '</main>';
   const newPanel = root.querySelector('.sidepanel');
   if (newPanel && panelTop) newPanel.scrollTop = panelTop;     // keep the side panel where the reader left it
+  root.querySelectorAll('.pane').forEach((pane, i) => {
+    if (paneTops[i]) pane.scrollTop = paneTops[i];
+    // When a verse is chosen, bring the same verse into view in the other pane.
+    const el = S.sel && render.lastSel !== S.sel ? pane.querySelector('.verse[data-v="' + S.sel + '"]') : null;
+    if (el && (el.offsetTop < pane.scrollTop + 36 || el.offsetTop + el.offsetHeight > pane.scrollTop + pane.clientHeight)) pane.scrollTop = el.offsetTop - 44;
+  });
+  render.lastSel = S.sel;
   if (active) {
     const el = root.querySelector('[data-k="' + active + '"]');
     if (el) { el.focus({ preventScroll: true }); if (caret != null) el.setSelectionRange(caret, caret); }
@@ -523,6 +549,7 @@ const actions = {
   },
   more() { S.more += 12; },
   split() { S.split = !S.split; save('split'); },
+  layout(v) { S.layout = v; save('layout'); },
   focus() { S.focus = !S.focus; },
   smaller() { S.size = Math.max(0, S.size - 1); save('size'); },
   larger() { S.size = Math.min(3, S.size + 1); save('size'); },

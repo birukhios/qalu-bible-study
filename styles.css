@@ -110,14 +110,6 @@ a.tile { color: var(--text); text-decoration: none; }
 textarea { padding: 10px; min-height: 96px; resize: vertical; font-size: 16px; }
 .cols { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
 .reader { flex: 1 1 420px; min-width: 0; }
-/* The Bible text sits on a paper-coloured page with dark ink, in both themes. */
-.reader {
-  --bg: #F7F1E3; --surface: #EFE7D3; --line: #D6CAAE; --text: #2B2620; --muted: #65594A;
-  --accent: #2B2D31; --on-accent: #FFFFFF; --ctl: #E4D9BF; --danger: #B3261E; --side: #FFFFFF;
-  --hl-yellow: #FFE07A; --hl-green: #BFE6B4; --hl-blue: #BBD8FA; --hl-pink: #F9C2D4;
-  background: var(--bg); color: var(--text); border-color: var(--line);
-}
-.app[data-theme="dark"] .reader { --bg: #E9DFC9; --surface: #DFD4BB; --line: #C9BC9D; --ctl: #D6CAAD; --muted: #5E5345; }
 /* On wide windows the side panel stays in place and scrolls on its own, apart from the text. */
 @media (min-width: 1100px) {
   .sidepanel { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
@@ -140,6 +132,10 @@ textarea { padding: 10px; min-height: 96px; resize: vertical; font-size: 16px; }
 .selbar { padding: 6px 10px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); position: sticky; top: 8px; z-index: 2; }
 .reader.single { max-width: 760px; margin: 0 auto; }
 .verses { display: flex; flex-direction: column; gap: 2px; }
+/* Two versions stacked: each has its own scrolling pane, the first above the second. */
+.panes { display: flex; flex-direction: column; gap: 12px; }
+.pane { position: relative; display: flex; flex-direction: column; gap: 2px; max-height: calc(50vh - 96px); min-height: 200px; overflow-y: auto; border: 1px solid var(--line); border-radius: 12px; padding: 0 6px 6px; scrollbar-width: thin; }
+.pane-head { position: sticky; top: 0; z-index: 1; background: var(--bg); padding: 8px 12px 6px; font-size: 13px; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--line); margin: 0 -6px 4px; }
 .btn:disabled { opacity: .45; cursor: default; }
 .notes { font-size: 15px; line-height: 1.65; }
 .notes h3 { font-size: 15px; font-weight: 700; margin: 14px 0 4px; color: var(--muted); text-transform: none; }
