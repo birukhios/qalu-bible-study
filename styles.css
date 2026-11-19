@@ -348,3 +348,15 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .view.catholic { border-left-color: #C25B5B; }
 .view.protestant { border-left-color: #4A8FD6; }
 .view .prose { margin: 0; font-size: 15px; line-height: 1.7; }
+
+/* The Hebrew and Greek version */
+.verses [lang="he"], .story-text[lang="he"], .opt[lang="he"], .big[lang="he"] { font-family: "SBL Hebrew", "Ezra SIL", "Times New Roman", "Noto Serif Hebrew", serif; font-size: 1.18em; line-height: 1.9; }
+.verses [lang="grc"], .story-text[lang="grc"], .opt[lang="grc"], .big[lang="grc"] { font-family: "SBL Greek", "Gentium Plus", "Times New Roman", "Noto Serif", serif; font-size: 1.06em; }
+.verse [dir="rtl"] { text-align: right; }
+
+/* Verse of the day */
+.daily { background: linear-gradient(135deg, color-mix(in srgb, #1F2A44 70%, var(--surface)), color-mix(in srgb, #5B3A6E 55%, var(--surface))); border-color: transparent; color: #FFFFFF; }
+.daily .muted { color: rgba(255, 255, 255, .75); }
+.daily .dailytext { font-size: 20px; line-height: 1.8; margin: 0; }
+.daily .btn { background: rgba(255, 255, 255, .16); color: #FFFFFF; }
+.daily .btn.fill { background: #FFFFFF; color: #1F2A44; }

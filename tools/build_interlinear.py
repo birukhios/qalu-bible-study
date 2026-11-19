@@ -79,6 +79,8 @@ count = 0
 for (b, c), verses in chapters.items():
     os.makedirs(os.path.join(out, str(b)), exist_ok=True)
     data = {str(v): (w['main'] or w['other']) for v, w in sorted(verses.items())}
+    if '0' in data:  # a psalm heading, which English Bibles count as part of verse 1
+        data['1'] = data.pop('0') + data.get('1', [])
     with open(os.path.join(out, str(b), f'{c}.json'), 'w', encoding='utf-8') as fh:
         json.dump(data, fh, ensure_ascii=False, separators=(',', ':'))
     count += 1

@@ -85,12 +85,27 @@ let lmap = null, lmarkers = [], mapEl = null, ltiles = null, lart = null;
 const versions = {
   amulb: { id: 'amulb', name: 'አማርኛ ULB (Unlocked Literal Bible)', language: 'am', dir: 'data/amulb', books: {},
     credit: 'Amharic Unlocked Literal Bible. Original work available at https://door43.org/. Licensed CC BY-SA 4.0.' },
+  gaz: { id: 'gaz', name: 'Afaan Oromoo — Hiikkaa Ammayyaa Banamaa Haaraa (Biblica)', language: 'om', dir: 'data/gaz', books: {},
+    credit: 'Biblica® Open New Oromo Contemporary Version™, Western. Copyright © 2022 by Biblica, Inc. Used under CC BY-SA 4.0 (converted into this app’s format; 137 verses that the source corpus left out, such as Joel 2:28–32 and Malachi 4, are missing). The original work by Biblica, Inc. is available for free at www.biblica.com and open.bible. “Biblica” is a trademark registered in the United States Patent and Trademark Office by Biblica, Inc. Used with permission.' },
+  orig: { id: 'orig', name: 'ዕብራይስጥና ግሪክ (ዋናው ጽሑፍ) · Hebrew and Greek', language: 'orig', dir: 'data/orig', books: {},
+    credit: 'Hebrew and Greek text from STEPBible TAHOT and TAGNT (Tyndale House, Cambridge), CC BY 4.0; the Greek follows the Nestle-Aland text.' },
+  bsb: { id: 'bsb', name: 'Berean Standard Bible', language: 'en', dir: 'data/bsb', books: {},
+    credit: 'Berean Standard Bible (BSB), dedicated to the public domain (CC0).' },
   web: { id: 'web', name: 'World English Bible', language: 'en', dir: 'data/web', books: {} },
   kjv: { id: 'kjv', name: 'King James Version', language: 'en', dir: 'data/kjv', books: {} },
   asv: { id: 'asv', name: 'American Standard Version', language: 'en', dir: 'data/asv', books: {} },
   ylt: { id: 'ylt', name: 'Young’s Literal Translation', language: 'en', dir: 'data/ylt', books: {} },
-  bbe: { id: 'bbe', name: 'Bible in Basic English', language: 'en', dir: 'data/bbe', books: {} }
+  bbe: { id: 'bbe', name: 'Bible in Basic English', language: 'en', dir: 'data/bbe', books: {} },
+  darby: { id: 'darby', name: 'Darby Bible (1889)', language: 'en', dir: 'data/darby', books: {} }
 };
+// The lang and dir attributes for a version's text. The Hebrew and Greek version is Hebrew (right to left) in
+// the Old Testament and Greek in the New.
+function langOf(id, b = S.pass.b) {
+  const v = versions[id];
+  if (!v) return 'lang="en"';
+  if (v.language === 'orig') return b < 39 ? 'lang="he" dir="rtl"' : 'lang="grc"';
+  return `lang="${v.language}"`;
+}
 // Church fathers' commentary, one file per chapter, listed in an index so missing chapters are not requested.
 const F = { index: {}, cache: {}, pending: {} };
 // Book introductions and chapter notes for the Context tab, one file per book.
@@ -397,7 +412,8 @@ const ICONS = {
   lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   bolt: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
-  close: '<path d="M6 6l12 12M18 6L6 18"/>'
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  share: '<path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>'
 };
 const icon = (name, size = 18) => `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
 
@@ -735,13 +751,95 @@ function searchResults() {
   const ref = (r) => `${esc(bookName(r.b))} ${r.c}${t('፥', ':')}${r.v}`;
   const top = S.results[0];
   const ranked = S.results.some((r) => !r.full);
-  const rows = S.results.slice(1, S.shown).map((r, i) => `<button class="result" data-a="openResult" data-v="${i + 1}" data-k="res-${i + 1}"><b>${ref(r)}</b><span lang="${versions[id].language}">${markTerms(r.text, r.terms)}</span></button>`).join('');
+  const rows = S.results.slice(1, S.shown).map((r, i) => `<button class="result" data-a="openResult" data-v="${i + 1}" data-k="res-${i + 1}"><b>${ref(r)}</b><span ${langOf(id, r.b)}>${markTerms(r.text, r.terms)}</span></button>`).join('');
   return `<div class="card stack best" role="status"><span class="muted small"><b>${t('በጣም የሚቀርበው ቁጥር', 'Closest verse')}</b></span>
-<b style="font-size:22px">${ref(top)}</b><p class="prose" style="font-size:19px" lang="${versions[id].language}">${markTerms(top.text, top.terms)}</p>
+<b style="font-size:22px">${ref(top)}</b><p class="prose" style="font-size:19px" ${langOf(id, top.b)}>${markTerms(top.text, top.terms)}</p>
 <button class="btn fill" style="align-self:flex-start" data-a="openResult" data-v="0" data-k="res-0">${t('ምዕራፉን ክፈት', 'Open the chapter')}</button></div>
 <p class="muted"><b>${S.results.length}</b> ${t('ቁጥሮች ተገኝተዋል በ', 'verses found in the ')}${esc(versions[id].name)}${ranked ? t('፤ በጣም የሚቀርቡት ቀድመው ተቀምጠዋል።', '; the closest come first.') : ''}</p>
 <div class="stack" style="gap:8px">${rows}</div>
 ${S.results.length > S.shown ? `<button class="btn" data-a="moreResults" data-k="res-more">${t('ተጨማሪ አሳይ', 'Show more')} (${S.results.length - S.shown})</button>` : ''}`;
+}
+
+// ---------- verse of the day and verse pictures ----------
+// Well-known verses as [book, chapter, verse]; the day of the year picks one, the same for everyone that day.
+const DAILY = [[18, 23, 1], [42, 3, 16], [19, 3, 5], [44, 8, 28], [49, 4, 13], [22, 40, 31], [23, 29, 11], [5, 1, 9], [39, 11, 28],
+  [18, 46, 1], [44, 12, 2], [47, 5, 22], [18, 119, 105], [42, 14, 6], [39, 6, 33], [49, 4, 6], [57, 11, 1], [61, 4, 8], [19, 18, 10],
+  [18, 27, 1], [24, 3, 22], [32, 6, 8], [42, 15, 13], [44, 5, 8], [46, 5, 17], [48, 2, 8], [58, 1, 5], [59, 5, 7], [39, 5, 9],
+  [18, 37, 4], [22, 41, 10], [0, 1, 1], [42, 1, 14], [44, 15, 13], [45, 13, 4], [18, 91, 1], [42, 11, 25], [39, 22, 37], [18, 34, 8],
+  [5, 24, 15], [19, 16, 3], [22, 26, 3], [35, 3, 17], [40, 10, 27], [41, 1, 37], [43, 1, 8], [50, 3, 23], [57, 13, 8], [65, 21, 4],
+  [18, 139, 14], [18, 51, 10], [44, 10, 9], [39, 28, 20], [61, 1, 9], [46, 12, 9], [47, 6, 9], [42, 8, 12], [18, 121, 1], [24, 3, 23]];
+function dailyRef(date = new Date()) {
+  const day = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 864e5);
+  return DAILY[(day + date.getFullYear()) % DAILY.length];
+}
+// The text of one verse in a version, or null while its book loads.
+function verseText(id, b, c, v) {
+  const ver = versions[id];
+  if (!ver) return '';
+  if (ver.dir && !ver.books[b]) { if (!(ver.failed && ver.failed[b])) loadBook(id, b); return null; }
+  return ((ver.books[b] || [])[c - 1] || [])[v - 1] || '';
+}
+const verseRef = (b, c, v) => bookName(b) + ' ' + c + t('፥', ':') + v;
+
+function dailyCard() {
+  const [b, c, v] = dailyRef();
+  const text = verseText(S.primary, b, c, v);
+  return `<div class="card stack daily"><span class="muted small"><b>${t('የዕለቱ ጥቅስ', 'Verse of the day')}</b></span>
+<p class="prose dailytext" ${langOf(S.primary, b)}>${text === null ? '…' : esc(text)}</p>
+<div class="row between"><b>${esc(verseRef(b, c, v))}</b><div class="row">
+<button class="btn" data-a="shareDaily" data-k="daily-share" aria-label="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}" title="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}">${icon('share')}</button>
+<button class="btn fill" data-a="openDaily" data-k="daily-open">${t('ክፍሉን ክፈት', 'Open the passage')}</button></div></div></div>`;
+}
+
+// Draws a verse onto a square picture and offers it to the phone's share sheet, or downloads it on a computer.
+async function shareVersePicture(id, b, c, v) {
+  const text = verseText(id, b, c, v);
+  if (!text) return;
+  const size = 1080, pad = 96;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const g = canvas.getContext('2d');
+  const bg = g.createLinearGradient(0, 0, size, size);
+  bg.addColorStop(0, '#1F2A44'); bg.addColorStop(1, '#5B3A6E');
+  g.fillStyle = bg; g.fillRect(0, 0, size, size);
+  g.fillStyle = 'rgba(255,255,255,0.08)'; g.beginPath(); g.arc(size - 140, 160, 260, 0, Math.PI * 2); g.fill();
+  const rtl = versions[id].language === 'orig' && b < 39;
+  const family = '"Noto Sans Ethiopic", "Kefa", "Nyala", "Abyssinica SIL", "SBL Hebrew", "Noto Serif", system-ui, sans-serif';
+  // Find the largest text size at which the verse fits in the picture.
+  const words = text.split(/\s+/);
+  let fontSize = 64, lines = [];
+  for (; fontSize >= 28; fontSize -= 2) {
+    g.font = `600 ${fontSize}px ${family}`;
+    lines = [];
+    let line = '';
+    for (const w of words) {
+      const next = line ? line + ' ' + w : w;
+      if (g.measureText(next).width > size - pad * 2 && line) { lines.push(line); line = w; } else line = next;
+    }
+    if (line) lines.push(line);
+    if (lines.length * fontSize * 1.5 < size - pad * 2 - 200) break;
+  }
+  g.fillStyle = '#FFFFFF'; g.textBaseline = 'top'; g.direction = rtl ? 'rtl' : 'ltr';
+  g.textAlign = rtl ? 'right' : 'left';
+  const x = rtl ? size - pad : pad;
+  let y = (size - lines.length * fontSize * 1.5 - 120) / 2;
+  lines.forEach((l) => { g.fillText(l, x, y); y += fontSize * 1.5; });
+  g.direction = 'ltr'; g.textAlign = 'left';
+  g.font = `700 40px ${family}`; g.fillStyle = '#F5C76B';
+  g.fillText(verseRef(b, c, v), pad, y + 36);
+  g.font = `500 30px ${family}`; g.fillStyle = 'rgba(255,255,255,0.75)';
+  g.fillText(versions[id].name, pad, y + 92);
+  g.font = `700 34px ${family}`; g.fillStyle = 'rgba(255,255,255,0.9)'; g.textAlign = 'right';
+  g.fillText('ቃሉ · Qalu', size - pad, size - pad);
+  const blob = await new Promise((done) => canvas.toBlob(done, 'image/png'));
+  const name = 'qalu-' + bookName(b).replace(/\s+/g, '-') + '-' + c + '-' + v + '.png';
+  const file = new File([blob], name, { type: 'image/png' });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: verseRef(b, c, v) }); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
 
 function browseView() {
@@ -773,6 +871,7 @@ function browseView() {
     ? searchResults()
     : `<div class="seg" role="group" aria-label="${t('የማሰሻ መንገድ', 'Browse by')}">${modes.map((m) => `<button data-a="browse" data-v="${m[0]}" data-k="mode-${m[0]}" aria-pressed="${S.browse === m[0]}">${m[1]}</button>`).join('')}</div>
 <p class="muted">${notes[S.browse]}</p>
+${dailyCard()}
 <div class="card row between"><div class="stack" style="gap:4px"><span class="muted small"><b>${t('ካቆሙበት ይቀጥሉ', 'Continue where you left off')}</b></span><span style="font-size:21px;font-weight:700">${esc(passTitle(S.pass))}</span><span class="muted small">${esc(passRef(S.pass))}</span></div>
 <button class="btn fill" data-a="nav" data-v="study" data-k="continue">${t('ክፈት', 'Open')}</button></div>
 ${shortcuts}
@@ -870,7 +969,9 @@ function studyView() {
   const stacked = S.split && S.layout === 'stack';
   const main = chapter(S.primary);
   const alt = S.split ? chapter(S.secondary) : { state: 'ok', verses: [] };
-  const count = main.verses.length;
+  // A few verses are missing from some versions (such as Joel 2:28–32 in the Oromo text), so the chapter runs to
+  // whichever of the two versions on screen is longer.
+  const count = Math.max(main.verses.length, S.split && alt.state === 'ok' ? alt.verses.length : 0);
   const lo = Math.max(1, p.f || 1);
   const hi = p.to ? Math.min(p.to, count) : count;
   const nums = [];
@@ -907,7 +1008,7 @@ ${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትር�
       if (il.state === 'error') return n === nums[0] ? `<p class="small ilnote" role="alert">${t('የዋናው ቋንቋ ቃላትን መጫን አልተቻለም።', 'The original words could not be loaded.')}</p>` : '';
       return il.verses[n] ? wordRow(n, il.verses[n], heb, S.sel === n ? pickedWord() : null) : '';
     };
-    verses = nums.map((n) => `<div class="vblock">` + `<button class="verse${S.split && S.layout === 'verse' ? ' inter' : ''}" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span lang="${versions[S.primary].language}"><sup>${n} </sup>${esc(main.verses[n - 1] || '')}</span>${S.split && !stacked ? `<span class="alt" lang="${versions[S.secondary].language}">${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>` + under(n) + `</div>`).join('');
+    verses = nums.map((n) => `<div class="vblock">` + `<button class="verse${S.split && S.layout === 'verse' ? ' inter' : ''}" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span ${langOf(S.primary)}><sup>${n} </sup>${main.verses[n - 1] ? esc(main.verses[n - 1]) : `<i class="muted small">${t('(ይህ ቁጥር በዚህ ትርጉም የለም)', '(this verse is not in this version)')}</i>`}</span>${S.split && !stacked ? `<span class="alt" ${langOf(S.secondary)}>${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>` + under(n) + `</div>`).join('');
   }
   if (stacked) {
     // The second version gets its own pane under the first, with the same verse range.
@@ -918,7 +1019,7 @@ ${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትር�
     else if (lo > hi2) lower = `<p class="prose" style="padding:12px">${t('ይህ ትርጉም ለዚህ ክፍል ጽሑፍ የለውም።', 'This version has no text for this passage.')}</p>`;
     else {
       lower = '';
-      for (let n = lo; n <= hi2; n++) lower += `<button class="verse" data-a="verse" data-v="${n}" data-k="w-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span lang="${versions[S.secondary].language}"><sup>${n} </sup>${esc(alt.verses[n - 1] || '')}</span></button>`;
+      for (let n = lo; n <= hi2; n++) lower += `<button class="verse" data-a="verse" data-v="${n}" data-k="w-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span ${langOf(S.secondary)}><sup>${n} </sup>${esc(alt.verses[n - 1] || '')}</span></button>`;
     }
     verses = `<div class="panes"><div class="pane" data-pane="1"><div class="pane-head">${esc(versions[S.primary].name)}</div>${verses}</div><div class="pane" data-pane="2"><div class="pane-head">${esc(versions[S.secondary].name)}</div>${lower}</div></div>`;
   }
@@ -928,8 +1029,9 @@ ${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትር�
   const selbar = S.sel
     ? `<div class="row selbar" role="toolbar" aria-label="${t('የቁጥር መሣሪያዎች', 'Verse tools')}"><b class="small">${t('ቁ. ' + S.sel, 'v. ' + S.sel)}</b>
 ${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl-${c[0]}" aria-label="${c[1]}" title="${c[1]}"><span style="background:var(--hl-${c[0]})"></span></button>`).join('')}
-<button class="btn" data-a="clearHl" data-k="hl-clear" aria-label="${t('ቀለሙን አጥፋ', 'Clear the highlight')}" title="${t('ቀለሙን አጥፋ', 'Clear the highlight')}">${icon('close')}<span class="lbl">${t('አጥፋ', 'Clear')}</span></button>
+${S.highlights[hlKey(S.sel)] ? `<button class="btn" data-a="clearHl" data-k="hl-clear" aria-label="${t('ቀለሙን አጥፋ', 'Clear the highlight')}" title="${t('ቀለሙን አጥፋ', 'Clear the highlight')}">${icon('close')}<span class="lbl">${t('አጥፋ', 'Clear')}</span></button>` : ''}
 <button class="btn" data-a="noteTab" data-k="note-open" aria-label="${t('ማስታወሻ', 'Note')}" title="${t('ማስታወሻ', 'Note')}">${icon('pen')}<span class="lbl">${t('ማስታወሻ', 'Note')}</span></button>${voiceButton('rec-bar')}
+<button class="btn" data-a="shareVerse" data-k="share-verse" aria-label="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}" title="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}">${icon('share')}<span class="lbl">${t('አጋራ', 'Share')}</span></button>
 <button class="btn" data-a="wordsTab" data-k="words-open" aria-label="${t('ዋና ቃላት', 'Original words')}" title="${t('ዋና ቃላት', 'Original words')}"><b lang="${isHebrew(p.b) ? 'he' : 'grc'}">${isHebrew(p.b) ? 'אב' : 'αβ'}</b><span class="lbl">${t('ዋና ቃላት', 'Original words')}</span></button></div>`
     : `<p class="muted small" style="padding:6px 12px">${t('ለማቅለም፣ ማስታወሻ ለመያዝ ወይም በዋናው ቋንቋ ለማየት አንድ ቁጥር ይንኩ።', 'Tap a verse to highlight it, add a note or see it in the original language.')}</p>`;
   const heads = S.split && S.layout === 'side' ? `<div class="row muted small" style="padding:0 12px;gap:16px"><b style="flex:1 1 220px">${esc(versions[S.primary].name)}</b><b style="flex:1 1 220px">${esc(versions[S.secondary].name)}</b></div>` : '';
@@ -1146,7 +1248,7 @@ function finishStory() {
 
 function lessonView() {
   const p = S.play, st = stories()[p.i], era = C.timeline[st.era];
-  const lang = versions[S.primary].language;
+  const langAttr = langOf(S.primary, st.p.b);
   const top = (fill, right) => `<div class="row lesson-top"><button class="btn" data-a="storyQuit" data-k="quit" aria-label="${t('ወደ ጉዞው ተመለስ', 'Back to the journey')}" title="${t('ወደ ጉዞው ተመለስ', 'Back to the journey')}">${icon('close')}</button><div class="bar" style="flex:1"><i style="width:${fill}%"></i></div>${right}</div>`;
   let body;
   if (p.step === 'read') {
@@ -1155,7 +1257,7 @@ function lessonView() {
     if (vs.state === 'loading') text = `<p class="muted prose" role="status">${t('ጽሑፉ እየተጫነ ነው…', 'Loading the text…')}</p>`;
     else if (vs.state === 'error') text = `<p class="prose" role="alert">${t('ጽሑፉን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱና እንደገና ይሞክሩ።', 'The text could not be loaded. Check your connection and try again.')}</p><button class="btn" data-a="story" data-v="${p.i}" data-k="reload">${t('እንደገና ሞክር', 'Try again')}</button>`;
     else if (!vs.list.length) text = `<p class="prose">${t('ለዚህ ክፍል በተመረጠው ትርጉም ጽሑፍ የለም።', 'The selected version has no text for this passage.')}</p>`;
-    else text = `<div class="verses story-text" lang="${lang}">${vs.list.map((v) => `<p><sup>${v.n} </sup>${esc(v.text)}</p>`).join('')}</div>`;
+    else text = `<div class="verses story-text" ${langAttr}>${vs.list.map((v) => `<p><sup>${v.n} </sup>${esc(v.text)}</p>`).join('')}</div>`;
     body = top(0, '') + `<div class="stack" style="gap:4px"><span class="pill" style="background:var(--era);color:#14161A">${esc(tp(era.n))} · ${p.i + 1} / ${stories().length}</span><h1>${esc(tp(st.n))}</h1><span class="muted small">${esc(passRef(st.p))}</span></div>
 ${videoCard(st.p.b, st.p.c)}
 <article class="card stack">${text}</article>
@@ -1165,12 +1267,12 @@ ${vs.state === 'ok' ? `<button class="btn fill go" data-a="storyQuiz" data-k="qu
     const prompt = q.kind === 'word'
       ? esc(q.text).replace('\u0000', '<span class="blank"></span>')
       : esc(q.text);
-    const opts = q.options.map((o, i) => `<button class="opt${answered && o === q.answer ? ' right' : ''}${answered && i === p.picked && o !== q.answer ? ' wrong' : ''}" data-a="answer" data-v="${i}" data-k="opt-${p.q}-${i}" lang="${lang}" ${answered ? 'disabled' : ''}>${esc(o)}</button>`).join('');
+    const opts = q.options.map((o, i) => `<button class="opt${answered && o === q.answer ? ' right' : ''}${answered && i === p.picked && o !== q.answer ? ' wrong' : ''}" data-a="answer" data-v="${i}" data-k="opt-${p.q}-${i}" ${langAttr} ${answered ? 'disabled' : ''}>${esc(o)}</button>`).join('');
     body = top(Math.round(((p.q + (answered ? 1 : 0)) / p.qs.length) * 100), marks('hearts', 'heart', p.hearts, 3, 22)) +
       `<div class="stack" style="gap:4px"><span class="muted small"><b>${t('ጥያቄ', 'Question')} ${p.q + 1} / ${p.qs.length}</b></span><h2>${q.kind === 'word' ? t('የጎደለው ቃል የትኛው ነው?', 'Which word is missing?') : t('ቀጥሎ የሚመጣው ቁጥር የትኛው ነው?', 'Which verse comes next?')}</h2></div>
-<div class="card"><p class="prose big" lang="${lang}"><sup class="muted">${q.n} </sup>${prompt}</p></div>
+<div class="card"><p class="prose big" ${langAttr}><sup class="muted">${q.n} </sup>${prompt}</p></div>
 <div class="stack">${opts}</div>
-${answered ? `<div class="verdict ${right ? 'good' : 'bad'} stack" role="status"><b>${right ? t('ትክክል!', 'Correct!') : t('ትክክል አይደለም', 'Not quite')}</b><span lang="${lang}"><sup>${q.fullN || q.n} </sup>${esc(q.full)}</span></div>
+${answered ? `<div class="verdict ${right ? 'good' : 'bad'} stack" role="status"><b>${right ? t('ትክክል!', 'Correct!') : t('ትክክል አይደለም', 'Not quite')}</b><span ${langAttr}><sup>${q.fullN || q.n} </sup>${esc(q.full)}</span></div>
 <button class="btn fill go" data-a="storyNext" data-k="next-q">${t('ቀጥል', 'Continue')}${icon('right')}</button>` : ''}`;
   } else if (p.step === 'fail') {
     body = top(0, marks('hearts', 'heart', 0, 3, 22)) + `<div class="card stack trophy"><span class="hearts big-mark">${icon('heart', 56)}</span><h1>${t('ልቦች አልቀዋል', 'Out of hearts')}</h1><p class="muted prose">${t('ታሪኩን እንደገና ያንብቡና ደግመው ይሞክሩ።', 'Read the story again and have another go.')}</p>
@@ -1421,6 +1523,9 @@ const actions = {
   open(v) { S.pass = opens[+v]; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen'); window.scrollTo(0, 0); },
   verse(v) { S.sel = S.sel === +v ? null : +v; S.more = 8; save('sel'); },
   inter() { S.inter = !S.inter; save('inter'); },
+  shareVerse() { if (S.sel) shareVersePicture(S.primary, S.pass.b, S.pass.c, S.sel); return false; },
+  shareDaily() { const [b, c, v] = dailyRef(); shareVersePicture(S.primary, b, c, v); return false; },
+  openDaily() { const [b, c, v] = dailyRef(); S.pass = { b, c, f: 1, to: 0 }; S.sel = v; S.goVerse = v; S.screen = 'study'; save('pass', 'screen', 'sel'); window.scrollTo(0, 0); },
   wordsTab() {
     S.tab = 'words'; S.focus = false; save('tab');
     // On narrow screens the side panel sits under the reading, so bring it into view.
