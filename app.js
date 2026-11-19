@@ -58,6 +58,9 @@ const S = {
   intro: false,
   place: ls.get('place', 0),
   theme: null, // the concept whose detail is open
+  persp: null, // the concept whose theological perspectives are open
+  inter: ls.get('inter', false), // show the Hebrew or Greek words under each verse
+  word: null,   // the word picked in the original-language view: its index in the selected verse
   tiles: ls.get('tiles', false), // show the present-day map tiles in place of the illustrated map
   recording: false,
   msg: '',
@@ -92,6 +95,9 @@ const versions = {
 const F = { index: {}, cache: {}, pending: {} };
 // Book introductions and chapter notes for the Context tab, one file per book.
 const X = { cache: {}, pending: {} };
+// The Hebrew and Greek words of each chapter (STEPBible, CC BY 4.0), one file per chapter, and one shared
+// dictionary of Strong's numbers that is loaded the first time any chapter's words are needed.
+const IL = { cache: {}, pending: {}, lex: null, lexPending: false };
 let opens = []; // passages that tiles on the current screen open
 let vids = []; // videos that links on the current screen open in the video window
 let recorder = null;
@@ -207,6 +213,128 @@ function background() {
   return null;
 }
 
+// Returns { state, verses } with the original-language words of a chapter: verses maps a verse number to its
+// words, each [original, transliteration, English gloss, Strong's number, grammar code].
+function originals(b = S.pass.b, c = S.pass.c) {
+  const key = b + '/' + c;
+  if (!IL.lex && !IL.lexPending) {
+    IL.lexPending = true;
+    fetch('data/interlinear/lexicon.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({}))
+      .then((lex) => { IL.lex = lex; IL.lexPending = false; render(); });
+  }
+  if (IL.cache[key]) return { state: 'ok', verses: IL.cache[key] };
+  if (IL.cache[key] === null) return { state: 'error', verses: {} };
+  if (!IL.pending[key]) {
+    IL.pending[key] = true;
+    fetch('data/interlinear/' + key + '.json').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then((d) => { IL.cache[key] = d; })
+      .catch(() => { IL.cache[key] = null; })
+      .then(() => { IL.pending[key] = false; render(); });
+  }
+  return { state: 'loading', verses: {} };
+}
+const isHebrew = (b) => b < 39;
+// The picked word, if it belongs to the verse selected now (choosing another verse or chapter clears it).
+const pickedWord = () => (S.wordAt === S.pass.b + '.' + S.pass.c + '.' + S.sel ? S.word : null);
+
+// Grammar codes in plain words. Hebrew codes follow the Open Scriptures Hebrew Bible scheme (HVqp3ms),
+// with prefixes and suffixes joined by "/"; Greek codes follow the Robinson scheme (V-AAI-3S).
+const HEB_POS = { A: ['ቅጽል', 'adjective'], C: ['መስተጻምር', 'conjunction'], c: ['መስተጻምር', 'conjunction'], D: ['ተውሳከ ግሥ', 'adverb'], N: ['ስም', 'noun'], P: ['ተውላጠ ስም', 'pronoun'], R: ['መስተዋድድ', 'preposition'], S: ['ቅጥያ', 'suffix'], T: ['ቃል አጋዥ', 'particle'], V: ['ግሥ', 'verb'] };
+const GRK_POS = { N: ['ስም', 'noun'], V: ['ግሥ', 'verb'], A: ['ቅጽል', 'adjective'], T: ['መወሰኛ', 'article'], P: ['ተውላጠ ስም', 'pronoun'], R: ['ተውላጠ ስም', 'relative pronoun'], D: ['ተውላጠ ስም', 'demonstrative pronoun'], I: ['ተውላጠ ስም', 'interrogative pronoun'], F: ['ተውላጠ ስም', 'reflexive pronoun'], S: ['ተውላጠ ስም', 'possessive pronoun'], C: ['ተውላጠ ስም', 'reciprocal pronoun'], X: ['ተውላጠ ስም', 'indefinite pronoun'], K: ['ተውላጠ ስም', 'correlative pronoun'], Q: ['ተውላጠ ስም', 'correlative pronoun'], PREP: ['መስተዋድድ', 'preposition'], CONJ: ['መስተጻምር', 'conjunction'], ADV: ['ተውሳከ ግሥ', 'adverb'], PRT: ['ቃል አጋዥ', 'particle'], INJ: ['ቃለ አጋኖ', 'interjection'], COND: ['መስተጻምር', 'conditional'], HEB: ['የዕብራይስጥ ቃል', 'Hebrew word'], ARAM: ['የአራማይስጥ ቃል', 'Aramaic word'] };
+const G_TENSE = { P: 'present', I: 'imperfect', F: 'future', A: 'aorist', R: 'perfect', L: 'pluperfect', '2': 'second' };
+const G_VOICE = { A: 'active', M: 'middle', P: 'passive', E: 'middle or passive', D: 'middle deponent', O: 'passive deponent', N: 'middle or passive deponent' };
+const G_MOOD = { I: 'indicative', S: 'subjunctive', O: 'optative', M: 'imperative', N: 'infinitive', P: 'participle' };
+const G_CASE = { N: 'nominative', G: 'genitive', D: 'dative', A: 'accusative', V: 'vocative' };
+const NUM = { S: 'singular', P: 'plural', s: 'singular', p: 'plural', d: 'dual' };
+const GEN = { M: 'masculine', F: 'feminine', N: 'neuter', m: 'masculine', f: 'feminine', b: 'both genders', c: 'common gender' };
+const H_STEM = { q: 'Qal', N: 'Niphal', p: 'Piel', P: 'Pual', h: 'Hiphil', H: 'Hophal', t: 'Hithpael', o: 'Polel', O: 'Polal', r: 'Hithpolel', m: 'Poel', M: 'Poal', k: 'Palel', K: 'Pulal', Q: 'Qal passive', l: 'Pilpel', L: 'Polpal', f: 'Hithpalpel', D: 'Nithpael', j: 'Pealal', i: 'Pilel', u: 'Hothpaal', c: 'Tiphil', v: 'Hishtaphel', w: 'Nithpalel', y: 'Nithpoel', z: 'Hithpoel' };
+const A_STEM = { q: 'Peal', Q: 'Peil', u: 'Hithpeel', p: 'Pael', P: 'Ithpaal', M: 'Hithpaal', a: 'Aphel', h: 'Haphel', s: 'Saphel', e: 'Shaphel', H: 'Hophal', i: 'Ithpeel', t: 'Hishtaphel', v: 'Ishtaphel', w: 'Hithaphel', o: 'Polel', z: 'Ithpoel', r: 'Hithpolel', f: 'Hithpalpel', b: 'Hephal', c: 'Tiphel', m: 'Poel', l: 'Palpel', L: 'Ithpalpel', O: 'Ithpolel', G: 'Ittaphal' };
+const H_CONJ = { p: 'perfect', q: 'sequential perfect', i: 'imperfect', w: 'sequential imperfect', h: 'cohortative', j: 'jussive', v: 'imperative', r: 'active participle', s: 'passive participle', a: 'infinitive absolute', c: 'infinitive construct' };
+const H_STATE = { a: 'absolute', c: 'construct', d: 'determined' };
+const PERSON = { '1': 'first person', '2': 'second person', '3': 'third person' };
+
+function hebrewGrammar(code) {
+  const lang = code[0] === 'A' ? 'Aramaic' : 'Hebrew';
+  const parts = code.slice(1).split('/').map((m) => {
+    const p = m[0], out = [];
+    if (p === 'V') {
+      out.push((lang === 'Aramaic' ? A_STEM : H_STEM)[m[1]] || '', H_CONJ[m[2]] || '');
+      const rest = m.slice(3);
+      if (/^[123]/.test(rest)) out.push(PERSON[rest[0]], GEN[rest[1]] || '', NUM[rest[2]] || '');
+      else out.push(GEN[rest[0]] || '', NUM[rest[1]] || '', H_STATE[rest[2]] || '');
+      return 'verb, ' + out.filter(Boolean).join(' ');
+    }
+    if (p === 'N' || p === 'A') {
+      const kind = { c: '', g: 'gentilic ', p: 'proper ', a: '', o: 'ordinal ', x: '' }[m[1]] || '';
+      if (m[1] === 'p') return 'proper noun' + (GEN[m[2]] ? ', ' + GEN[m[2]] : '');
+      return kind + (p === 'N' ? 'noun' : 'adjective') + ', ' + [GEN[m[2]], NUM[m[3]], H_STATE[m[4]]].filter(Boolean).join(' ');
+    }
+    if (p === 'S' || p === 'P') {
+      const tail = m.slice(2);
+      const pr = /^[123]/.test(tail) ? [PERSON[tail[0]], GEN[tail[1]], NUM[tail[2]]].filter(Boolean).join(' ') : '';
+      return (p === 'S' ? 'suffix' : 'pronoun') + (pr ? ', ' + pr : '');
+    }
+    if (p === 'T') return ({ a: 'affirmation', d: 'definite article', e: 'exhortation', i: 'interrogative', j: 'interjection', m: 'demonstrative', n: 'negative', o: 'direct object marker', r: 'relative' }[m[1]] || 'particle') + (m[1] === 'd' || m[1] === 'o' ? '' : ' particle');
+    return (HEB_POS[p] || ['', p])[1];
+  });
+  return lang + ': ' + parts.join(' + ');
+}
+
+function greekGrammar(code) {
+  // Two words written as one (crasis) come as "CONJ + G1565=D": describe each part.
+  if (code.includes(' + ')) return code.split(' + ').map((part) => greekGrammar(part.replace(/^G\d+[A-Z]?=/, ''))).join(' + ');
+  const [p, a = '', b = ''] = code.split('-');
+  if (p === 'V') {
+    const tense = a.length > 3 ? G_TENSE[a[0]] + ' ' + G_TENSE[a[1]] : G_TENSE[a[0]];
+    const rest = a.length > 3 ? a.slice(2) : a.slice(1);
+    const out = ['verb', [tense, G_VOICE[rest[0]], G_MOOD[rest[1]]].filter(Boolean).join(' ')];
+    if (/^[123]/.test(b)) out.push([PERSON[b[0]], NUM[b[1]]].filter(Boolean).join(' '));
+    else if (b) out.push([G_CASE[b[0]], NUM[b[1]], GEN[b[2]]].filter(Boolean).join(' '));
+    return out.join(', ');
+  }
+  const pos = (GRK_POS[p] || ['', p.toLowerCase()])[1];
+  const m = /^([123])?([NGDAV])([SP])([MFN])?/.exec(a || '');
+  if (!m) return pos;
+  return pos + ', ' + [m[1] ? PERSON[m[1]] : '', G_CASE[m[2]], NUM[m[3]], GEN[m[4]]].filter(Boolean).join(' ');
+}
+const grammarText = (code, heb) => (heb ? hebrewGrammar(code) : greekGrammar(code));
+const posLabel = (code, heb) => {
+  if (heb) { const main = code.slice(1).split('/').map((m) => m[0]).filter((x) => x !== 'S' && x !== 'R' && x !== 'C' && x !== 'c').pop() || code[1]; return tp(HEB_POS[main] || ['', '']); }
+  return tp(GRK_POS[code.split(' + ')[0].split('-')[0]] || ['', '']);
+};
+
+// The words of one verse as a row of small cards: original, pronunciation and English meaning.
+function wordRow(n, list, heb, picked) {
+  return `<div class="ilrow${heb ? ' heb' : ''}" dir="${heb ? 'rtl' : 'ltr'}">${list.map((w, i) => `<button class="ilw${picked === i ? ' on' : ''}" data-a="word" data-v="${n}:${i}" data-k="w-${n}-${i}" dir="ltr" aria-label="${esc(w[0] + ', ' + w[1] + ': ' + w[2])}">
+<span class="ilo" lang="${heb ? 'he' : 'grc'}" dir="${heb ? 'rtl' : 'ltr'}">${esc(w[0])}</span><span class="ilt">${esc(w[1])}</span><span class="ilg" lang="en">${esc(w[2])}</span></button>`).join('')}</div>`;
+}
+
+// The Words tab: the selected verse in Hebrew or Greek, with each word's dictionary entry and grammar.
+function wordsTab() {
+  const heb = isHebrew(S.pass.b);
+  const intro = `<p class="muted small">${heb
+    ? t('ብሉይ ኪዳን የተጻፈው በዕብራይስጥ ነው (ጥቂት ክፍሎች በአራማይስጥ)። እያንዳንዱ ቃል ከአጠራሩ፣ ከእንግሊዝኛ ትርጉሙና ከሰዋስው መግለጫው ጋር ቀርቧል።', 'The Old Testament was written in Hebrew (with a few passages in Aramaic). Each word is shown with its pronunciation, its English meaning and its grammar.')
+    : t('አዲስ ኪዳን የተጻፈው በግሪክ ነው። እያንዳንዱ ቃል ከአጠራሩ፣ ከእንግሊዝኛ ትርጉሙና ከሰዋስው መግለጫው ጋር ቀርቧል።', 'The New Testament was written in Greek. Each word is shown with its pronunciation, its English meaning and its grammar.')}</p>`;
+  if (!S.sel) return intro + `<div class="card"><p class="prose">${t('የዋናውን ቋንቋ ቃላት ለማየት በንባቡ ውስጥ አንድ ቁጥር ይንኩ።', 'Tap a verse in the reading to see its words in the original language.')}</p></div>`;
+  const o = originals();
+  if (o.state === 'loading') return intro + `<p class="muted prose" role="status">${t('እየተጫነ ነው…', 'Loading…')}</p>`;
+  if (o.state === 'error') return intro + `<div class="card"><p class="prose" role="alert">${t('ቃላቱን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱ።', 'The words could not be loaded. Check your connection.')}</p></div>`;
+  const list = o.verses[S.sel];
+  if (!list) return intro + `<div class="card"><p class="prose">${t('ይህ ቁጥር በዋናው ጽሑፍ ውስጥ የለም፤ በአንዳንድ ትርጉሞች ብቻ ይገኛል።', 'This verse is not in the original-language text used here; it is found only in some translations.')}</p></div>`;
+  const lex = IL.lex || {};
+  const entry = (w, i) => {
+    const d = lex[w[3]];
+    return `<div class="card stack ilcard${pickedWord() === i ? ' on' : ''}" id="ilc-${i}" style="gap:6px">
+<div class="row between" style="align-items:baseline"><b class="ilbig" lang="${heb ? 'he' : 'grc'}" dir="${heb ? 'rtl' : 'ltr'}">${esc(w[0])}</b><span class="pill">${esc(posLabel(w[4], heb))}</span></div>
+<div class="row" style="gap:10px;align-items:baseline"><i>${esc(w[1])}</i><b lang="en">${esc(w[2])}</b></div>
+${d ? `<div class="small"><span class="muted">${t('መዝገበ ቃላት', 'Dictionary')}:</span> <b lang="${heb ? 'he' : 'grc'}">${esc(d[0])}</b> · <span lang="en">${esc(d[1])}</span></div>` : ''}
+<div class="small muted" lang="en">${esc(grammarText(w[4], heb))}</div>
+<div class="small muted">Strong’s ${esc(w[3])}</div></div>`;
+  };
+  return intro + `<div class="card stack" style="gap:8px"><b>${esc(passRef({ b: S.pass.b, c: S.pass.c, f: S.sel, to: S.sel }))}</b>${wordRow(S.sel, list, heb, pickedWord())}</div>` + list.map(entry).join('') +
+    `<p class="muted small">${t('የዕብራይስጥና የግሪክ ጽሑፍ፣ የቃላቱ ትርጉምና ሰዋስው ከSTEPBible (Tyndale House, Cambridge) የተወሰዱ ናቸው፤ CC BY 4.0። የእንግሊዝኛ ትርጉሞቹ የቃል በቃል ናቸው፤ የአማርኛ ትርጉም ገና የለም።', 'Hebrew and Greek text, glosses and grammar from STEPBible (Tyndale House, Cambridge), CC BY 4.0. The English glosses are word-for-word; Amharic glosses are not available yet.')}</p>`;
+}
+
 // A small Markdown renderer for the notes: headings, lists, paragraphs, bold and italic.
 function md(text) {
   const inline = (x) => esc(x).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\*([^*]+)\*/g, '<i>$1</i>');
@@ -223,6 +351,7 @@ function md(text) {
 function passRef(p) {
   const base = bookName(p.b) + ' ' + p.c;
   const sep = t('፥', ':');
+  if (p.to && p.to === (p.f || 1)) return base + sep + p.to; // a single verse
   if (p.to) return base + sep + (p.f || 1) + '–' + p.to;
   if (p.f > 1) return base + sep + p.f + '–';
   return base;
@@ -414,6 +543,19 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// How the main Christian traditions understand a concept: short summaries, side by side.
+const TRADITIONS = {
+  orthodox: ['የኢትዮጵያ ኦርቶዶክስ ተዋሕዶ', 'Ethiopian Orthodox Tewahedo'],
+  catholic: ['ካቶሊክ', 'Catholic'],
+  protestant: ['ፕሮቴስታንት (ወንጌላውያን)', 'Protestant (evangelical)']
+};
+function viewsBlock(th) {
+  if (!th.views) return '';
+  return `<b class="small muted">${t('የአብያተ ክርስቲያናት አመለካከቶች', 'How the churches understand it')}</b>
+<div class="views">${th.views.map((v) => `<div class="view ${v.k}"><b>${esc(tp(TRADITIONS[v.k]))}</b><p class="prose">${esc(tp(v.t))}</p></div>`).join('')}</div>
+<p class="muted small">${t('አጭር ማጠቃለያዎች ናቸው፤ እያንዳንዱ ትውፊት ሰፊ ነው፤ በውስጡም ያሉ አብያተ ክርስቲያናት ይለያያሉ። ለሙሉ ትምህርቱ የቤተ ክርስቲያንዎን መምህራን ይጠይቁ።', 'Short summaries. Each tradition is broad and its churches differ; ask your own church’s teachers for its full teaching.')}</p>`;
+}
+
 function themesView() {
   // An older copy of the content file (kept by the browser for a few minutes after an update) has no concepts yet.
   if (!C.themes) return `<div class="card stack" style="align-items:flex-start"><p class="prose">${t('ጽንሰ ሐሳቦቹ ገና አልተጫኑም። ገጹን እንደገና ይጫኑ።', 'The concepts have not loaded yet. Reload the page.')}</p><button class="btn fill" data-a="reload" data-k="reload-app">${t('እንደገና ጫን', 'Reload')}</button></div>`;
@@ -423,7 +565,7 @@ function themesView() {
     // The detail: a short commentary and the passages it rests on, each opening in the Study screen.
     const detail = open ? `<p class="prose">${esc(tp(th.c))}</p>
 <b class="small muted">${t('ዋቢ ጥቅሶች', 'Bible references')}</b>
-<div class="row">${th.refs.map((p, j) => { opens.push({ b: p.b, c: p.c, f: p.f, to: p.to, title: th.n }); return `<button class="btn" data-a="open" data-v="${opens.length - 1}" data-k="theme-ref-${i}-${j}">${icon('book')}${esc(passRef(p))}</button>`; }).join('')}</div>` : '';
+<div class="row">${th.refs.map((p, j) => { opens.push({ b: p.b, c: p.c, f: p.f, to: p.to, title: th.n }); return `<button class="btn" data-a="open" data-v="${opens.length - 1}" data-k="theme-ref-${i}-${j}">${icon('book')}${esc(passRef(p))}</button>`; }).join('')}</div>${viewsBlock(th)}` : '';
     const v = { title: tp(th.n), url, img: th.img, yt: th.yt };
     return `<div class="tile theme${open ? ' open' : ''}">${vlink(v, 'pic', 'theme-pic-' + i, thumb(th.img, th.n[1]), tp(th.n) + ': ' + t('ቪዲዮውን ተመልከት', 'watch the video'))}
 <b>${esc(tp(th.n))}</b><span class="muted small">${esc(tp(th.d))}</span>
@@ -578,7 +720,7 @@ function searchBar() {
   const verOpts = Object.values(versions).map((v) => [v.id, v.name]);
   return `<form class="card searchbar" role="search" data-search>
 <div class="field wide" style="flex:3 1 260px"><label for="q">${t('በመጽሐፍ ቅዱስ ውስጥ ፈልግ', 'Search the Bible')}</label>
-<input id="q" data-k="q" type="search" value="${esc(S.q)}" placeholder="${t('ቃል ወይም ጥያቄ ይጻፉ፦ ፍቅር፣ ወይም “ስለ ገንዘብ ፍቅር የሚናገረው ቁጥር የት ነው?”', 'Type a word or a question: love, or “where does it say money is the root of evil?”')}" autocomplete="off"></div>
+<input id="q" data-k="q" type="search" value="${esc(S.q)}" placeholder="${t('ቃል ወይም ጥያቄ ይጻፉ', 'A word or a question')}" autocomplete="off"></div>
 <div class="field" style="flex:1 1 180px"><label for="qv">${t('ትርጉም', 'Version')}</label><select id="qv" data-c="qv" data-k="qv">${options(verOpts, versions[S.qv] ? S.qv : S.primary)}</select></div>
 <button class="btn fill" type="submit" data-k="q-go">${icon('search')}${t('ፈልግ', 'Search')}</button>
 ${S.searchOn ? `<button class="btn" type="button" data-a="clearSearch" data-k="q-clear">${t('አጽዳ', 'Clear')}</button>` : ''}
@@ -648,8 +790,8 @@ function options(list, selected) {
 
 function voiceButton(key) {
   return S.recording
-    ? `<button class="btn rec" data-a="stop" data-k="${key}">${icon('stop')}${t('አቁም', 'Stop')}</button>`
-    : `<button class="btn" data-a="rec" data-k="${key}">${icon('mic')}${t('የድምፅ ማስታወሻ', 'Voice note')}</button>`;
+    ? `<button class="btn rec" data-a="stop" data-k="${key}" aria-label="${t('አቁም', 'Stop')}">${icon('stop')}<span class="lbl">${t('አቁም', 'Stop')}</span></button>`
+    : `<button class="btn" data-a="rec" data-k="${key}" aria-label="${t('የድምፅ ማስታወሻ', 'Voice note')}" title="${t('የድምፅ ማስታወሻ', 'Voice note')}">${icon('mic')}<span class="lbl">${t('የድምፅ ማስታወሻ', 'Voice note')}</span></button>`;
 }
 
 function noteCard(n) {
@@ -662,10 +804,12 @@ function noteCard(n) {
 }
 
 function sidePanel() {
-  const tabs = [['fathers', t('አባቶች', 'Fathers')], ['context', t('ዳራ', 'Context')], ['notes', t('ማስታወሻ', 'Notes')]];
+  const tabs = [['words', t('ዋና ቃላት', 'Original')], ['fathers', t('አባቶች', 'Fathers')], ['context', t('ዳራ', 'Context')], ['notes', t('ማስታወሻ', 'Notes')]];
   const st = study();
   let body = '';
-  if (S.tab === 'fathers') {
+  if (S.tab === 'words') {
+    body = wordsTab();
+  } else if (S.tab === 'fathers') {
     const fa = fathers();
     const lo = S.sel || S.pass.f || 1, hi = S.sel || S.pass.to || 999;
     const list = fa.list.filter((e) => e.f <= hi && e.t >= lo);
@@ -755,7 +899,15 @@ ${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትር�
   else if (main.state === 'error') verses = `<p class="prose" style="padding:12px" role="alert">${t('ጽሑፉን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱና ገጹን እንደገና ይክፈቱ።', 'The text could not be loaded. Check your connection and reload the page.')}</p>`;
   else if (!nums.length) verses = `<p class="prose" style="padding:12px">${t('ለዚህ ክፍል በተመረጠው ትርጉም ጽሑፍ የለም።', 'The selected version has no text for this passage.')}</p>`;
   else {
-    verses = nums.map((n) => `<button class="verse${S.split && S.layout === 'verse' ? ' inter' : ''}" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span lang="${versions[S.primary].language}"><sup>${n} </sup>${esc(main.verses[n - 1] || '')}</span>${S.split && !stacked ? `<span class="alt" lang="${versions[S.secondary].language}">${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>`).join('');
+    const il = S.inter ? originals() : null;
+    const heb = isHebrew(p.b);
+    const under = (n) => {
+      if (!il) return '';
+      if (il.state === 'loading') return `<p class="muted small ilnote" role="status">${t('የዋናው ቋንቋ ቃላት እየተጫኑ ነው…', 'Loading the original words…')}</p>`;
+      if (il.state === 'error') return n === nums[0] ? `<p class="small ilnote" role="alert">${t('የዋናው ቋንቋ ቃላትን መጫን አልተቻለም።', 'The original words could not be loaded.')}</p>` : '';
+      return il.verses[n] ? wordRow(n, il.verses[n], heb, S.sel === n ? pickedWord() : null) : '';
+    };
+    verses = nums.map((n) => `<div class="vblock">` + `<button class="verse${S.split && S.layout === 'verse' ? ' inter' : ''}" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span lang="${versions[S.primary].language}"><sup>${n} </sup>${esc(main.verses[n - 1] || '')}</span>${S.split && !stacked ? `<span class="alt" lang="${versions[S.secondary].language}">${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>` + under(n) + `</div>`).join('');
   }
   if (stacked) {
     // The second version gets its own pane under the first, with the same verse range.
@@ -776,9 +928,10 @@ ${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትር�
   const selbar = S.sel
     ? `<div class="row selbar" role="toolbar" aria-label="${t('የቁጥር መሣሪያዎች', 'Verse tools')}"><b class="small">${t('ቁ. ' + S.sel, 'v. ' + S.sel)}</b>
 ${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl-${c[0]}" aria-label="${c[1]}" title="${c[1]}"><span style="background:var(--hl-${c[0]})"></span></button>`).join('')}
-<button class="btn" data-a="clearHl" data-k="hl-clear">${t('አጥፋ', 'Clear')}</button>
-<button class="btn" data-a="noteTab" data-k="note-open">${icon('pen')}${t('ማስታወሻ', 'Note')}</button>${voiceButton('rec-bar')}</div>`
-    : `<p class="muted small" style="padding:6px 12px">${t('ለማቅለም ወይም ማስታወሻ ለመያዝ አንድ ቁጥር ይንኩ።', 'Click a verse to highlight it or add a note.')}</p>`;
+<button class="btn" data-a="clearHl" data-k="hl-clear" aria-label="${t('ቀለሙን አጥፋ', 'Clear the highlight')}" title="${t('ቀለሙን አጥፋ', 'Clear the highlight')}">${icon('close')}<span class="lbl">${t('አጥፋ', 'Clear')}</span></button>
+<button class="btn" data-a="noteTab" data-k="note-open" aria-label="${t('ማስታወሻ', 'Note')}" title="${t('ማስታወሻ', 'Note')}">${icon('pen')}<span class="lbl">${t('ማስታወሻ', 'Note')}</span></button>${voiceButton('rec-bar')}
+<button class="btn" data-a="wordsTab" data-k="words-open" aria-label="${t('ዋና ቃላት', 'Original words')}" title="${t('ዋና ቃላት', 'Original words')}"><b lang="${isHebrew(p.b) ? 'he' : 'grc'}">${isHebrew(p.b) ? 'אב' : 'αβ'}</b><span class="lbl">${t('ዋና ቃላት', 'Original words')}</span></button></div>`
+    : `<p class="muted small" style="padding:6px 12px">${t('ለማቅለም፣ ማስታወሻ ለመያዝ ወይም በዋናው ቋንቋ ለማየት አንድ ቁጥር ይንኩ።', 'Tap a verse to highlight it, add a note or see it in the original language.')}</p>`;
   const heads = S.split && S.layout === 'side' ? `<div class="row muted small" style="padding:0 12px;gap:16px"><b style="flex:1 1 220px">${esc(versions[S.primary].name)}</b><b style="flex:1 1 220px">${esc(versions[S.secondary].name)}</b></div>` : '';
 
   const title = passTitle(p), ref = passRef(p);
@@ -797,6 +950,7 @@ ${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl
 <div class="row tools" role="toolbar" aria-label="${t('የንባብ መሣሪያዎች', 'Reading tools')}">
 ${tb('picker', 'picker', icon('sliders'), t('ክፍልና ትርጉም', 'Passage and version'), S.picker)}
 ${tb('split', 'split', icon('split'), t('ሁለት ትርጉም', 'Two versions'), S.split)}
+${tb('inter', 'inter', `<b style="font-size:15px" lang="${isHebrew(p.b) ? 'he' : 'grc'}">${isHebrew(p.b) ? 'אב' : 'αβ'}</b>`, isHebrew(p.b) ? t('ዕብራይስጥ ቃላት', 'Hebrew words') : t('ግሪክ ቃላት', 'Greek words'), S.inter)}
 ${tb('smaller', 'smaller', '<b style="font-size:13px">A−</b>', t('ጽሑፉን አሳንስ', 'Smaller text'))}
 ${tb('larger', 'larger', '<b style="font-size:18px">A+</b>', t('ጽሑፉን አሳድግ', 'Larger text'))}
 ${tb('focus', 'focus', icon('focus'), t('ትኩረት', 'Focus'), S.focus)}
@@ -1266,6 +1420,17 @@ const actions = {
   concept(v) { S.theme = S.theme === +v ? null : +v; },
   open(v) { S.pass = opens[+v]; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen'); window.scrollTo(0, 0); },
   verse(v) { S.sel = S.sel === +v ? null : +v; S.more = 8; save('sel'); },
+  inter() { S.inter = !S.inter; save('inter'); },
+  wordsTab() {
+    S.tab = 'words'; S.focus = false; save('tab');
+    // On narrow screens the side panel sits under the reading, so bring it into view.
+    if (window.innerWidth < 1000) requestAnimationFrame(() => { const el = document.querySelector('.sidepanel .seg'); if (el) { el.scrollIntoView({ block: 'start' }); window.scrollBy(0, -70); } });
+  },
+  word(v) {
+    const [n, i] = v.split(':').map(Number);
+    S.sel = n; S.word = i; S.wordAt = S.pass.b + '.' + S.pass.c + '.' + n; S.tab = 'words'; S.focus = false; save('sel', 'tab');
+    requestAnimationFrame(() => { const el = document.getElementById('ilc-' + i); if (el) el.scrollIntoView({ block: 'nearest' }); });
+  },
   hl(v) { S.highlights[hlKey(S.sel)] = v; save('highlights'); },
   clearHl() { delete S.highlights[hlKey(S.sel)]; save('highlights'); },
   tab(v) { S.tab = v; save('tab'); },

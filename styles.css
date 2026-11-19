@@ -289,7 +289,7 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .verse.inter { flex-direction: column; flex-wrap: nowrap; gap: 6px; padding: 12px 14px; }
 .verse.inter > span { flex: none; }
 .verse.inter > span:first-child { font-size: 1.06em; line-height: 1.8; }
-.verse.inter .alt { font-size: .94em; line-height: 1.75; color: var(--text); opacity: .86; }
+.verse.inter .alt { font-size: .86em; line-height: 1.7; color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; }
 .navmain { display: flex; flex-direction: column; gap: 4px; }
 
 @media (max-width: 760px) {
@@ -310,6 +310,13 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
   main { padding: 14px 12px 90px; }
   h1 { font-size: 23px; }
   .tools .lbl { display: none; }
+  .selbar .lbl { display: none; }
+  .selbar { gap: 6px; flex-wrap: nowrap; overflow-x: auto; }
+  .selbar { gap: 3px; padding: 6px; }
+  .selbar .dot { flex: none; width: 30px; height: 40px; }
+  .selbar .dot span { width: 24px; height: 24px; }
+  .selbar .btn { flex: none; padding: 0 7px; min-width: 38px; }
+  .selbar > b { flex: none; font-size: 13px; }
   .tools .btn { padding: 0 10px; }
   .readhead { flex-direction: column; align-items: stretch; }
   .titlebar { justify-content: space-between; }
@@ -318,3 +325,26 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
   .reader.card { padding: 10px; }
   .card { padding: 14px; }
 }
+
+/* Original-language words (interlinear) */
+.vblock { display: flex; flex-direction: column; }
+.ilrow { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 12px 14px; }
+.ilw { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 56px; padding: 6px 8px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); color: var(--text); font-size: 13px; line-height: 1.3; text-align: center; }
+.ilw:hover { border-color: var(--muted); }
+.ilw.on { border-color: var(--text); box-shadow: 0 0 0 2px var(--text) inset; }
+.ilo { font-size: 20px; line-height: 1.5; font-family: "SBL Hebrew", "Ezra SIL", "Times New Roman", "Noto Serif Hebrew", "Noto Serif", serif; }
+.ilrow:not(.heb) .ilo { font-size: 17px; font-family: "SBL Greek", "Gentium Plus", "Times New Roman", "Noto Serif", serif; }
+.ilt { font-style: italic; color: var(--muted); font-size: 12px; }
+.ilg { font-weight: 600; max-width: 130px; }
+.ilnote { padding: 0 12px 10px; }
+.ilbig { font-size: 28px; line-height: 1.4; font-family: "SBL Hebrew", "Ezra SIL", "SBL Greek", "Times New Roman", "Noto Serif Hebrew", "Noto Serif", serif; }
+.ilcard.on { border-color: var(--text); }
+.sidepanel .ilrow { padding: 0; }
+
+/* Theological perspectives on a concept */
+.views { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.view { background: var(--bg); border: 1px solid var(--line); border-left: 4px solid var(--muted); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+.view.orthodox { border-left-color: #D9A13B; }
+.view.catholic { border-left-color: #C25B5B; }
+.view.protestant { border-left-color: #4A8FD6; }
+.view .prose { margin: 0; font-size: 15px; line-height: 1.7; }
