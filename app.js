@@ -65,6 +65,7 @@ const S = {
   recording: false,
   msg: '',
   game: { xp: 0, streak: 0, last: '', done: {} }, // done: story number -> stars earned (1 to 3)
+  gone: [], updated: 0, // see blankAccount()
   play: null, // the story lesson in progress on the Journey screen
   jump: true,
   openBook: ls.get('openBook', null), // the book whose chapter list is open on the Bible screen
@@ -96,8 +97,38 @@ const versions = {
   asv: { id: 'asv', name: 'American Standard Version', language: 'en', dir: 'data/asv', books: {} },
   ylt: { id: 'ylt', name: 'Young’s Literal Translation', language: 'en', dir: 'data/ylt', books: {} },
   bbe: { id: 'bbe', name: 'Bible in Basic English', language: 'en', dir: 'data/bbe', books: {} },
-  darby: { id: 'darby', name: 'Darby Bible (1889)', language: 'en', dir: 'data/darby', books: {} }
+  darby: { id: 'darby', name: 'Darby Bible (1889)', language: 'en', dir: 'data/darby', books: {} },
+  nheb: { id: 'nheb', name: 'New Heart English Bible', language: 'en', dir: 'data/nheb', books: {} },
+  webster: { id: 'webster', name: 'Webster Bible (1833)', language: 'en', dir: 'data/webster', books: {} },
+  geneva: { id: 'geneva', name: 'Geneva Bible (1599)', language: 'en', dir: 'data/geneva', books: {} },
+  wal: { id: 'wal', name: 'Wolaytta · Wolaytta Bible', language: 'wal', dir: 'data/wal', books: {},
+    credit: 'Wolaytta Bible, copyright © 2004 SIM. Licensed CC BY-NC-ND 4.0: shared here unchanged and free of charge. Ruth, Psalms, Song of Songs, Zephaniah, Zechariah, Romans, Titus and Revelation are not in the source copy and are missing here.' },
+  som: { id: 'som', name: 'Soomaali · Kitaabka Quduuska Ah', language: 'so', dir: 'data/som', books: {},
+    credit: 'Kitaabka Quduuska Ah, copyright © 1979, 2008 Society for International Ministries (SIM) Kenya. Licensed CC BY-NC-ND 4.0: shared here unchanged and free of charge.' },
+  mdy: { id: 'mdy', name: 'Maale (Male)', language: 'mdy', dir: 'data/mdy', books: {},
+    credit: 'Maale Bible, copyright © 2008 The Word for the World International and The Bible Society of Ethiopia. Licensed CC BY-ND 4.0: shared here unchanged.' },
+  gof: { id: 'gof', name: 'Goofa (Gofa) · New Testament', language: 'gof', dir: 'data/gof', books: {},
+    credit: 'Goofa New Testament, copyright © 2011–2013 The Word for the World International. Licensed CC BY 4.0.' },
+  gmv: { id: 'gmv', name: 'Gamotso (Gamo) · New Testament', language: 'gmv', dir: 'data/gmv', books: {},
+    credit: 'Gamotso New Testament, copyright © 2017 The Word for the World International. Licensed CC BY 4.0.' },
+  dwr: { id: 'dwr', name: 'Dawro · New Testament', language: 'dwr', dir: 'data/dwr', books: {},
+    credit: 'Dawro New Testament, copyright © 2011 The Word for the World. Licensed CC BY-ND 4.0: shared here unchanged.' },
+  amf: { id: 'amf', name: 'Banna (Hamer-Banna) · New Testament', language: 'amf', dir: 'data/amf', books: {},
+    credit: 'Banna New Testament, copyright © 2014 SIM International. Licensed CC BY-NC-ND 4.0: shared here unchanged and free of charge.' }
 };
+// The version lists are grouped by language family.
+const VERSION_GROUPS = [
+  [['የኢትዮጵያ ቋንቋዎች', 'Languages of Ethiopia'], ['amulb', 'gaz', 'wal', 'som', 'mdy', 'gof', 'gmv', 'dwr', 'amf']],
+  [['ዋናው ጽሑፍ', 'Original languages'], ['orig']],
+  [['እንግሊዝኛ', 'English'], ['bsb', 'web', 'kjv', 'nheb', 'asv', 'ylt', 'bbe', 'darby', 'webster', 'geneva']]
+];
+function versionOptions(selected) {
+  const listed = new Set(VERSION_GROUPS.flatMap((g) => g[1]));
+  const groups = VERSION_GROUPS.map((g) => [tp(g[0]), g[1].filter((id) => versions[id])]);
+  const others = Object.keys(versions).filter((id) => !listed.has(id));   // imported files
+  if (others.length) groups.push([t('ያስገቧቸው', 'Imported'), others]);
+  return groups.filter((g) => g[1].length).map((g) => `<optgroup label="${esc(g[0])}">${options(g[1].map((id) => [id, versions[id].name]), selected)}</optgroup>`).join('');
+}
 // The lang and dir attributes for a version's text. The Hebrew and Greek version is Hebrew (right to left) in
 // the Old Testament and Greek in the New.
 function langOf(id, b = S.pass.b) {
@@ -127,8 +158,9 @@ function save(...keys) {
 }
 
 // ---------- accounts: each one keeps its own highlights, notes and Journey progress ----------
-const PERSONAL = ['highlights', 'notes', 'game'];
-const blankAccount = () => ({ highlights: {}, notes: [], game: { xp: 0, streak: 0, last: '', done: {} } });
+const PERSONAL = ['highlights', 'notes', 'game', 'gone', 'updated'];
+// gone: ids of deleted notes, so a deletion also reaches the account's other devices; updated: time of the last change.
+const blankAccount = () => ({ highlights: {}, notes: [], game: { xp: 0, streak: 0, last: '', done: {} }, gone: [], updated: 0 });
 const accountId = () => (S.user ? 'google:' + (S.user.sub || S.user.email) : S.guest ? 'guest' : '');
 let accountReady = '';    // the account whose data is in S
 
@@ -155,11 +187,13 @@ async function loadAccount() {
   if (rec) PERSONAL.forEach((k) => { if (rec[k]) S[k] = rec[k]; });
   accountReady = id;
   render();
+  syncSoon(0);   // bring in what this account saved on its other devices
 }
 
-function saveAccount() {
+function saveAccount(fromSync) {
   const id = accountReady;
   if (!id) return;
+  if (!fromSync) { S.updated = Date.now(); syncSoon(); }
   const rec = { id };
   PERSONAL.forEach((k) => { rec[k] = S[k]; });
   idb('accounts', 'readwrite', (store) => store.put(rec)).catch(() => {
@@ -413,9 +447,136 @@ const ICONS = {
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   bolt: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  cloud: '<path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/>',
   share: '<path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>'
 };
 const icon = (name, size = 18) => `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
+
+// ---------- sync between devices (Firebase) ----------
+// When config.js names a Firebase project, a Google account's highlights, notes, deleted-note list and Journey
+// progress are kept in one Firestore document, users/<Firebase user id>, readable and writable only by that user
+// (see firestore.rules). The Google sign-in token is exchanged for a Firebase session through the Identity Toolkit
+// REST API, so no Firebase library is needed. Voice recordings stay on the device that made them.
+const FB = (window.QALU_CONFIG || {}).firebase || null;
+const syncOn = () => !!(FB && FB.apiKey && FB.projectId);
+const fbHost = (service, port) => (FB && FB.emulator ? `${FB.emulator}:${port}/${service}` : `https://${service}`);
+const SY = { state: '', at: 0, timer: 0, running: false, again: false, token: '', exp: 0 };
+const fbSession = () => ls.get('fbsession', null);   // { sub, uid, refresh } for the Google account signed in
+
+async function fbSignIn(googleIdToken) {
+  if (!syncOn()) return;
+  try {
+    const r = await fetch(`${fbHost('identitytoolkit.googleapis.com', 9099)}/v1/accounts:signInWithIdp?key=${encodeURIComponent(FB.apiKey)}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postBody: 'id_token=' + encodeURIComponent(googleIdToken) + '&providerId=google.com', requestUri: location.origin, returnSecureToken: true, returnIdpCredential: false })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error((d.error && d.error.message) || r.status);
+    ls.set('fbsession', { sub: S.user && S.user.sub, uid: d.localId, refresh: d.refreshToken });
+    SY.token = d.idToken; SY.exp = Date.now() + (+d.expiresIn || 3600) * 1000;
+  } catch (e) {
+    SY.state = 'error'; SY.error = String(e.message || e);
+  }
+}
+
+// A valid Firebase ID token for the account signed in, renewed from the stored refresh token when needed.
+async function fbToken() {
+  const ses = fbSession();
+  if (!ses || !S.user || ses.sub !== S.user.sub) return null;
+  if (SY.token && SY.exp > Date.now() + 60000) return SY.token;
+  const r = await fetch(`${fbHost('securetoken.googleapis.com', 9099)}/v1/token?key=${encodeURIComponent(FB.apiKey)}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(ses.refresh)
+  });
+  const d = await r.json();
+  if (!r.ok) { if (r.status === 400) ls.set('fbsession', null); throw new Error((d.error && d.error.message) || r.status); }
+  ls.set('fbsession', Object.assign(ses, { refresh: d.refresh_token }));
+  SY.token = d.id_token; SY.exp = Date.now() + (+d.expires_in || 3600) * 1000;
+  return SY.token;
+}
+
+// (The Auth emulator keeps the service name in its paths; the Firestore emulator does not.)
+const fbDoc = (uid) => `${FB.emulator ? FB.emulator + ':8080' : 'https://firestore.googleapis.com'}/v1/projects/${encodeURIComponent(FB.projectId)}/databases/(default)/documents/users/${encodeURIComponent(uid)}`;
+
+// Combines this device's copy with the copy in the cloud. Notes are joined by id (a deleted note stays deleted);
+// for a highlight changed on both sides, the copy changed last wins ('' marks a cleared highlight); Journey
+// progress keeps the best of both.
+function mergeRecords(a, b) {
+  if (!b) return a;
+  const newer = (a.updated || 0) >= (b.updated || 0) ? a : b, older = newer === a ? b : a;
+  const gone = [...new Set([...(a.gone || []), ...(b.gone || [])])];
+  const notes = {};
+  [...(older.notes || []), ...(newer.notes || [])].forEach((n) => { notes[n.id] = n; });
+  const ga = a.game || {}, gb = b.game || {};
+  const done = Object.assign({}, ga.done);
+  Object.entries(gb.done || {}).forEach(([k, v]) => { done[k] = Math.max(done[k] || 0, v); });
+  const lastGame = (ga.last || '') > (gb.last || '') ? ga : (gb.last || '') > (ga.last || '') ? gb : ((ga.streak || 0) >= (gb.streak || 0) ? ga : gb);
+  return {
+    highlights: Object.assign({}, older.highlights, newer.highlights),
+    notes: Object.values(notes).filter((n) => !gone.includes(n.id)).sort((x, y) => (y.date || 0) - (x.date || 0)),
+    game: { xp: Math.max(ga.xp || 0, gb.xp || 0), streak: lastGame.streak || 0, last: lastGame.last || '', done },
+    gone,
+    updated: Math.max(a.updated || 0, b.updated || 0)
+  };
+}
+
+function syncSoon(delay = 1500) {
+  if (!syncOn() || !S.user) return;
+  clearTimeout(SY.timer);
+  SY.timer = setTimeout(syncNow, delay);
+}
+
+async function syncNow() {
+  if (!syncOn() || !S.user || !accountReady) return;
+  if (SY.running) { SY.again = true; return; }
+  SY.running = true;
+  const account = accountReady;
+  const show = (state) => { SY.state = state; const el = document.querySelector('[data-k="sync"]'); if (el) render(); };
+  try {
+    const token = await fbToken();
+    if (!token) { show('signin'); return; }
+    show('working');
+    const uid = fbSession().uid;
+    const got = await fetch(fbDoc(uid), { headers: { Authorization: 'Bearer ' + token } });
+    if (!got.ok && got.status !== 404) throw new Error('read ' + got.status);
+    const remote = got.status === 404 ? null : JSON.parse((((await got.json()).fields || {}).data || {}).stringValue || 'null');
+    if (accountReady !== account) return;   // the reader switched account meanwhile
+    const local = {};
+    PERSONAL.forEach((k) => { local[k] = S[k]; });
+    const merged = mergeRecords(local, remote);
+    PERSONAL.forEach((k) => { S[k] = merged[k]; });
+    saveAccount(true);
+    const upload = Object.assign({}, merged, { notes: merged.notes.filter((n) => !n.audio) });
+    const put = await fetch(fbDoc(uid) + '?updateMask.fieldPaths=data&updateMask.fieldPaths=updated', {
+      method: 'PATCH', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: { data: { stringValue: JSON.stringify(upload) }, updated: { integerValue: String(merged.updated || 0) } } })
+    });
+    if (!put.ok) throw new Error('write ' + put.status);
+    SY.at = Date.now();
+    show('ok');
+  } catch (e) {
+    SY.error = String(e.message || e);
+    show(navigator.onLine === false || /Failed to fetch|NetworkError/i.test(SY.error) ? 'offline' : 'error');
+  } finally {
+    SY.running = false;
+    render();
+    if (SY.again) { SY.again = false; syncSoon(500); }
+  }
+}
+window.addEventListener('online', () => syncSoon(0));
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncSoon(0); });
+
+function syncLabel() {
+  if (!syncOn() || !S.user) return '';
+  const text = {
+    working: t('በማመሳሰል ላይ…', 'Syncing…'),
+    ok: t('ተመሳስሏል', 'Synced'),
+    offline: t('ከመስመር ውጭ፤ ሲገናኙ ይመሳሰላል', 'Offline; will sync when connected'),
+    signin: t('ለማመሳሰል እንደገና ይግቡ', 'Sign in again to sync'),
+    error: t('ማመሳሰል አልተሳካም', 'Sync failed')
+  }[SY.state] || t('ማመሳሰል', 'Sync');
+  return `<button class="nav extra sync ${SY.state}" data-a="syncNow" data-k="sync" title="${esc(SY.state === 'error' ? SY.error || '' : t('ማስታወሻዎችዎ፣ ቀለሞችዎና የጉዞ ውጤትዎ በሁሉም መሣሪያዎችዎ ላይ ይገኛሉ።', 'Your notes, highlights and Journey progress on all your devices.'))}">${icon('cloud', 20)}<span class="lbl">${text}</span></button>`;
+}
 
 // ---------- views ----------
 // ---------- sign-in ----------
@@ -433,7 +594,8 @@ function onCredential(response) {
     S.user = { name: data.name || data.email || '', email: data.email || '', picture: data.picture || '', sub: data.sub || '' };
     S.guest = false;
     save('user', 'guest');
-    loadAccount();
+    // Exchange the Google token for a sync session first, so the account's cloud copy is read as soon as it opens.
+    fbSignIn(response.credential).then(() => { loadAccount(); syncSoon(0); });
   } catch (e) {
     S.msg = t('መግባት አልተቻለም። እንደገና ይሞክሩ።', 'Sign-in did not work. Please try again.');
   }
@@ -493,6 +655,7 @@ ${nav('notes', 'note', t('ማስታወሻዎች', 'Notes'))}
 <div class="spacer"></div>
 ${S.user
     ? `<div class="who">${S.user.picture ? `<img src="${esc(S.user.picture)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}<span><b>${esc(S.user.name || '')}</b><span class="muted small">${esc(S.user.email || '')}</span></span></div>
+${syncLabel()}
 <button class="nav extra" data-a="signOut" data-k="signout" aria-label="${t('ውጣ', 'Sign out')}">${icon('exit', 20)}<span class="lbl">${t('ውጣ', 'Sign out')}</span></button>`
     : `<button class="nav extra" data-a="signIn" data-k="signin" aria-label="${t('ግባ', 'Sign in')}">${icon('user', 20)}<span class="lbl">${t('ግባ', 'Sign in')}</span></button>`}
 <button class="nav extra" data-a="lang" data-k="lang" aria-label="${t('English', 'አማርኛ')}">${icon('globe', 20)}<span>${t('English', 'አማርኛ')}</span></button>
@@ -667,8 +830,10 @@ async function runSearch() {
   // Search a Bible in the language the question was typed in.
   let id = versions[S.qv] ? S.qv : S.primary;
   const ethiopic = /[ሀ-፿]/.test(S.q);
-  if (ethiopic && versions[id].language !== 'am') id = (Object.values(versions).find((v) => v.language === 'am') || versions[id]).id;
-  if (!ethiopic && /[a-z]/i.test(S.q) && versions[id].language === 'am') id = versions[S.secondary] && versions[S.secondary].language !== 'am' ? S.secondary : 'web';
+  // Search a Bible written in the script of the question (Amharic and Maale use the Ge'ez script).
+  const geez = (vid) => versions[vid] && ['am', 'mdy'].includes(versions[vid].language);
+  if (ethiopic && !geez(id)) id = (Object.values(versions).find((v) => v.language === 'am') || versions[id]).id;
+  if (!ethiopic && /[a-z]/i.test(S.q) && geez(id)) id = versions[S.secondary] && !geez(S.secondary) && versions[S.secondary].language !== 'orig' ? S.secondary : 'web';
   S.qv = id;
   save('qv');
   const run = (runSearch.run = (runSearch.run || 0) + 1);
@@ -733,11 +898,10 @@ function markTerms(text, terms) {
 }
 
 function searchBar() {
-  const verOpts = Object.values(versions).map((v) => [v.id, v.name]);
   return `<form class="card searchbar" role="search" data-search>
 <div class="field wide" style="flex:3 1 260px"><label for="q">${t('በመጽሐፍ ቅዱስ ውስጥ ፈልግ', 'Search the Bible')}</label>
 <input id="q" data-k="q" type="search" value="${esc(S.q)}" placeholder="${t('ቃል ወይም ጥያቄ ይጻፉ', 'A word or a question')}" autocomplete="off"></div>
-<div class="field" style="flex:1 1 180px"><label for="qv">${t('ትርጉም', 'Version')}</label><select id="qv" data-c="qv" data-k="qv">${options(verOpts, versions[S.qv] ? S.qv : S.primary)}</select></div>
+<div class="field" style="flex:1 1 180px"><label for="qv">${t('ትርጉም', 'Version')}</label><select id="qv" data-c="qv" data-k="qv">${versionOptions(versions[S.qv] ? S.qv : S.primary)}</select></div>
 <button class="btn fill" type="submit" data-k="q-go">${icon('search')}${t('ፈልግ', 'Search')}</button>
 ${S.searchOn ? `<button class="btn" type="button" data-a="clearSearch" data-k="q-clear">${t('አጽዳ', 'Clear')}</button>` : ''}
 <p class="muted small" style="flex:1 1 100%;margin:0">${t('ቃል ወይም ሙሉ ጥያቄ መጻፍ ይችላሉ፤ ፍለጋው ዋና ዋና ቃላቱን ወስዶ ብዙዎቹን የያዙትን ቁጥሮች ቀድሞ ያሳያል። በነጠላ ሰረዝ (,) የተለዩ ቃላት ከአንዳቸው አንዱ ያለባቸውን ያመጣሉ።', 'Type a word or a whole question. The search takes its key words and shows the verses with most of them first. Words separated by commas find verses with any of them.')}</p>
@@ -977,7 +1141,6 @@ function studyView() {
   const nums = [];
   for (let n = lo; n <= hi; n++) nums.push(n);
 
-  const verOpts = Object.values(versions).map((v) => [v.id, v.name]);
   const verseNums = Array.from({ length: Math.max(count, 1) }, (_, i) => [i + 1, i + 1]);
   const picker = `<div class="card stack" role="group" aria-label="${t('ክፍል ይምረጡ', 'Choose a passage')}">
 <div class="row" style="align-items:flex-end">
@@ -987,8 +1150,8 @@ function studyView() {
 <div class="field"><label for="pk-to">${t('እስከ ቁጥር', 'To verse')}</label><select id="pk-to" data-c="to" data-k="pk-to">${options([[0, t('መጨረሻ', 'End')]].concat(verseNums), p.to && p.to <= count ? p.to : 0)}</select></div>
 </div>
 <div class="row" style="align-items:flex-end">
-<div class="field wide"><label for="pk-v1">${t('ትርጉም', 'Version')}</label><select id="pk-v1" data-c="primary" data-k="pk-v1">${options(verOpts, S.primary)}</select></div>
-${S.split ? `<div class="field wide"><label for="pk-v2">${t('ሁለተኛ ትርጉም', 'Second version')}</label><select id="pk-v2" data-c="secondary" data-k="pk-v2">${options(verOpts, S.secondary)}</select></div>` : ''}
+<div class="field wide"><label for="pk-v1">${t('ትርጉም', 'Version')}</label><select id="pk-v1" data-c="primary" data-k="pk-v1">${versionOptions(S.primary)}</select></div>
+${S.split ? `<div class="field wide"><label for="pk-v2">${t('ሁለተኛ ትርጉም', 'Second version')}</label><select id="pk-v2" data-c="secondary" data-k="pk-v2">${versionOptions(S.secondary)}</select></div>` : ''}
 ${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትርጉሞች አቀማመጥ', 'Layout of the two versions')}"><button data-a="layout" data-v="verse" data-k="lay-verse" aria-pressed="${S.layout === 'verse'}">${t('ቁጥር በቁጥር', 'Verse by verse')}</button><button data-a="layout" data-v="stack" data-k="lay-stack" aria-pressed="${S.layout === 'stack'}">${t('ላይና ታች', 'Top and bottom')}</button><button data-a="layout" data-v="side" data-k="lay-side" aria-pressed="${S.layout === 'side'}">${t('ጎን ለጎን', 'Side by side')}</button></div>` : ''}
 <button class="btn" data-a="import" data-k="import">${t('የመጽሐፍ ቅዱስ ፋይል አስገባ…', 'Import a Bible file…')}</button>
 </div></div>`;
@@ -1501,10 +1664,16 @@ const actions = {
   signIn() { S.guest = false; S.msg = ''; save('guest'); loadAccount(); },
   signOut() {
     S.user = null; S.guest = false; save('user', 'guest');
+    ls.set('fbsession', null); SY.token = ''; SY.state = '';   // forget the sync session on this device
     loadAccount();        // clears this account's highlights and notes from the screen
     if (window.google && google.accounts) google.accounts.id.disableAutoSelect();   // do not sign straight back in
   },
   theme() { S.dark = !S.dark; save('dark'); },
+  syncNow() {
+    // An account signed in before sync was set up has no sync session yet: signing in again creates one.
+    if (SY.state === 'signin') { actions.signOut(); return; }
+    syncNow(); return false;
+  },
   browse(v) { S.browse = v; save('browse'); },
   book(v) { S.openBook = S.openBook === +v ? null : +v; save('openBook'); },
   chapter(v) { const [b, c] = v.split('.').map(Number); S.pass = { b, c, f: 1, to: 0 }; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen', 'sel'); window.scrollTo(0, 0); },
@@ -1537,7 +1706,7 @@ const actions = {
     requestAnimationFrame(() => { const el = document.getElementById('ilc-' + i); if (el) el.scrollIntoView({ block: 'nearest' }); });
   },
   hl(v) { S.highlights[hlKey(S.sel)] = v; save('highlights'); },
-  clearHl() { delete S.highlights[hlKey(S.sel)]; save('highlights'); },
+  clearHl() { S.highlights[hlKey(S.sel)] = ''; save('highlights'); },   // '' rather than delete, so the clearing syncs
   tab(v) { S.tab = v; save('tab'); },
   place(v) { S.place = +v; save('place'); const p = C.places[S.place]; if (lmap) lmap.setView([p.lat, p.lon], Math.max(lmap.getZoom(), 9)); },
   mapView(v) { if (lmap) lmap.fitBounds(MAP_VIEWS[v](), { padding: [30, 30] }); return false; },
@@ -1580,7 +1749,8 @@ const actions = {
   del(v) {
     const note = S.notes.find((n) => n.id === v);
     S.notes = S.notes.filter((n) => n.id !== v);
-    save('notes');
+    S.gone = (S.gone || []).concat(v);
+    save('notes', 'gone');
     if (note && note.audio) idb('audio', 'readwrite', (store) => store.delete(v)).catch(() => {});
   },
   openNote(v) {

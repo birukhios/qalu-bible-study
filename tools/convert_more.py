@@ -8,6 +8,12 @@ Sources:
          BibleNLP/ebible corpus/gaz-gaz.txt with metadata/vref.txt (one verse per line, eBible.org text). The verses
          carry the English numbering; the corpus leaves out the few verses whose numbers do not exist in the
          original numbering (Joel 2:28-32, Malachi 4 and some others), so those are missing here.
+  geneva, nheb, webster  Geneva Bible 1599, New Heart English Bible, Webster Bible: public domain, same collection.
+  wal, som, mdy, amf, dwr, gmv, gof  Wolaytta (SIM 2004, CC BY-NC-ND 4.0), Somali (SIM Kenya 1979/2008, CC BY-NC-ND 4.0),
+         Maale (The Word for the World and the Bible Society of Ethiopia 2008, CC BY-ND 4.0), and the New Testaments in
+         Hamer-Banna (SIM 2014, CC BY-NC-ND 4.0), Dawro (The Word for the World 2011, CC BY-ND 4.0), Gamo and Gofa (The
+         Word for the World 2017 and 2011-2013, CC BY 4.0), from the same corpus as gaz and handled the same way. The
+         "ND" licences allow passing the text on unchanged; "NC" ones only without charge.
   orig   Hebrew Old Testament and Greek New Testament, built from this app's own interlinear files
          (data/interlinear, from STEPBible TAHOT/TAGNT, CC BY 4.0) so the verses match the word-by-word view.
 Usage: convert_more.py SCROLLMAPPER_JSON_DIR EBIBLE_DIR INTERLINEAR_DIR OUT_DIR
@@ -83,7 +89,15 @@ def from_interlinear():
 
 
 darby_fix = lambda t: re.sub(r'(?<=[a-z\]\)])(?=God)', ' ', t)
-for vid, books in [('bsb', from_scrollmapper('BSB')), ('darby', from_scrollmapper('Darby', darby_fix)),
-                   ('gaz', from_ebible('gaz-gaz')), ('orig', from_interlinear())]:
+for vid, make in [('bsb', lambda: from_scrollmapper('BSB')), ('darby', lambda: from_scrollmapper('Darby', darby_fix)),
+                  ('geneva', lambda: from_scrollmapper('Geneva1599')), ('nheb', lambda: from_scrollmapper('NHEB')),
+                  ('webster', lambda: from_scrollmapper('Webster')),
+                  ('gaz', lambda: from_ebible('gaz-gaz')), ('wal', lambda: from_ebible('wal-wal')), ('som', lambda: from_ebible('som-som')),
+                  ('mdy', lambda: from_ebible('mdy-mdyeth')), ('amf', lambda: from_ebible('amf-amf')), ('dwr', lambda: from_ebible('dwr-dwrNT')),
+                  ('gmv', lambda: from_ebible('gmv-gmvggm')), ('gof', lambda: from_ebible('gof-gofwftw')),
+                  ('orig', from_interlinear)]:
+    if len(sys.argv) > 5 and vid not in sys.argv[5].split(','):
+        continue  # an optional fifth argument limits the run to some versions, e.g. "wal,som"
+    books = make()
     write(vid, books)
     print(vid, sum(len(c) for b in books for c in b), 'verse slots,', sum(1 for b in books for c in b for v in c if v), 'with text')
