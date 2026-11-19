@@ -79,7 +79,7 @@ h2 { font-size: 18px; font-weight: 700; }
 .maps { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 @media (max-width: 900px) { .maps { grid-template-columns: minmax(0, 1fr); } }
 #mapslot { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--ctl); position: relative; z-index: 0; isolation: isolate; }
-.lmap { height: min(72vh, 660px); min-height: 360px; background: var(--ctl); font-family: inherit; }
+.lmap { height: min(72vh, 660px); min-height: 360px; background: #9ED7EA; font-family: inherit; }   /* sea colour around the drawn sheet */
 /* Illustrated map: a picture sticker for each story place, with its name once the map is close enough. */
 .spot { position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
 .spot .em { width: 38px; height: 38px; border-radius: 50%; background: #FFFDF6; border: 2px solid #8A5A2B; box-shadow: 0 3px 0 rgba(90, 55, 20, .45); font-size: 21px; line-height: 1; display: flex; align-items: center; justify-content: center; font-family: "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", sans-serif; }
@@ -360,3 +360,43 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .daily .dailytext { font-size: 20px; line-height: 1.8; margin: 0; }
 .daily .btn { background: rgba(255, 255, 255, .16); color: #FFFFFF; }
 .daily .btn.fill { background: #FFFFFF; color: #1F2A44; }
+
+/* Offline screen */
+.offlist { padding: 4px 0; gap: 0; }
+.offrow { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--line); }
+.offrow:first-child { border-top: 0; }
+.offrow .btn { flex: none; }
+.pill.ok { display: inline-flex; align-items: center; gap: 4px; background: color-mix(in srgb, var(--good, #58B368) 22%, transparent); color: var(--text); flex: none; }
+.offstatus.on svg { color: var(--good, #58B368); }
+.offstatus.off { border-color: var(--heart, #F0607A); }
+.offstatus.off svg { color: var(--heart, #F0607A); }
+.offbanner { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 8px 12px; border-radius: 10px; background: color-mix(in srgb, var(--heart, #F0607A) 18%, var(--surface)); color: var(--text); font-size: 14px; font-weight: 600; margin: 8px 0; }
+.linkbtn { display: inline; padding: 0; background: none; border: 0; color: var(--text); text-decoration: underline; font: inherit; text-align: left; cursor: pointer; }
+
+/* Small phones */
+.field { min-width: 0; }
+.field select { max-width: 100%; min-width: 0; width: 100%; text-overflow: ellipsis; }
+.searchhelp summary { cursor: pointer; min-height: 32px; display: flex; align-items: center; }
+@media (max-width: 380px) {
+  .selbar > b { display: none; }
+  .selbar .dot { width: 28px; }
+  .selbar .dot span { width: 22px; height: 22px; }
+  .selbar .btn { min-width: 36px; padding: 0 6px; }
+  .wrap { padding-left: 12px; padding-right: 12px; }
+}
+
+/* One swipeable row of buttons on phones instead of several wrapped rows */
+@media (max-width: 760px) {
+  .chiprow { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 2px 16px; scroll-padding: 16px; }
+  .chiprow::-webkit-scrollbar { display: none; }
+  .chiprow > * { flex: none; }
+  .lmap { height: calc(100svh - 230px); min-height: 380px; }
+}
+/* Compact video cards on phones: a small picture beside the title, so the reading stays near the top */
+@media (max-width: 760px) {
+  .card.video, .sidepanel .video { flex-direction: row; align-items: center; gap: 12px; padding: 10px; }
+  .card.video .thumb, .sidepanel .video .thumb { width: 120px; flex: none; margin: 0; }
+  .card.video .thumb-fallback b { display: none; }
+  .card.video .stack .btn, .card.video .stack .muted.small:nth-child(3) { display: none; }
+  .card.video .stack b[style] { font-size: 16px !important; }
+}

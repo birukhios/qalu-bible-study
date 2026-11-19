@@ -86,8 +86,6 @@ let lmap = null, lmarkers = [], mapEl = null, ltiles = null, lart = null;
 const versions = {
   amulb: { id: 'amulb', name: 'አማርኛ ULB (Unlocked Literal Bible)', language: 'am', dir: 'data/amulb', books: {},
     credit: 'Amharic Unlocked Literal Bible. Original work available at https://door43.org/. Licensed CC BY-SA 4.0.' },
-  gaz: { id: 'gaz', name: 'Afaan Oromoo — Hiikkaa Ammayyaa Banamaa Haaraa (Biblica)', language: 'om', dir: 'data/gaz', books: {},
-    credit: 'Biblica® Open New Oromo Contemporary Version™, Western. Copyright © 2022 by Biblica, Inc. Used under CC BY-SA 4.0 (converted into this app’s format; 137 verses that the source corpus left out, such as Joel 2:28–32 and Malachi 4, are missing). The original work by Biblica, Inc. is available for free at www.biblica.com and open.bible. “Biblica” is a trademark registered in the United States Patent and Trademark Office by Biblica, Inc. Used with permission.' },
   orig: { id: 'orig', name: 'ዕብራይስጥና ግሪክ (ዋናው ጽሑፍ) · Hebrew and Greek', language: 'orig', dir: 'data/orig', books: {},
     credit: 'Hebrew and Greek text from STEPBible TAHOT and TAGNT (Tyndale House, Cambridge), CC BY 4.0; the Greek follows the Nestle-Aland text.' },
   bsb: { id: 'bsb', name: 'Berean Standard Bible', language: 'en', dir: 'data/bsb', books: {},
@@ -101,26 +99,16 @@ const versions = {
   nheb: { id: 'nheb', name: 'New Heart English Bible', language: 'en', dir: 'data/nheb', books: {} },
   webster: { id: 'webster', name: 'Webster Bible (1833)', language: 'en', dir: 'data/webster', books: {} },
   geneva: { id: 'geneva', name: 'Geneva Bible (1599)', language: 'en', dir: 'data/geneva', books: {} },
-  wal: { id: 'wal', name: 'Wolaytta · Wolaytta Bible', language: 'wal', dir: 'data/wal', books: {},
-    credit: 'Wolaytta Bible, copyright © 2004 SIM. Licensed CC BY-NC-ND 4.0: shared here unchanged and free of charge. Ruth, Psalms, Song of Songs, Zephaniah, Zechariah, Romans, Titus and Revelation are not in the source copy and are missing here.' },
-  som: { id: 'som', name: 'Soomaali · Kitaabka Quduuska Ah', language: 'so', dir: 'data/som', books: {},
-    credit: 'Kitaabka Quduuska Ah, copyright © 1979, 2008 Society for International Ministries (SIM) Kenya. Licensed CC BY-NC-ND 4.0: shared here unchanged and free of charge.' },
-  mdy: { id: 'mdy', name: 'Maale (Male)', language: 'mdy', dir: 'data/mdy', books: {},
-    credit: 'Maale Bible, copyright © 2008 The Word for the World International and The Bible Society of Ethiopia. Licensed CC BY-ND 4.0: shared here unchanged.' },
-  gof: { id: 'gof', name: 'Goofa (Gofa) · New Testament', language: 'gof', dir: 'data/gof', books: {},
-    credit: 'Goofa New Testament, copyright © 2011–2013 The Word for the World International. Licensed CC BY 4.0.' },
-  gmv: { id: 'gmv', name: 'Gamotso (Gamo) · New Testament', language: 'gmv', dir: 'data/gmv', books: {},
-    credit: 'Gamotso New Testament, copyright © 2017 The Word for the World International. Licensed CC BY 4.0.' },
-  dwr: { id: 'dwr', name: 'Dawro · New Testament', language: 'dwr', dir: 'data/dwr', books: {},
-    credit: 'Dawro New Testament, copyright © 2011 The Word for the World. Licensed CC BY-ND 4.0: shared here unchanged.' },
-  amf: { id: 'amf', name: 'Banna (Hamer-Banna) · New Testament', language: 'amf', dir: 'data/amf', books: {},
-    credit: 'Banna New Testament, copyright © 2014 SIM International. Licensed CC BY-NC-ND 4.0: shared here unchanged and free of charge.' }
+  acv: { id: 'acv', name: 'A Conservative Version', language: 'en', dir: 'data/acv', books: {} },
+  ukjv: { id: 'ukjv', name: 'Updated King James Version', language: 'en', dir: 'data/ukjv', books: {} },
+  rotherham: { id: 'rotherham', name: 'Rotherham Emphasised Bible (1902)', language: 'en', dir: 'data/rotherham', books: {} },
+  twenty: { id: 'twenty', name: 'Twentieth Century New Testament (1904)', language: 'en', dir: 'data/twenty', books: {} }
 };
 // The version lists are grouped by language family.
 const VERSION_GROUPS = [
-  [['የኢትዮጵያ ቋንቋዎች', 'Languages of Ethiopia'], ['amulb', 'gaz', 'wal', 'som', 'mdy', 'gof', 'gmv', 'dwr', 'amf']],
+  [['አማርኛ', 'Amharic'], ['amulb']],
   [['ዋናው ጽሑፍ', 'Original languages'], ['orig']],
-  [['እንግሊዝኛ', 'English'], ['bsb', 'web', 'kjv', 'nheb', 'asv', 'ylt', 'bbe', 'darby', 'webster', 'geneva']]
+  [['እንግሊዝኛ', 'English'], ['bsb', 'web', 'kjv', 'nheb', 'ukjv', 'acv', 'asv', 'bbe', 'ylt', 'darby', 'rotherham', 'webster', 'twenty', 'geneva']]
 ];
 function versionOptions(selected) {
   const listed = new Set(VERSION_GROUPS.flatMap((g) => g[1]));
@@ -367,7 +355,7 @@ function wordsTab() {
   if (!S.sel) return intro + `<div class="card"><p class="prose">${t('የዋናውን ቋንቋ ቃላት ለማየት በንባቡ ውስጥ አንድ ቁጥር ይንኩ።', 'Tap a verse in the reading to see its words in the original language.')}</p></div>`;
   const o = originals();
   if (o.state === 'loading') return intro + `<p class="muted prose" role="status">${t('እየተጫነ ነው…', 'Loading…')}</p>`;
-  if (o.state === 'error') return intro + `<div class="card"><p class="prose" role="alert">${t('ቃላቱን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱ።', 'The words could not be loaded. Check your connection.')}</p></div>`;
+  if (o.state === 'error') return intro + `<div class="card"><p class="prose" role="alert">${t('ቃላቱን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱ።', 'The words could not be loaded. Check your connection.')}${offlineHint()}</p></div>`;
   const list = o.verses[S.sel];
   if (!list) return intro + `<div class="card"><p class="prose">${t('ይህ ቁጥር በዋናው ጽሑፍ ውስጥ የለም፤ በአንዳንድ ትርጉሞች ብቻ ይገኛል።', 'This verse is not in the original-language text used here; it is found only in some translations.')}</p></div>`;
   const lex = IL.lex || {};
@@ -447,6 +435,8 @@ const ICONS = {
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   bolt: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  download: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>',
+  wifiOff: '<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 12.5a10 10 0 0 1 5.5-2.8M19 12.5a10 10 0 0 0-2.3-1.6M2 8.8a15 15 0 0 1 4.7-2.8M22 8.8A15 15 0 0 0 11 5"/><circle cx="12" cy="20" r="1"/>',
   cloud: '<path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/>',
   share: '<path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>'
 };
@@ -578,6 +568,111 @@ function syncLabel() {
   return `<button class="nav extra sync ${SY.state}" data-a="syncNow" data-k="sync" title="${esc(SY.state === 'error' ? SY.error || '' : t('ማስታወሻዎችዎ፣ ቀለሞችዎና የጉዞ ውጤትዎ በሁሉም መሣሪያዎችዎ ላይ ይገኛሉ።', 'Your notes, highlights and Journey progress on all your devices.'))}">${icon('cloud', 20)}<span class="lbl">${text}</span></button>`;
 }
 
+// ---------- offline: saving whole Bibles and study material on the device ----------
+// data/offline.json lists the files of each pack (a Bible version, the fathers' commentary, the book backgrounds,
+// the Hebrew and Greek words). Saved files go into the same storage the service worker reads from (sw.js, DATA),
+// so once saved they open without a connection.
+const DATA_CACHE = 'qalu-data-1';
+const OFF = { packs: null, have: {}, busy: '', done: 0, total: 0, stop: false, used: 0, quota: 0, failed: 0, loading: false, checked: false };
+const PACK_NAMES = {
+  fathers: ['የአባቶች ትርጓሜ', 'Church fathers’ commentary'],
+  context: ['የመጻሕፍቱ ዳራና የምዕራፍ ማብራሪያ', 'Book backgrounds and chapter notes'],
+  interlinear: ['የዕብራይስጥና የግሪክ ቃላት (ቃል በቃል)', 'Hebrew and Greek words (word by word)']
+};
+const mb = (bytes) => (bytes / 1e6 < 10 ? (bytes / 1e6).toFixed(1) : Math.round(bytes / 1e6)) + ' MB';
+
+async function offlineCheck() {
+  if (OFF.loading || !('caches' in window)) return;
+  OFF.loading = true; OFF.checked = true;
+  try {
+    if (!OFF.packs) OFF.packs = await fetch('data/offline.json').then((r) => r.json());
+    const cache = await caches.open(DATA_CACHE);
+    const saved = new Set((await cache.keys()).map((r) => r.url.split('?')[0]));
+    Object.entries(OFF.packs).forEach(([name, p]) => { OFF.have[name] = p.files.filter((f) => saved.has(new URL(f, location.href).href)).length; });
+    if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); OFF.used = e.usage || 0; OFF.quota = e.quota || 0; }
+  } catch (e) { /* storage unavailable */ }
+  OFF.loading = false;
+  render();
+}
+
+async function offlineSave(names) {
+  if (OFF.busy || !OFF.packs) return;
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});   // ask the browser not to clear it
+  const cache = await caches.open(DATA_CACHE);
+  const saved = new Set((await cache.keys()).map((r) => r.url.split('?')[0]));
+  const todo = names.flatMap((n) => OFF.packs[n].files).map((f) => new URL(f, location.href).href).filter((u) => !saved.has(u));
+  OFF.busy = names.join(','); OFF.done = 0; OFF.total = todo.length; OFF.stop = false; OFF.failed = 0;
+  render();
+  let next = 0, last = 0;
+  const worker = async () => {
+    while (next < todo.length && !OFF.stop) {
+      const url = todo[next++];
+      try {
+        const r = await fetch(url, { cache: 'no-cache' });
+        if (!r.ok) throw new Error(r.status);
+        await cache.put(url, r);
+      } catch (e) { OFF.failed++; }
+      OFF.done++;
+      if (Date.now() - last > 250) { last = Date.now(); const bar = document.querySelector('[data-k="off-progress"] i'); if (bar) bar.style.width = Math.round((OFF.done / OFF.total) * 100) + '%'; const n = document.querySelector('[data-k="off-count"]'); if (n) n.textContent = OFF.done + ' / ' + OFF.total; }
+    }
+  };
+  await Promise.all(Array.from({ length: 6 }, worker));
+  S.msg = OFF.stop ? t('ማውረዱ ቆሟል።', 'Saving stopped.')
+    : OFF.failed ? t(OFF.failed + ' ፋይሎችን ማውረድ አልተቻለም፤ ሲገናኙ እንደገና ይሞክሩ።', OFF.failed + ' files could not be saved. Try again when connected.')
+      : t('ተቀምጧል፤ አሁን ያለ ኢንተርኔት ይሠራል።', 'Saved. It now works without internet.');
+  OFF.busy = '';
+  offlineCheck();
+}
+
+async function offlineRemove(name) {
+  if (OFF.busy || !OFF.packs) return;
+  const cache = await caches.open(DATA_CACHE);
+  await Promise.all(OFF.packs[name].files.map((f) => cache.delete(new URL(f, location.href).href)));
+  S.msg = '';
+  offlineCheck();
+}
+
+function offlineView() {
+  if (!OFF.checked) offlineCheck();
+  const online = navigator.onLine !== false;
+  if (!('caches' in window)) return `<div class="wrap narrow"><h1>${t('ከመስመር ውጭ', 'Offline')}</h1><div class="card"><p class="prose">${t('ይህ አሳሽ ከመስመር ውጭ ማስቀመጥን አይደግፍም።', 'This browser cannot save the app for offline use.')}</p></div></div>`;
+  const packs = OFF.packs || {};
+  const inUse = [S.primary, S.secondary];
+  const row = (name, label, note) => {
+    const p = packs[name];
+    if (!p) return '';
+    const have = OFF.have[name] || 0, all = p.files.length, full = have >= all;
+    const busy = OFF.busy.split(',').includes(name);
+    return `<div class="offrow${full ? ' saved' : ''}"><div class="stack" style="gap:2px;min-width:0;flex:1">
+<b>${esc(label)}</b><span class="muted small">${mb(p.bytes)}${note ? ' · ' + esc(note) : ''}${have && !full ? ' · ' + t(have + ' / ' + all + ' ተቀምጧል', have + ' of ' + all + ' saved') : ''}</span></div>
+${full ? `<span class="pill ok">${icon('check', 14)}${t('ተቀምጧል', 'Saved')}</span><button class="btn" data-a="offRemove" data-v="${name}" data-k="off-rm-${name}" aria-label="${t('አስወግድ', 'Remove')}: ${esc(label)}" title="${t('አስወግድ', 'Remove')}" ${OFF.busy ? 'disabled' : ''}>${icon('trash')}</button>`
+    : `<button class="btn${busy ? '' : ' fill'}" data-a="offSave" data-v="${name}" data-k="off-save-${name}" ${OFF.busy || !online ? 'disabled' : ''}>${busy ? t('በማውረድ ላይ…', 'Saving…') : icon('download') + t('አውርድ', 'Save')}</button>`}</div>`;
+  };
+  const versionRows = VERSION_GROUPS.flatMap((g) => g[1]).filter((id) => versions[id] && packs[id])
+    .sort((a, b) => { const r = (id) => (inUse.indexOf(id) < 0 ? 9 : inUse.indexOf(id)); return r(a) - r(b); })   // the versions in use first
+    .map((id) => row(id, versions[id].name, inUse.includes(id) ? t('እያነበቡት ያለ', 'in use') : '')).join('');
+  const essentials = [...new Set([S.primary, S.secondary])].filter((id) => packs[id]).concat(['fathers', 'context']);
+  const missing = essentials.filter((n) => packs[n] && (OFF.have[n] || 0) < packs[n].files.length);
+  const needBytes = missing.reduce((sum, n) => sum + packs[n].bytes, 0);
+  return `<div class="wrap narrow">
+<h1>${t('ከመስመር ውጭ', 'Offline')}</h1>
+<div class="card stack offstatus ${online ? 'on' : 'off'}"><div class="row" style="gap:10px">${icon(online ? 'check' : 'wifiOff', 22)}<b>${online ? t('ከኢንተርኔት ጋር ተገናኝተዋል', 'You are online') : t('ኢንተርኔት የለም', 'You are offline')}</b></div>
+<p class="prose" style="margin:0">${t('ያስቀመጧቸው ትርጉሞችና የጥናት ጽሑፎች ያለ ኢንተርኔት ይሠራሉ። ያልተቀመጡት ደግሞ አንድ ጊዜ ሲከፈቱ ይቀመጣሉ።', 'Whatever you save here works without internet. Anything you open while online is also kept for next time.')}</p></div>
+${OFF.busy ? `<div class="card stack" role="status"><b>${t('በማውረድ ላይ…', 'Saving…')} <span data-k="off-count">${OFF.done} / ${OFF.total}</span></b><div class="bar" data-k="off-progress"><i style="width:${OFF.total ? Math.round((OFF.done / OFF.total) * 100) : 0}%"></i></div><button class="btn" data-a="offStop" data-k="off-stop">${t('አቁም', 'Stop')}</button></div>`
+    : missing.length ? `<div class="card stack"><b>${t('የሚያጠኑትን ሁሉ አስቀምጡ', 'Save what you study with')}</b><p class="muted small" style="margin:0">${t('የሚያነቧቸው ሁለቱ ትርጉሞች፣ የአባቶች ትርጓሜና የመጻሕፍቱ ዳራ', 'Your two versions, the fathers’ commentary and the book backgrounds')} · ${mb(needBytes)}</p><button class="btn fill go" data-a="offEssentials" data-k="off-essentials" ${online ? '' : 'disabled'}>${icon('download')}${t('አሁን አውርድ', 'Save now')}</button></div>` : ''}
+${S.msg && !OFF.busy ? `<p class="prose" role="status">${esc(S.msg)}</p>` : ''}
+<h2>${t('የመጽሐፍ ቅዱስ ትርጉሞች', 'Bible versions')}</h2><div class="card offlist">${versionRows || `<p class="muted">${t('እየተጫነ ነው…', 'Loading…')}</p>`}</div>
+<h2>${t('የጥናት ጽሑፎች', 'Study material')}</h2><div class="card offlist">${['fathers', 'context', 'interlinear'].map((n) => row(n, tp(PACK_NAMES[n]))).join('')}</div>
+${OFF.quota ? `<p class="muted small">${t('በዚህ መሣሪያ ላይ የተያዘ ቦታ', 'Space used on this device')}: ${mb(OFF.used)} / ${mb(OFF.quota)}</p>` : ''}
+<div class="card stack"><b>${t('ኢንተርኔት የሚያስፈልጋቸው', 'Still needs internet')}</b><p class="muted small" style="margin:0">${t('የBibleProject ቪዲዮዎችና ሥዕሎቻቸው፣ በGoogle መግባትና ማመሳሰል፣ እና “የዛሬ ካርታ”። የተሳለው ካርታ፣ ጉዞው፣ ፍለጋውና ማስታወሻዎችዎ ያለ ኢንተርኔት ይሠራሉ።', 'BibleProject videos and their pictures, Google sign-in and sync, and the “Present-day map”. The illustrated map, the Journey, search and your notes all work offline.')}</p></div>
+</div>`;
+}
+// When something cannot load because there is no connection, say how to have it next time.
+const offlineHint = () => (navigator.onLine === false
+  ? ` <button class="linkbtn" data-a="nav" data-v="offline" data-k="hint-offline">${t('ኢንተርኔት የለም፤ ያለ ኢንተርኔት እንዲሠራ “ከመስመር ውጭ” ውስጥ ያስቀምጡት።', 'You are offline. Save it on the Offline screen to have it without internet.')}</button>` : '');
+window.addEventListener('online', () => render());
+window.addEventListener('offline', () => render());
+
 // ---------- views ----------
 // ---------- sign-in ----------
 // "Sign in with Google" runs entirely in the browser: Google returns a signed ID token and the app reads
@@ -658,6 +753,7 @@ ${S.user
 ${syncLabel()}
 <button class="nav extra" data-a="signOut" data-k="signout" aria-label="${t('ውጣ', 'Sign out')}">${icon('exit', 20)}<span class="lbl">${t('ውጣ', 'Sign out')}</span></button>`
     : `<button class="nav extra" data-a="signIn" data-k="signin" aria-label="${t('ግባ', 'Sign in')}">${icon('user', 20)}<span class="lbl">${t('ግባ', 'Sign in')}</span></button>`}
+<button class="nav extra${S.screen === 'offline' ? ' on' : ''}" data-a="nav" data-v="offline" data-k="nav-offline" aria-label="${t('ከመስመር ውጭ ለመጠቀም', 'Use offline')}" title="${t('ከመስመር ውጭ ለመጠቀም', 'Use offline')}">${icon(navigator.onLine === false ? 'wifiOff' : 'download', 20)}<span class="lbl">${t('ከመስመር ውጭ', 'Offline')}</span></button>
 <button class="nav extra" data-a="lang" data-k="lang" aria-label="${t('English', 'አማርኛ')}">${icon('globe', 20)}<span>${t('English', 'አማርኛ')}</span></button>
 <button class="nav extra" data-a="theme" data-k="theme" aria-label="${S.dark ? t('ብሩህ ገጽታ', 'Light mode') : t('ጨለማ ገጽታ', 'Dark mode')}">${icon('moon', 20)}<span class="lbl">${S.dark ? t('ብሩህ ገጽታ', 'Light mode') : t('ጨለማ ገጽታ', 'Dark mode')}</span></button>
 </nav>`;
@@ -830,8 +926,8 @@ async function runSearch() {
   // Search a Bible in the language the question was typed in.
   let id = versions[S.qv] ? S.qv : S.primary;
   const ethiopic = /[ሀ-፿]/.test(S.q);
-  // Search a Bible written in the script of the question (Amharic and Maale use the Ge'ez script).
-  const geez = (vid) => versions[vid] && ['am', 'mdy'].includes(versions[vid].language);
+  // Search a Bible written in the script of the question.
+  const geez = (vid) => versions[vid] && versions[vid].language === 'am';
   if (ethiopic && !geez(id)) id = (Object.values(versions).find((v) => v.language === 'am') || versions[id]).id;
   if (!ethiopic && /[a-z]/i.test(S.q) && geez(id)) id = versions[S.secondary] && !geez(S.secondary) && versions[S.secondary].language !== 'orig' ? S.secondary : 'web';
   S.qv = id;
@@ -904,7 +1000,7 @@ function searchBar() {
 <div class="field" style="flex:1 1 180px"><label for="qv">${t('ትርጉም', 'Version')}</label><select id="qv" data-c="qv" data-k="qv">${versionOptions(versions[S.qv] ? S.qv : S.primary)}</select></div>
 <button class="btn fill" type="submit" data-k="q-go">${icon('search')}${t('ፈልግ', 'Search')}</button>
 ${S.searchOn ? `<button class="btn" type="button" data-a="clearSearch" data-k="q-clear">${t('አጽዳ', 'Clear')}</button>` : ''}
-<p class="muted small" style="flex:1 1 100%;margin:0">${t('ቃል ወይም ሙሉ ጥያቄ መጻፍ ይችላሉ፤ ፍለጋው ዋና ዋና ቃላቱን ወስዶ ብዙዎቹን የያዙትን ቁጥሮች ቀድሞ ያሳያል። በነጠላ ሰረዝ (,) የተለዩ ቃላት ከአንዳቸው አንዱ ያለባቸውን ያመጣሉ።', 'Type a word or a whole question. The search takes its key words and shows the verses with most of them first. Words separated by commas find verses with any of them.')}</p>
+<details class="muted small searchhelp" style="flex:1 1 100%"><summary>${t('እንዴት መፈለግ ይቻላል?', 'How to search')}</summary><p style="margin:6px 0 0">${t('ቃል ወይም ሙሉ ጥያቄ መጻፍ ይችላሉ፤ ፍለጋው ዋና ዋና ቃላቱን ወስዶ ብዙዎቹን የያዙትን ቁጥሮች ቀድሞ ያሳያል። በነጠላ ሰረዝ (,) የተለዩ ቃላት ከአንዳቸው አንዱ ያለባቸውን ያመጣሉ።', 'Type a word or a whole question. The search takes its key words and shows the verses with most of them first. Words separated by commas find verses with any of them.')}</p></details>
 </form>`;
 }
 
@@ -1030,7 +1126,7 @@ function browseView() {
     }
     return `<section class="group" id="g-${gi}"><h2>${esc(tp(g.n))}</h2><div class="grid">${items}</div></section>`;
   });
-  const shortcuts = S.browse !== 'themes' ? `<div class="row" role="group" aria-label="${t('ወደ ክፍል ዝለል', 'Jump to a section')}">${C[S.browse].map((g, gi) => `<button class="chip" data-a="jumpTo" data-v="g-${gi}" data-k="jump-${gi}">${esc(tp(g.n))}</button>`).join('')}</div>` : '';
+  const shortcuts = S.browse !== 'themes' ? `<div class="row chiprow" role="group" aria-label="${t('ወደ ክፍል ዝለል', 'Jump to a section')}">${C[S.browse].map((g, gi) => `<button class="chip" data-a="jumpTo" data-v="g-${gi}" data-k="jump-${gi}">${esc(tp(g.n))}</button>`).join('')}</div>` : '';
   const main = S.searchOn
     ? searchResults()
     : `<div class="seg" role="group" aria-label="${t('የማሰሻ መንገድ', 'Browse by')}">${modes.map((m) => `<button data-a="browse" data-v="${m[0]}" data-k="mode-${m[0]}" aria-pressed="${S.browse === m[0]}">${m[1]}</button>`).join('')}</div>
@@ -1160,7 +1256,7 @@ ${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትር�
 
   let verses;
   if (main.state === 'loading') verses = `<p class="muted prose" style="padding:12px" role="status">${t('ጽሑፉ እየተጫነ ነው…', 'Loading the text…')}</p>`;
-  else if (main.state === 'error') verses = `<p class="prose" style="padding:12px" role="alert">${t('ጽሑፉን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱና ገጹን እንደገና ይክፈቱ።', 'The text could not be loaded. Check your connection and reload the page.')}</p>`;
+  else if (main.state === 'error') verses = `<p class="prose" style="padding:12px" role="alert">${t('ጽሑፉን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱና ገጹን እንደገና ይክፈቱ።', 'The text could not be loaded. Check your connection and reload the page.')}${offlineHint()}</p>`;
   else if (!nums.length) verses = `<p class="prose" style="padding:12px">${t('ለዚህ ክፍል በተመረጠው ትርጉም ጽሑፍ የለም።', 'The selected version has no text for this passage.')}</p>`;
   else {
     const il = S.inter ? originals() : null;
@@ -1168,7 +1264,7 @@ ${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትር�
     const under = (n) => {
       if (!il) return '';
       if (il.state === 'loading') return `<p class="muted small ilnote" role="status">${t('የዋናው ቋንቋ ቃላት እየተጫኑ ነው…', 'Loading the original words…')}</p>`;
-      if (il.state === 'error') return n === nums[0] ? `<p class="small ilnote" role="alert">${t('የዋናው ቋንቋ ቃላትን መጫን አልተቻለም።', 'The original words could not be loaded.')}</p>` : '';
+      if (il.state === 'error') return n === nums[0] ? `<p class="small ilnote" role="alert">${t('የዋናው ቋንቋ ቃላትን መጫን አልተቻለም።', 'The original words could not be loaded.')}${offlineHint()}</p>` : '';
       return il.verses[n] ? wordRow(n, il.verses[n], heb, S.sel === n ? pickedWord() : null) : '';
     };
     verses = nums.map((n) => `<div class="vblock">` + `<button class="verse${S.split && S.layout === 'verse' ? ' inter' : ''}" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span ${langOf(S.primary)}><sup>${n} </sup>${main.verses[n - 1] ? esc(main.verses[n - 1]) : `<i class="muted small">${t('(ይህ ቁጥር በዚህ ትርጉም የለም)', '(this verse is not in this version)')}</i>`}</span>${S.split && !stacked ? `<span class="alt" ${langOf(S.secondary)}>${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>` + under(n) + `</div>`).join('');
@@ -1322,7 +1418,7 @@ ${pl.note ? `<p class="muted prose">${esc(tp(pl.note))}</p>` : ''}
   const links = C.links.map((l, i) => `<a class="tile" href="${esc(l.url)}" target="_blank" rel="noopener" data-k="link-${i}"><b>${esc(tp(l.n))}</b><span class="muted small">${esc(tp(l.d))}</span></a>`).join('');
   return `<div class="wrap">
 <div class="stack"><h1>${t('የመጽሐፍ ቅዱስ ታሪክ ካርታ', 'Bible story map')}</h1><p class="muted">${t('ታሪኮቹ የተፈጸሙባቸው ስፍራዎች። ካርታውን ይጎትቱ፣ ያጉሉ፤ ሥዕል ይንኩ፤ ከዚያ ታሪኩን ይክፈቱ።', 'Where the stories took place. Drag and zoom the map, choose a picture, then open its story.')}</p></div>
-<div class="row" role="group" aria-label="${t('የካርታ እይታ', 'Map view')}">
+<div class="row chiprow" role="group" aria-label="${t('የካርታ እይታ', 'Map view')}">
 <button class="btn" data-a="mapView" data-v="lands" data-k="mv-lands">${t('የመጽሐፍ ቅዱስ አገሮች', 'Bible lands')}</button>
 <button class="btn" data-a="mapView" data-v="all" data-k="mv-all">${t('ሁሉም ስፍራዎች', 'All places')}</button>
 <button class="btn" data-a="mapView" data-v="land" data-k="mv-land">${t('ቅድስት አገር', 'The Holy Land')}</button>
@@ -1537,7 +1633,8 @@ function render() {
     mountGoogleButton();
     return;
   }
-  const view = S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'map' ? mapView() : browseView();
+  const offBanner = navigator.onLine === false && S.screen !== 'offline' ? `<button class="offbanner" data-a="nav" data-v="offline" data-k="offbanner">${icon('wifiOff', 16)}${t('ኢንተርኔት የለም፤ የተቀመጡት ይሠራሉ', 'Offline: saved content still works')}</button>` : '';
+  const view = offBanner + (S.screen === 'offline' ? offlineView() : S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'map' ? mapView() : browseView());
   root.innerHTML = sideMenu() + '<main>' + view + '</main>';
   const newPanel = root.querySelector('.sidepanel');
   if (newPanel && panelTop) newPanel.scrollTop = panelTop;     // keep the side panel where the reader left it
@@ -1622,7 +1719,11 @@ async function startRecording() {
 }
 
 const actions = {
-  nav(v) { S.screen = v; S.play = null; S.jump = true; save('screen'); restoreScroll.want = true; },
+  nav(v) { S.screen = v; S.play = null; S.jump = true; if (v === 'offline') { S.msg = ''; offlineCheck(); } save('screen'); restoreScroll.want = true; },
+  offSave(v) { offlineSave([v]); return false; },
+  offEssentials() { offlineSave([...new Set([S.primary, S.secondary])].filter((id) => OFF.packs && OFF.packs[id]).concat(['fathers', 'context'])); return false; },
+  offStop() { OFF.stop = true; return false; },
+  offRemove(v) { offlineRemove(v); return false; },
   story(v) {
     const i = +v;
     if (i > 0 && !S.game.done[i - 1]) return false;
