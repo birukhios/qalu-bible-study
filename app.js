@@ -1785,8 +1785,9 @@ function ensureMap() {
       MAP_ART.rivers.forEach((line) => L.polyline(line, water).addTo(lmap));
       MAP_ART.lakes.forEach((ring) => L.polygon(ring, Object.assign({}, water, { weight: 1.5, fillColor: '#A6DBEC', fillOpacity: 1 })).addTo(lmap));
     }).catch(() => {});
-    ltiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+    // Present-day map: Esri's World Topographic Map, whose place names are in English (the map is kept in English).
+    ltiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19, attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, FAO, NOAA, USGS, &copy; OpenStreetMap contributors'
     });
     lart = L.layerGroup();
     const sticker = (lat, lon, html) => L.marker([lat, lon], { interactive: false, keyboard: false, zIndexOffset: -1000, icon: L.divIcon({ className: '', html, iconSize: [0, 0] }) }).addTo(lart);
@@ -1843,7 +1844,7 @@ ${pl.note ? `<p class="muted prose">${esc(tp(pl.note))}</p>` : ''}
 <button class="btn" data-a="tiles" data-k="tiles" aria-pressed="${S.tiles}">${icon('globe')}${t('የዛሬ ካርታ', 'Present-day map')}</button></div>
 <div class="maps"><div id="mapslot"><p class="muted prose" style="padding:16px">${t('ካርታውን መጫን አልተቻለም።', 'The map could not be loaded.')}</p></div>
 <div class="stack mapside">${chosen}<div class="row placelist">${list}</div></div></div>
-<p class="muted small">${t('የሥዕሎቹ ስፍራ ግምታዊ ነው፤ አንዳንዶቹም በትውፊት የሚታወቁ ናቸው። የአገሮቹ ስሞች የዛሬዎቹ ናቸው። ስፍራቸው የማይታወቅ ወይም ምሳሌ የሆኑ ታሪኮች ሥዕል የላቸውም። “የዛሬ ካርታ” የኢንተርኔት ግንኙነት ያስፈልገዋል (OpenStreetMap)።', 'Picture positions are approximate and some are traditional sites; country names are present-day. Stories whose location is unknown, and parables, have no picture. “Present-day map” needs an internet connection (OpenStreetMap).')}</p>
+<p class="muted small">${t('የሥዕሎቹ ስፍራ ግምታዊ ነው፤ አንዳንዶቹም በትውፊት የሚታወቁ ናቸው። የአገሮቹ ስሞች የዛሬዎቹ ናቸው። ስፍራቸው የማይታወቅ ወይም ምሳሌ የሆኑ ታሪኮች ሥዕል የላቸውም። “የዛሬ ካርታ” የኢንተርኔት ግንኙነት ያስፈልገዋል (Esri)።', 'Picture positions are approximate and some are traditional sites; country names are present-day. Stories whose location is unknown, and parables, have no picture. “Present-day map” needs an internet connection (Esri map tiles).')}</p>
 <h2>${t('ጠቃሚ ማስፈንጠሪያዎች', 'Helpful links')}</h2>
 <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">${links}</div>`;
 }
@@ -2390,6 +2391,9 @@ const changes = {
   qv(v) { S.qv = v; save('qv'); if (S.searchOn) { runSearch(); } }
 };
 
+document.addEventListener('click', (e) => {
+  if (S.toolsOpen && !e.target.closest('.tools') && !e.target.closest('[data-a="toolsOpen"]')) { S.toolsOpen = false; render(); }
+}, true);
 root.addEventListener('click', (e) => {
   const el = e.target.closest('[data-a]');
   if (!el || !actions[el.dataset.a]) return;
