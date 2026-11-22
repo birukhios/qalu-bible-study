@@ -726,3 +726,12 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .atleg small { color: var(--muted); }
 .lmap[data-atlas="1"] .leaflet-marker-icon:has(.spot), .lmap[data-atlas="1"] .leaflet-marker-icon:has(.art),
 .lmap[data-geo="1"] .leaflet-marker-icon:has(.spot) { pointer-events: none; }
+
+/* Pictures laid on the map */
+.picover { image-rendering: auto; box-shadow: 0 0 0 2px rgba(255, 255, 255, .6); }
+.picop { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; padding: 2px 4px; }
+.picop input { flex: 1; accent-color: var(--accent); min-height: 32px; }
+.mapview .picop { color: #F2F2F3; }
+.mapview .picop input { accent-color: #F2F2F3; }
+.atpinnable { color: #F5D76E; font-weight: 600; }
+.mv-overlay .mv-slot { min-height: 240px; }

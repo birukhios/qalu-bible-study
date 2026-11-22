@@ -54,7 +54,8 @@ const S = {
   mapLayer: ls.get('mapLayer', 'pic'),
   mapMode: ls.get('mapMode', 'atlas'),
   atlas: ls.get('atlas', {}),
-  atlasSel: null,     // versions read lately, shown as one-tap buttons over the text
+  atlasSel: null,
+  picOpacity: ls.get('picOpacity', 0.85),     // versions read lately, shown as one-tap buttons over the text
   highlights: {},   // these three belong to the account in use; see loadAccount()
   notes: [],
   draft: '',
@@ -241,6 +242,7 @@ const MAPS = { list: null, pending: false };
 const MAP_CDN = 'https://d12do9t5rj179j.cloudfront.net/';
 const MAP_CREDIT = 'Biblica Open Bible Maps, © 2023-2026 Biblica, Inc., CC BY-SA 4.0, via bibleimagelibrary.org.';
 function bibleMaps() {
+  calib();   // which maps can be made interactive, needed as soon as any map can be opened
   if (!MAPS.list && !MAPS.pending) {
     MAPS.pending = true;
     fetch('data/maps.json').then((r) => r.json()).then((d) => { MAPS.list = d; }).catch(() => { MAPS.list = []; }).then(() => { MAPS.pending = false; render(); });
@@ -281,20 +283,22 @@ function mapViewer() {
   const first = m[2].find((x) => x[1]);
   const list = S.mapList && S.mapList.includes(m[0]) ? S.mapList : [m[0]];
   const at = list.indexOf(m[0]);
-  const layer = own ? 'live' : S.mapLayer || 'pic';
+  const canPin = !own && !!calib()[m[0]];
+  let layer = own ? 'live' : S.mapLayer || 'pic';
+  if (layer === 'overlay' && !canPin) layer = 'live';
   const vrefs = m[2].length ? m[2] : [[S.pass.b, S.pass.c, S.pass.c]];
   const z = S.mapZoom || 1;
   const pic = `<div class="mv-pic" data-zoom="${z}"><img src="${MAP_CDN}thumb/640/${m[0]}.jpg" alt="${esc(m[1])}" style="width:${z * 100}%"></div>`;
-  const live = `<div class="mv-live"><div data-mapslot class="mv-slot"></div><div class="mv-places">${geoList(vrefs)}</div></div>`;
+  const live = `<div class="mv-live"><div data-mapslot class="mv-slot"></div>${layer === 'overlay' ? picSlider() : ''}<div class="mv-places">${geoList(vrefs)}</div></div>`;
   const seg = (v, label) => `<button data-a="mapLayer" data-v="${v}" data-k="ml-${v}" aria-pressed="${layer === v}">${label}</button>`;
   return `<div class="mapview" role="dialog" aria-modal="true" aria-label="${esc(m[1])}">
 <div class="mv-top"><div class="mv-title"><b>${esc(m[1])}</b>${list.length > 1 ? `<span class="small">${at + 1} / ${list.length}</span>` : ''}</div>
 <button class="mv-close" data-a="closeMap" data-k="closemap" aria-label="${t('ዝጋ', 'Close')}" title="${t('ዝጋ (Esc)', 'Close (Esc)')}">${icon('close', 22)}</button></div>
-${own ? '' : `<div class="mv-seg seg" role="group" aria-label="${t('እይታ', 'View')}">${seg('pic', t('ሥዕል', 'Picture'))}${seg('live', t('ተንቀሳቃሽ ካርታ', 'Live map'))}${seg('both', t('ሁለቱም', 'Both'))}</div>`}
-<div class="mv-stage mv-${layer}">${layer !== 'live' ? pic : ''}${layer !== 'pic' ? live : ''}
+${own ? '' : `<div class="mv-seg seg" role="group" aria-label="${t('እይታ', 'View')}">${canPin ? seg('overlay', '✦ ' + t('በይነተገናኝ', 'Interactive')) : ''}${seg('pic', t('ሥዕል', 'Picture'))}${seg('live', t('ተንቀሳቃሽ ካርታ', 'Live map'))}${seg('both', t('ሁለቱም', 'Both'))}</div>`}
+<div class="mv-stage mv-${layer}">${layer === 'pic' || layer === 'both' ? pic : ''}${layer !== 'pic' ? live : ''}
 ${list.length > 1 ? `<button class="mv-nav prev" data-a="mapStep" data-v="-1" data-k="mvprev" ${at === 0 ? 'disabled' : ''} aria-label="${t('ያለፈው ካርታ', 'Previous map')}">${icon('left', 22)}</button><button class="mv-nav next" data-a="mapStep" data-v="1" data-k="mvnext" ${at === list.length - 1 ? 'disabled' : ''} aria-label="${t('ቀጣዩ ካርታ', 'Next map')}">${icon('right', 22)}</button>` : ''}</div>
 <div class="mv-tools">
-${layer !== 'live' ? `<button class="mv-btn" data-a="mapZoom" data-v="-1" data-k="mzout" ${z <= 1 ? 'disabled' : ''} aria-label="${t('አሳንስ', 'Zoom out')}">−</button><button class="mv-btn" data-a="mapZoom" data-v="1" data-k="mzin" ${z >= 4 ? 'disabled' : ''} aria-label="${t('አጉላ', 'Zoom in')}">+</button>` : ''}
+${layer === 'pic' || layer === 'both' ? `<button class="mv-btn" data-a="mapZoom" data-v="-1" data-k="mzout" ${z <= 1 ? 'disabled' : ''} aria-label="${t('አሳንስ', 'Zoom out')}">−</button><button class="mv-btn" data-a="mapZoom" data-v="1" data-k="mzin" ${z >= 4 ? 'disabled' : ''} aria-label="${t('አጉላ', 'Zoom in')}">+</button>` : ''}
 ${first ? `<button class="mv-btn wide" data-a="mapRead" data-v="${first[0]}.${first[1]}" data-k="mapread">${icon('book', 18)}<span>${t('ክፍሉን አንብብ', 'Read it')}</span></button>` : ''}
 ${own ? '' : `<a class="mv-btn wide" href="${MAP_CDN}orig/${m[0]}.pdf" target="_blank" rel="noopener">${icon('download', 18)}<span>PDF</span></a>`}
 </div>
@@ -387,6 +391,28 @@ function geoList(refs) {
   return `<div class="geolist">${data.routes.map((rt) => `<span class="chip route">〰 ${esc(tp(rt.n))}</span>`).join('')}${data.places.map((x, n) => `<button class="chip geochip${x.p[4] < 300 ? ' unsure' : ''}" data-a="geoPlace" data-v="${n}" data-k="gp-${n}"><b>${n + 1}</b>${esc(x.p[0])}</button>`).join('')}</div>`;
 }
 
+// ---------- Pictures made interactive ----------
+// Biblica maps lined up with real coordinates (tools/calib_points.json → tools/build_calib.py → data/geo/calib.json):
+// such a picture can be laid on our map, under our numbered places and routes, and faded in and out.
+const CALIB = { map: null };
+function calib() { if (!CALIB.map) geoLoad('data/geo/calib.json', (d) => { CALIB.map = d || {}; }); return CALIB.map || {}; }
+let lpic = null, lpicId = null;
+function applyPic(id, fit) {
+  if (!lmap) return;
+  const b = id && calib()[id];
+  if (!b) { if (lpic) { lpic.remove(); lpic = null; lpicId = null; } return; }
+  if (!lmap.getPane('pic')) lmap.createPane('pic').style.zIndex = 350;
+  if (lpicId !== id) {
+    if (lpic) lpic.remove();
+    lpic = L.imageOverlay(`${MAP_CDN}thumb/640/${id}.jpg`, [[b[0], b[1]], [b[2], b[3]]], { pane: 'pic', opacity: S.picOpacity, interactive: false, className: 'picover' }).addTo(lmap);
+    lpicId = id;
+    fit = true;
+  }
+  lpic.setOpacity(S.picOpacity);
+  if (fit) lmap.fitBounds([[b[0], b[1]], [b[2], b[3]]], { padding: [10, 10] });
+}
+const picSlider = () => `<label class="picop"><span>${t('ሥዕሉ', 'Picture')}</span><input id="picop" type="range" min="0" max="100" value="${Math.round(S.picOpacity * 100)}" aria-label="${t('የሥዕሉ ግልጽነት', 'Picture opacity')}"><span>${t('ካርታው', 'Map')}</span></label>`;
+
 // ---------- Atlas ----------
 const ATLAS = { list: null };
 const km = (a, b) => { const R = 6371, d = Math.PI / 180, x = Math.sin((b[0] - a[0]) * d / 2) ** 2 + Math.cos(a[0] * d) * Math.cos(b[0] * d) * Math.sin((b[1] - a[1]) * d / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
@@ -406,7 +432,7 @@ function atlasMapCard(a, big) {
   return `<div class="atcard${big ? ' big' : ''}"><img src="${MAP_CDN}thumb/${big ? 640 : 320}/${a[0]}.jpg" alt="" loading="lazy">
 <b>${esc(m ? m[1] : '')}</b><span class="atref">${esc(m && m[2].length ? refText(m[2]) : '')}</span>
 ${names.length ? `<span>${t('ስፍራዎች፦ ', 'Places: ')}${esc(names.join(', '))}</span>` : ''}
-${rts.length ? `<span class="atroute">〰 ${esc(rts.map((rt) => tp(rt.n)).join(' · '))}</span>` : ''}</div>`;
+${calib()[a[0]] ? `<span class="atpinnable">✦ ${t('በካርታው ላይ ሊቀመጥ ይችላል', 'Can be laid on the map')}</span>` : ''}${rts.length ? `<span class="atroute">〰 ${esc(rts.map((rt) => tp(rt.n)).join(' · '))}</span>` : ''}</div>`;
 }
 function atlasRouteCard(rt, big) {
   return `<div class="atcard route${big ? ' big' : ''}" style="--rc:${rt.color}"><b>〰 ${esc(tp(rt.n))}</b><span class="atref">${esc(refText(rt.ch))} · ${t('ወደ ' + routeKm(rt) + ' ኪ.ሜ. ገደማ', 'about ' + routeKm(rt) + ' km')}</span>
@@ -418,7 +444,8 @@ function atlasSide() {
   if (sel && sel.type === 'map') {
     const a = ATLAS.list.find((x) => x[0] === sel.id), m = MAPS.list.find((x) => x[0] === sel.id);
     const first = m && m[2].find((x) => x[1]);
-    return `<div class="card stack"><div class="row between"><span class="muted small">${t('የተመረጠ ካርታ', 'Selected map')}</span><button class="btn round" data-a="atlasClear" data-k="at-clear" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button></div>${atlasMapCard(a, true)}<div class="row"><button class="btn fill" data-a="atlasOpen" data-v="${sel.id}" data-k="at-open">${icon('focus')}${t('በትልቁ ክፈት', 'Open large')}</button>${first ? `<button class="btn" data-a="mapRead" data-v="${first[0]}.${first[1]}" data-k="at-read">${icon('book')}${t('ክፍሉን አንብብ', 'Read it')}</button>` : ''}</div></div>`;
+    return `<div class="card stack"><div class="row between"><span class="muted small">${t('የተመረጠ ካርታ', 'Selected map')}</span><button class="btn round" data-a="atlasClear" data-k="at-clear" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button></div>${atlasMapCard(a, true)}<div class="row"><button class="btn fill" data-a="atlasOpen" data-v="${sel.id}" data-k="at-open">${icon('focus')}${t('በትልቁ ክፈት', 'Open large')}</button>${first ? `<button class="btn" data-a="mapRead" data-v="${first[0]}.${first[1]}" data-k="at-read">${icon('book')}${t('ክፍሉን አንብብ', 'Read it')}</button>` : ''}</div>
+${calib()[sel.id] ? `<button class="btn${S.atlasPin ? ' fill' : ''}" data-a="atlasPin" data-k="at-pin" aria-pressed="${!!S.atlasPin}">✦ ${S.atlasPin ? t('ሥዕሉን ከካርታው አንሳ', 'Take the picture off the map') : t('ሥዕሉን በካርታው ላይ አስቀምጥ', 'Lay the picture on the map')}</button>${S.atlasPin ? picSlider() : ''}` : ''}</div>`;
   }
   if (sel && sel.type === 'group') {
     return `<div class="card stack"><div class="row between"><b>${sel.ids.length} ${t('ካርታዎች በዚህ ስፍራ', 'maps at this spot')}</b><button class="btn round" data-a="atlasClear" data-k="at-clear" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button></div>
@@ -475,7 +502,7 @@ function atlasCluster() {
   latlasPics.clearLayers();
   if (S.atlas.pics === false) return;
   const tst = S.atlas.t || 'all';
-  const zoom = lmap.getZoom(), cell = 74, cells = new Map(), half = lmap.getSize().y / 2;
+  const zoom = Math.round(lmap.getZoom()), cell = 74, cells = new Map(), half = lmap.getSize().y / 2;
   ATLAS.list.forEach((a) => {
     const m = MAPS.list.find((x) => x[0] === a[0]);
     const b = m && m[2][0] ? m[2][0][0] : 0;
@@ -498,7 +525,7 @@ function atlasCluster() {
       const spread = group.some((g) => g[1] !== a[1] || g[2] !== a[2]);
       if (n > 1 && spread && zoom < 10) { lmap.setView([lat, lon], Math.min(zoom + 2, lmap.getMaxZoom())); return; }
       if (n > 1) { S.atlasSel = { type: 'group', ids: group.map((g) => g[0]) }; render(); return; }
-      S.atlasSel = { type: 'map', id: a[0] }; render();
+      S.atlasSel = { type: 'map', id: a[0] }; S.atlasPin = !!calib()[a[0]]; render();
     });
     mk.addTo(latlasPics);
   });
@@ -1745,7 +1772,7 @@ function ensureMap() {
     mapEl = document.createElement('div');
     mapEl.className = 'lmap';
     const sheet = [[20.0, 5.0], [48.0, 56.0]]; // the edges of the land outline in data/land.json: the map is drawn as a sheet this size
-    lmap = L.map(mapEl, { minZoom: 4, maxZoom: 14, maxBounds: L.latLngBounds(sheet).pad(0.15), maxBoundsViscosity: 0.8 });
+    lmap = L.map(mapEl, { minZoom: 4, maxZoom: 14, zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 90, maxBounds: L.latLngBounds(sheet).pad(0.15), maxBoundsViscosity: 0.8 });
     // The land outline, rivers and lakes sit under everything else, so they are also what shows without a connection.
     lmap.createPane('base').style.zIndex = 100;
     L.rectangle(sheet, { pane: 'base', interactive: false, color: '#8A5A2B', weight: 5, fillColor: '#9ED7EA', fillOpacity: 1 }).addTo(lmap);
@@ -2068,11 +2095,14 @@ function render() {
       const atlasOn = !vm && !slot.matches('[data-mapslot]') && S.screen === 'map' && (S.mapMode || 'atlas') === 'atlas';
       const refs = vm ? (vm[2].length ? vm[2] : [[S.pass.b, S.pass.c, S.pass.c]]) : slot.matches('[data-mapslot]') || (S.geoOn && !atlasOn) ? [[S.pass.b, S.pass.c, S.pass.c]] : null;
       applyAtlas(atlasOn);
+      const picId = vm && vm[0] !== -1 && (S.mapLayer || 'pic') === 'overlay' && calib()[vm[0]] ? vm[0]
+        : atlasOn && S.atlasSel && S.atlasSel.type === 'map' && S.atlasPin && calib()[S.atlasSel.id] ? S.atlasSel.id : null;
       if (atlasOn && render.atlasFit !== true && atlasData()) { render.atlasFit = true; lmap.fitBounds(MAP_VIEWS.lands()); }
       if (!atlasOn) render.atlasFit = false;
       const slotKey = (vm ? 'v' + vm[0] : slot.dataset.mapslot || 'screen') + '|' + JSON.stringify(refs);
       const fit = S.mvFit || render.geoSlot !== slotKey;
-      applyGeo(refs, fit && !!refs);
+      applyGeo(refs, fit && !!refs && !picId);
+      applyPic(picId, fit);
       if (fit && refs && geoFor(refs)) { render.geoSlot = slotKey; S.mvFit = false; }
       if (!refs) render.geoSlot = slotKey;
       lmarkers.forEach((m, i) => { m.setIcon(pinIcon(i)); m.setZIndexOffset(S.place === i ? 1000 : 0); m.unbindTooltip(); m.bindTooltip(tp(C.places[i].n)); });
@@ -2235,8 +2265,8 @@ const actions = {
   unsel() { S.sel = null; save('sel'); },
   clearHl() { S.highlights[hlKey(S.sel)] = ''; save('highlights'); },   // '' rather than delete, so the clearing syncs
   tab(v) { S.tab = v; save('tab'); },
-  openMap(v) { S.mapList = [...root.querySelectorAll('.mapcard')].map((e) => +e.dataset.v).filter((x, i, a) => a.indexOf(x) === i); S.bigMap = +v; S.mapZoom = 1; S.mvFit = true; document.body.style.overflow = 'hidden'; },
-  mapStep(v) { const i = S.mapList.indexOf(S.bigMap) + +v; if (S.mapList[i] != null) { S.bigMap = S.mapList[i]; S.mapZoom = 1; S.mvFit = true; } },
+  openMap(v) { if (calib()[+v]) S.mapLayer = 'overlay'; S.mapList = [...root.querySelectorAll('.mapcard')].map((e) => +e.dataset.v).filter((x, i, a) => a.indexOf(x) === i); S.bigMap = +v; S.mapZoom = 1; S.mvFit = true; document.body.style.overflow = 'hidden'; },
+  mapStep(v) { const i = S.mapList.indexOf(S.bigMap) + +v; if (S.mapList[i] != null) { S.bigMap = S.mapList[i]; if (calib()[S.bigMap]) S.mapLayer = 'overlay'; S.mapZoom = 1; S.mvFit = true; } },
   mapLayer(v) { S.mapLayer = v; S.mvFit = true; ls.set('mapLayer', v); },
   geoPlace(v) { const m = lgeoMarks[+v]; if (m) { lmap.setView(m.getLatLng(), Math.max(lmap.getZoom(), 8)); m.openPopup(); } return false; },
   geoVerse(v) { const [b, c, n] = v.split('.').map(Number); S.bigMap = null; document.body.style.overflow = ''; setPass({ b, c, f: 1, to: 0 }); S.sel = n; S.goVerse = n; S.screen = 'study'; save('sel', 'screen'); },
@@ -2245,7 +2275,8 @@ const actions = {
   atlasToggle(v) { S.atlas = Object.assign({}, S.atlas, { [v]: S.atlas[v] === false }); ls.set('atlas', S.atlas); },
   atlasT(v) { S.atlas = Object.assign({}, S.atlas, { t: v }); S.atlasSel = null; ls.set('atlas', S.atlas); },
   atlasRoute(v) { S.atlasSel = { type: 'route', id: v }; const rt = GEO.routes.find((x) => x.id === v); if (rt && lmap) lmap.fitBounds(rt.pts.map((p) => [p[0], p[1]]), { padding: [40, 40] }); },
-  atlasClear() { S.atlasSel = null; },
+  atlasClear() { S.atlasSel = null; S.atlasPin = false; },
+  atlasPin() { S.atlasPin = !S.atlasPin; if (!S.atlasPin && lmap) lmap.fitBounds(MAP_VIEWS.lands()); },
   atlasOpen(v) { S.mapList = [+v]; actions.openMap(v); S.mapList = [+v]; },
   geoOn() { S.geoOn = !S.geoOn; render.geoSlot = ''; },
   mvPlace(v) { S.place = +v; if (lmap) lmap.setView([C.places[+v].lat, C.places[+v].lon], 9); },
@@ -2374,6 +2405,7 @@ root.addEventListener('change', (e) => {
 root.addEventListener('input', (e) => {
   if (e.target.id === 'draft') S.draft = e.target.value;
   if (e.target.id === 'q') S.q = e.target.value;
+  if (e.target.id === 'picop') { S.picOpacity = e.target.value / 100; ls.set('picOpacity', S.picOpacity); if (lpic) lpic.setOpacity(S.picOpacity); }
 });
 root.addEventListener('submit', (e) => {
   if (!e.target.matches('[data-search]')) return;
