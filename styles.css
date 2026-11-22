@@ -691,3 +691,47 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .lmap[data-zoom="far"] .geopin i, .lmap[data-zoom="far"] .geostop { display: none; }
 .leaflet-tooltip.geostop { background: rgba(255, 250, 238, .92); border: 0; box-shadow: 0 1px 4px rgba(0, 0, 0, .25); color: #2B2118; font: 600 11px/1.5 system-ui, sans-serif; padding: 0 6px; }
 .leaflet-tooltip.geostop::before { display: none; }
+
+/* ---------- Atlas ---------- */
+.lmap[data-atlas="1"] .spot, .lmap[data-atlas="1"] .art { opacity: .22; filter: grayscale(.7); pointer-events: none; }
+.maps.atlas #mapslot .lmap { min-height: 560px; }
+@media (max-width: 760px) { .maps.atlas #mapslot .lmap { min-height: 62vh; } }
+.atpin { position: relative; display: block; width: 54px; height: 54px; border-radius: 14px; overflow: visible; transition: transform .15s ease; }
+.atpin img { width: 54px; height: 54px; object-fit: cover; border-radius: 14px; border: 3px solid #fff; box-shadow: 0 4px 14px rgba(0, 0, 0, .45); background: #ddd; display: block; }
+.atpin b { position: absolute; top: -8px; right: -8px; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 999px; background: #1F2023; color: #fff;
+  font: 700 12px/24px system-ui, sans-serif; text-align: center; border: 2px solid #fff; }
+.atpin:hover { transform: scale(1.12); }
+.atpin.on img { border-color: #C0392B; box-shadow: 0 0 0 4px rgba(192, 57, 43, .35), 0 4px 14px rgba(0, 0, 0, .45); }
+.leaflet-tooltip.attip { padding: 0; border: 0; border-radius: 14px; background: transparent; box-shadow: none; opacity: 1; }
+.leaflet-tooltip.attip::before { display: none; }
+.atcard { display: flex; flex-direction: column; gap: 4px; width: 250px; padding: 10px; border-radius: 14px; white-space: normal;
+  background: rgba(31, 32, 35, .92); color: #F2F2F3; font: 13px/1.45 system-ui, "Noto Sans Ethiopic", sans-serif;
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 10px 30px rgba(0, 0, 0, .4); border: 1px solid rgba(255, 255, 255, .1); }
+.atcard img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 9px; background: #444; }
+.atcard b { font-size: 15px; line-height: 1.3; }
+.atcard .atref { color: #B9BBC1; font-size: 12px; }
+.atcard .atroute { color: #F5B7B1; font-weight: 600; }
+.atcard.route { border-left: 5px solid var(--rc); }
+.atcard.big { width: auto; background: transparent; color: inherit; padding: 0; box-shadow: none; border: 0; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.atcard.big.route { border-left: 5px solid var(--rc); padding-left: 12px; }
+.atcard.big .atref { color: var(--muted); }
+.atcard.big img { aspect-ratio: auto; }
+.atstops { margin: 4px 0 0; padding-left: 22px; columns: 2; font-size: 13px; }
+.atstopline { color: #D0D2D6; }
+.atlegend { display: flex; flex-direction: column; gap: 4px; }
+.atleg { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 10px; border-radius: 10px; text-align: left; background: var(--ctl); }
+.atleg:hover { background: var(--line); }
+.atleg i { flex: none; width: 26px; height: 5px; border-radius: 3px; }
+.atleg span { flex: 1; font-size: 14px; }
+.atleg small { color: var(--muted); }
+.lmap[data-atlas="1"] .leaflet-marker-icon:has(.spot), .lmap[data-atlas="1"] .leaflet-marker-icon:has(.art),
+.lmap[data-geo="1"] .leaflet-marker-icon:has(.spot) { pointer-events: none; }
+
+/* Pictures laid on the map */
+.picover { image-rendering: auto; box-shadow: 0 0 0 2px rgba(255, 255, 255, .6); }
+.picop { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; padding: 2px 4px; }
+.picop input { flex: 1; accent-color: var(--accent); min-height: 32px; }
+.mapview .picop { color: #F2F2F3; }
+.mapview .picop input { accent-color: #F2F2F3; }
+.atpinnable { color: #F5D76E; font-weight: 600; }
+.mv-overlay .mv-slot { min-height: 240px; }

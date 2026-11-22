@@ -60,4 +60,23 @@ for rt in routes:
 json.dump(routes, open('data/geo/routes.json', 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
 for rt in routes:
     print(rt['id'], ' > '.join(f'{p[2]}({p[0]:.1f},{p[1]:.1f})' for p in rt['pts']))
+# The atlas: where each Biblica map belongs on our map (the middle of the places its passages name, regions left out),
+# with up to eight of those places for its explanation. Written as [[map id, lat, lon, [place indexes]], ...].
+import statistics
+atlas = []
+for mid, title, refs in json.load(open('data/maps.json', encoding='utf-8')):
+    found = []
+    for b, c1, c2 in refs:
+        chs = range(c1, c2 + 1) if c1 else books[b].keys()
+        for c in chs:
+            for i in books[b].get(c, {}):
+                if i not in found:
+                    found.append(i)
+    pts = [i for i in found if not any(k in places[i][3] for k in ('region', 'country', 'people', 'nation', 'kingdom'))] or found
+    if not pts:
+        continue
+    lat = statistics.median(places[i][1] for i in pts); lon = statistics.median(places[i][2] for i in pts)
+    atlas.append([mid, round(lat, 3), round(lon, 3), found[:8]])
+json.dump(atlas, open('data/geo/atlas.json', 'w', encoding='utf-8'), separators=(',', ':'))
+print(len(atlas), 'maps placed on the atlas')
 print(len(places), 'places;', sum(len(ch) for bk in books for ch in bk.values()), 'chapter mentions')
