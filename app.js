@@ -90,6 +90,8 @@ let C = null; // stories, book names and study content
 // The interactive map is created once and moved into place on each render, so it keeps its zoom.
 let lmap = null, lmarkers = [], mapEl = null, ltiles = null, lart = null;
 const versions = {
+  am54: { id: 'am54', name: 'መጽሐፍ ቅዱስ 1954 (አማርኛ)', short: 'አማ 1954', language: 'am', dir: 'data/am54', books: {},
+    credit: 'Amharic Bible (1954/1962). Text from Beblia/Holy-Bible-XML-Format, completed from wordproject.org.' },
   amnasv: { id: 'amnasv', name: 'አዲሱ መደበኛ ትርጒም (NASV)', short: 'NASV', language: 'am', dir: 'data/amnasv', books: {},
     credit: 'Holy Bible, New Amharic Standard Version™ Copyright © 2001 by Biblica, Inc. Used with permission. All rights reserved worldwide.' },
   amulb: { id: 'amulb', name: 'አማርኛ ULB (Unlocked Literal Bible)', short: 'ULB', language: 'am', dir: 'data/amulb', books: {},
@@ -134,7 +136,7 @@ Object.entries({ orig: 'ዕብ/ግሪክ', bsb: 'BSB', web: 'WEB', kjv: 'KJV', a
   webster: 'Webster', geneva: 'Geneva', acv: 'ACV', ukjv: 'UKJV', rotherham: 'Rotherham' }).forEach(([id, s]) => { versions[id].short = s; });
 // The version lists are grouped by language family.
 const VERSION_GROUPS = [
-  [['አማርኛ', 'Amharic'], ['amnasv', 'amulb']],
+  [['አማርኛ', 'Amharic'], ['am54', 'amnasv', 'amulb']],
   [['ዋናው ጽሑፍ', 'Original languages'], ['orig']],
   [['እንግሊዝኛ (ዘመናዊ)', 'English (modern)'], ['niv', 'esv', 'nlt', 'nkjv', 'nasb', 'csb', 'nrsv', 'rsv', 'amp', 'ampc', 'net', 'mev', 'lsb', 'erv', 'gw', 'nirv', 'tlb', 'hcsb']],
   [['እንግሊዝኛ (ነጻ)', 'English (public domain)'], ['bsb', 'web', 'kjv', 'nheb', 'ukjv', 'acv', 'asv', 'bbe', 'ylt', 'darby', 'rotherham', 'webster', 'geneva']]
@@ -220,7 +222,7 @@ function saveAccount(fromSync) {
 
 function pickVersions() {
   const ids = Object.keys(versions);
-  if (!versions[S.primary]) S.primary = (versions.amnasv || Object.values(versions).find((v) => v.language === 'am') || versions.web).id;
+  if (!versions[S.primary]) S.primary = (versions.am54 || Object.values(versions).find((v) => v.language === 'am') || versions.web).id;
   if (!versions[S.secondary] || S.secondary === S.primary) S.secondary = ids.find((id) => id !== S.primary) || S.primary;
 }
 
@@ -1616,6 +1618,30 @@ function videoCard(b = S.pass.b, c = S.pass.c) {
 <span class="stack" style="gap:4px"><span class="muted small"><b>BibleProject</b></span><b style="font-size:18px">${esc(v.title)}</b><span class="muted small">${t('የመጽሐፉ አጠቃላይ ቪዲዮ (በእንግሊዝኛ)።', 'Book overview video (in English).')}</span><span class="btn fill" style="align-self:flex-start">${icon('play')}${t('ቪዲዮውን ተመልከት', 'Watch the video')}</span></span>`);
 }
 
+// Some translations (the 1954 Amharic Bible above all) print two or more verses as one, "2–3". Such a verse's text sits
+// on one number and the others are empty: the verse with the text is labelled with the whole range, and an empty one
+// says where its words are.
+function joinRange(verses, n) {
+  if (!verses.length) return [n, n];
+  let lo = n, hi = n;
+  if (verses[n - 1]) { while (lo > 1 && !verses[lo - 2] && !(lo - 2 > 0 && !verses.slice(lo - 2).some(Boolean))) lo--; }
+  const last = verses.reduce((m, v, i) => (v ? i + 1 : m), 0);
+  if (verses[n - 1] && n === last) { while (hi < verses.length && !verses[hi]) hi++; }
+  return [lo, hi];
+}
+function joinLabel(verses, n) {
+  if (!verses[n - 1]) return n;
+  const [lo, hi] = joinRange(verses, n);
+  return lo === hi ? n : lo + '–' + hi;
+}
+function joinNote(verses, n) {
+  let at = verses.findIndex((v, i) => i >= n && v) + 1;
+  if (!at) for (let i = n - 2; i >= 0; i--) if (verses[i]) { at = i + 1; break; }
+  if (!at) return `<i class="muted small">${t('(ይህ ቁጥር በዚህ ትርጉም የለም)', '(this verse is not in this version)')}</i>`;
+  const [lo, hi] = joinRange(verses, at);
+  return `<i class="muted small">${t('(ቁጥር ' + lo + '–' + hi + ' በአንድ ላይ ታትመዋል፤ ቁ. ' + at + 'ን ይመልከቱ)', '(verses ' + lo + '–' + hi + ' are printed together: see v. ' + at + ')')}</i>`;
+}
+
 function studyView() {
   const p = S.pass;
   const stacked = S.split && S.layout === 'stack';
@@ -1646,7 +1672,7 @@ function studyView() {
       if (il.state === 'error') return n === nums[0] ? `<p class="small ilnote" role="alert">${t('የዋናው ቋንቋ ቃላትን መጫን አልተቻለም።', 'The original words could not be loaded.')}${offlineHint()}</p>` : '';
       return il.verses[n] ? wordRow(n, il.verses[n], heb, S.sel === n ? pickedWord() : null) : '';
     };
-    verses = nums.map((n) => `<div class="vblock">` + `<button class="verse${S.split && S.layout === 'verse' ? ' inter' : ''}" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"${S.hlFlash === n ? ' data-flash="1"' : ''}><span ${langOf(S.primary)}><sup>${n} </sup>${main.verses[n - 1] ? '<span class="vt">' + esc(main.verses[n - 1]) + '</span>' : `<i class="muted small">${t('(ይህ ቁጥር በዚህ ትርጉም የለም)', '(this verse is not in this version)')}</i>`}</span>${S.split && !stacked ? `<span class="alt" ${langOf(S.secondary)}>${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>` + under(n) + `</div>`).join('');
+    verses = nums.map((n) => `<div class="vblock">` + `<button class="verse${S.split && S.layout === 'verse' ? ' inter' : ''}" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"${S.hlFlash === n ? ' data-flash="1"' : ''}><span ${langOf(S.primary)}><sup>${joinLabel(main.verses, n)} </sup>${main.verses[n - 1] ? '<span class="vt">' + esc(main.verses[n - 1]) + '</span>' : joinNote(main.verses, n)}</span>${S.split && !stacked ? `<span class="alt" ${langOf(S.secondary)}>${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>` + under(n) + `</div>`).join('');
   }
   if (stacked) {
     // The second version gets its own pane under the first, with the same verse range.

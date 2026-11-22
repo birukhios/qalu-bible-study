@@ -6,7 +6,8 @@ Beblia files look like <bible><testament><book number="1"><chapter number="1"><v
 books numbered 1–66 in the Protestant order. Zero-width spaces (which the Amharic 2000 file puts inside words) and
 runs of white space are removed; the text is otherwise kept as published. Verses a file joins into one (an empty
 verse after a long one) stay empty, and the app marks them as missing.
-Only versions with every chapter and nearly every verse are kept (checked against the KJV versification; the 1954,
+The 1954 Amharic Bible prints some pairs of verses as one ("2–3"); the app shows such a join under both numbers.
+Only versions with every chapter and nearly every verse are kept (checked against the KJV versification; the
 2000, 2005 and Catholic Amharic files, GNT and EasyEnglish leave hundreds of verses empty and were removed).
 Usage: convert_beblia.py BEBLIA_DIR OUT_DIR [ids]
 To add another version: put a line in VERSIONS, run this, then tools/build_offline_manifest.py, and add the id to
@@ -16,6 +17,7 @@ import json, os, re, sys
 import xml.etree.ElementTree as ET
 
 VERSIONS = {  # app id: Beblia file
+    'am54': 'AmharicBible.xml',          # 1954/1962 Amharic Bible (the Haile Selassie translation)
     'amnasv': 'AmharicNASVBible.xml',    # Addisu Medebegna Tirgum (New Amharic Standard Version), Biblica 2001
     # English versions under copyright (by their publishers), for personal study use:
     'niv': 'EnglishNIVBible.xml', 'esv': 'EnglishESVBible.xml', 'nlt': 'EnglishNLTBible.xml', 'nkjv': 'EnglishNKJBible.xml',
@@ -46,6 +48,22 @@ for vid, name in VERSIONS.items():
                 while len(verses) < n:
                     verses.append('')
                 verses[n - 1] = text
+    if vid == 'am54':
+        books[10][19], books[10][20] = books[10][20], books[10][19]   # the file has 1 Kings 20 and 21 the wrong way round
+        # Fill verses the file leaves out from a second copy of the same translation (wordproject.org, via
+        # github.com/magna25/amharic-bible-json, MIT), when it is given as AMHARIC54_JSON.
+        extra = os.environ.get('AMHARIC54_JSON')
+        if extra:
+            other = json.load(open(extra, encoding='utf-8'))['books']
+            for b, chapters in enumerate(books):
+                for c, verses in enumerate(chapters):
+                    ov = other[b]['chapters'][c]['verses'] if c < len(other[b]['chapters']) else []
+                    for n in range(len(ov)):
+                        t2 = re.sub(r'\s+', ' ', ov[n]).strip()
+                        if t2 and (n >= len(verses) or not verses[n]) and not any(verses[n + 1:]) and not (n and verses[n - 1] and len(verses[n - 1]) > 1.6 * len(t2) and t2[-12:] in verses[n - 1]):
+                            while len(verses) <= n:
+                                verses.append('')
+                            verses[n] = t2
     os.makedirs(os.path.join(out, vid), exist_ok=True)
     for b, chapters in enumerate(books):
         with open(os.path.join(out, vid, f'{b}.json'), 'w', encoding='utf-8') as fh:
