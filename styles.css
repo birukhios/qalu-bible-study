@@ -453,7 +453,7 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
   .tools .lbl { display: none; }
   .tools .btn { padding: 0 12px; }
 }
-@media (min-width: 1300px) { .tools .lbl { display: inline; } .tools .btn[data-a="toStudy"] .lbl, .tools .btn[data-a="swapVer"] .lbl { display: none; } }
+@media (min-width: 1500px) { .tools .lbl { display: inline; white-space: nowrap; } .tools .btn[data-a="toStudy"] .lbl, .tools .btn[data-a="swapVer"] .lbl { display: none; } }
 @media (max-width: 760px) {
   .readhead { top: 56px; padding: 6px 0; gap: 6px; }
   .btn.aa { display: inline-flex; align-items: center; justify-content: center; }
@@ -471,3 +471,25 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
   .sidepanel { scroll-margin-top: 120px; }
   .wrap { gap: 12px; }
 }
+
+/* Settings: in the side menu on laptops; behind one gear button on phones. */
+.nav.gear { display: none; }
+.extras { display: contents; }
+@media (max-width: 760px) {
+  .nav.gear { display: inline-flex; min-width: 44px; justify-content: center; padding: 8px 10px; }
+  .nav.gear[aria-expanded="true"] { background: var(--ctl); }
+  .extras { display: none; }
+  .extras.open { display: flex; flex-direction: column; gap: 2px; position: absolute; top: 56px; right: 8px; min-width: 220px; z-index: 70;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 6px; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); }
+  .extras.open .nav.extra { justify-content: flex-start; gap: 12px; padding: 10px 12px; min-height: 44px; }
+  .extras.open .nav.extra .lbl { display: inline; }
+  .extras.open .who { display: flex; padding: 8px 12px; }
+  .readhead .btn.round { width: 40px; min-height: 40px; }
+  .titlebar { gap: 4px; }
+}
+@media (max-width: 400px) { .pill-btn.ver svg { display: none; } }
+@media (max-width: 760px) {
+  .titlebar > .btn[data-a="prevCh"], .titlebar > .btn[data-a="nextCh"] { display: none; }
+  .titlepills .pill-btn:first-child { justify-content: flex-start; }
+}
+.sheet .searchbar { border: 0; padding: 0; background: none; }

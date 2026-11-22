@@ -507,6 +507,7 @@ const ICONS = {
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
   exit: '<path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
   flag: '<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',
   star: '<path d="M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8z"/>',
@@ -829,6 +830,8 @@ ${nav('map', 'pin', t('ካርታ', 'Map'))}
 ${nav('notes', 'note', t('ማስታወሻዎች', 'Notes'))}
 </div>
 <div class="spacer"></div>
+<button class="nav gear" data-a="menu" data-k="menu" aria-expanded="${!!S.menu}" aria-label="${t('ቅንብሮች', 'Settings')}" title="${t('ቅንብሮች', 'Settings')}">${icon('gear', 22)}</button>
+<div class="extras${S.menu ? ' open' : ''}">
 ${S.user
     ? `<div class="who">${S.user.picture ? `<img src="${esc(S.user.picture)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}<span><b>${esc(S.user.name || '')}</b><span class="muted small">${esc(S.user.email || '')}</span></span></div>
 ${syncLabel()}
@@ -837,6 +840,7 @@ ${syncLabel()}
 <button class="nav extra${S.screen === 'offline' ? ' on' : ''}" data-a="nav" data-v="offline" data-k="nav-offline" aria-label="${t('ከመስመር ውጭ ለመጠቀም', 'Use offline')}" title="${t('ከመስመር ውጭ ለመጠቀም', 'Use offline')}">${icon(navigator.onLine === false ? 'wifiOff' : 'download', 20)}<span class="lbl">${t('ከመስመር ውጭ', 'Offline')}</span></button>
 <button class="nav extra" data-a="lang" data-k="lang" aria-label="${t('English', 'አማርኛ')}">${icon('globe', 20)}<span>${t('English', 'አማርኛ')}</span></button>
 <button class="nav extra" data-a="theme" data-k="theme" aria-label="${S.dark ? t('ብሩህ ገጽታ', 'Light mode') : t('ጨለማ ገጽታ', 'Dark mode')}">${icon('moon', 20)}<span class="lbl">${S.dark ? t('ብሩህ ገጽታ', 'Light mode') : t('ጨለማ ገጽታ', 'Dark mode')}</span></button>
+</div>
 </nav>`;
 }
 
@@ -997,6 +1001,21 @@ async function loadWholeVersion(id, progress) {
     }
   };
   await Promise.all(Array.from({ length: 8 }, worker));
+}
+
+// "John 3:16", "1 cor 13", "ዮሐንስ 3፥16", "ዮሐ 3" → { b, c, v }, or null when the text is not a reference.
+function parseRef(q) {
+  const m = String(q || '').trim().match(/^(.+?)\s*(\d+)(?:\s*[:፥.]\s*(\d+))?$/);
+  if (!m) return null;
+  const key = (x) => x.toLowerCase().replace(/[\s.]/g, '');
+  const want = key(m[1]);
+  if (want.length < 2) return null;
+  let b = C.books.findIndex((bk) => bk.n.some((n) => key(n) === want));
+  if (b < 0) b = C.books.findIndex((bk) => bk.n.some((n) => key(n).startsWith(want)));
+  if (b < 0) return null;
+  const c = +m[2], v = m[3] ? +m[3] : 0;
+  if (c < 1 || c > C.books[b].ch) return null;
+  return { b, c, v };
 }
 
 async function runSearch() {
@@ -1210,15 +1229,15 @@ function browseView() {
   const shortcuts = S.browse !== 'themes' ? `<div class="row chiprow" role="group" aria-label="${t('ወደ ክፍል ዝለል', 'Jump to a section')}">${C[S.browse].map((g, gi) => `<button class="chip" data-a="jumpTo" data-v="g-${gi}" data-k="jump-${gi}">${esc(tp(g.n))}</button>`).join('')}</div>` : '';
   const main = S.searchOn
     ? searchResults()
-    : `<div class="seg" role="group" aria-label="${t('የማሰሻ መንገድ', 'Browse by')}">${modes.map((m) => `<button data-a="browse" data-v="${m[0]}" data-k="mode-${m[0]}" aria-pressed="${S.browse === m[0]}">${m[1]}</button>`).join('')}</div>
-<p class="muted">${notes[S.browse]}</p>
-${dailyCard()}
-<div class="card row between"><div class="stack" style="gap:4px"><span class="muted small"><b>${t('ካቆሙበት ይቀጥሉ', 'Continue where you left off')}</b></span><span style="font-size:21px;font-weight:700">${esc(passTitle(S.pass))}</span><span class="muted small">${esc(passRef(S.pass))}</span></div>
+    : `<div class="card row between"><div class="stack" style="gap:4px"><span class="muted small"><b>${t('ካቆሙበት ይቀጥሉ', 'Continue where you left off')}</b></span><span style="font-size:21px;font-weight:700">${esc(passTitle(S.pass))}</span><span class="muted small">${esc(passRef(S.pass))}</span></div>
 <button class="btn fill" data-a="nav" data-v="study" data-k="continue">${t('ክፈት', 'Open')}</button></div>
+${dailyCard()}
+<div class="seg" role="group" aria-label="${t('የማሰሻ መንገድ', 'Browse by')}">${modes.map((m) => `<button data-a="browse" data-v="${m[0]}" data-k="mode-${m[0]}" aria-pressed="${S.browse === m[0]}">${m[1]}</button>`).join('')}</div>
+<p class="muted">${notes[S.browse]}</p>
 ${shortcuts}
 ${groups.join('')}`;
   return `<div class="wrap" style="max-width:980px">
-<h1>${t('መጽሐፍ ቅዱስ', 'Bible')}</h1>
+<h1>${t('ፈልግ', 'Explore')}</h1>
 ${searchBar()}
 ${main}
 </div>`;
@@ -1376,6 +1395,7 @@ ${S.highlights[hlKey(S.sel)] ? `<button class="btn" data-a="clearHl" data-k="hl-
 <button class="btn round" data-a="prevCh" data-k="prev-top" ${first ? 'disabled' : ''} aria-label="${t('ያለፈው ምዕራፍ', 'Previous chapter')}" title="${t('ያለፈው ምዕራፍ', 'Previous chapter')} (←)">${icon('left')}</button>
 <div class="titlepills"><button class="pill-btn" data-a="picker" data-v="book" data-k="title" aria-expanded="${S.picker === 'book' || S.picker === 'chap' || S.picker === 'verse'}" title="${t('መጽሐፍና ምዕራፍ ምረጥ', 'Choose book and chapter')}"><h1>${esc(bookName(p.b) + ' ' + p.c)}</h1>${icon('down', 16)}</button><button class="pill-btn ver" data-a="picker" data-v="ver" data-k="title-ver" aria-expanded="${S.picker === 'ver'}" title="${esc(versions[S.primary].name)}">${esc(shortName(S.primary))}${icon('down', 14)}</button></div>
 <button class="btn round" data-a="nextCh" data-k="next-top" ${last ? 'disabled' : ''} aria-label="${t('ቀጣዩ ምዕራፍ', 'Next chapter')}" title="${t('ቀጣዩ ምዕራፍ', 'Next chapter')} (→)">${icon('right')}</button>
+<button class="btn round" data-a="picker" data-v="search" data-k="search-open" aria-expanded="${S.picker === 'search'}" aria-label="${t('ፈልግ ወይም ወደ ጥቅስ ሂድ', 'Search or go to a verse')}" title="${t('ፈልግ ወይም ወደ ጥቅስ ሂድ', 'Search or go to a verse')}">${icon('search')}</button>
 <button class="btn round aa" data-a="toolsOpen" data-k="tools-open" aria-expanded="${S.toolsOpen}" aria-label="${t('የንባብ መሣሪያዎች', 'Reading tools')}" title="${t('የንባብ መሣሪያዎች', 'Reading tools')}"><b>Aa</b></button>
 </div>
 <div class="row tools${S.toolsOpen ? ' open' : ''}" role="toolbar" aria-label="${t('የንባብ መሣሪያዎች', 'Reading tools')}">
@@ -1404,7 +1424,10 @@ function pickerSheet(count) {
   const b = S.pickB == null ? S.pass.b : S.pickB;
   const head = (title, back) => `<div class="row between sheet-head">${back ? `<button class="btn round" data-a="picker" data-v="${back}" data-k="pk-back" aria-label="${t('ተመለስ', 'Back')}">${icon('left')}</button>` : '<span></span>'}<b>${esc(title)}</b><button class="btn round" data-a="picker" data-v="${step}" data-k="pk-close" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button></div>`;
   let body;
-  if (step === 'book') {
+  if (step === 'search') {
+    return `<div class="card stack sheet" role="dialog" aria-label="${t('ፈልግ', 'Search')}">${head(t('ፈልግ ወይም ወደ ጥቅስ ሂድ', 'Search or go to a verse'))}
+<p class="muted small">${t('ቃል፣ ጥያቄ ወይም ጥቅስ ይጻፉ፤ ለምሳሌ “ፍቅር”፣ “ዮሐንስ 3:16”', 'Type a word, a question or a reference, e.g. “love” or “John 3:16”')}</p>${searchBar()}${S.searchOn ? searchResults() : ''}</div>`;
+  } else if (step === 'book') {
     const testament = S.pickT || (S.pass.b < 39 ? 'ot' : 'nt');
     const ids = C.books.map((_, i) => i).filter((i) => (testament === 'ot' ? i < 39 : i >= 39));
     body = head(t('መጽሐፍ', 'Book')) + `<div class="seg" role="group"><button data-a="pickTest" data-v="ot" data-k="pk-ot" aria-pressed="${testament === 'ot'}">${t('ብሉይ ኪዳን', 'Old Testament')}</button><button data-a="pickTest" data-v="nt" data-k="pk-nt" aria-pressed="${testament === 'nt'}">${t('አዲስ ኪዳን', 'New Testament')}</button></div>
@@ -1856,7 +1879,7 @@ async function startRecording() {
 }
 
 const actions = {
-  nav(v) { S.screen = v; S.play = null; S.jump = true; if (v === 'offline') { S.msg = ''; offlineCheck(); } save('screen'); restoreScroll.want = true; },
+  nav(v) { S.menu = false; S.screen = v; S.play = null; S.jump = true; if (v === 'offline') { S.msg = ''; offlineCheck(); } save('screen'); restoreScroll.want = true; },
   offSave(v) { offlineSave([v]); return false; },
   offEssentials() { offlineSave([...new Set([S.primary, S.secondary])].filter((id) => OFF.packs && OFF.packs[id]).concat(['fathers', 'context'])); return false; },
   offStop() { OFF.stop = true; return false; },
@@ -1923,7 +1946,7 @@ const actions = {
     // Show the version that was searched without changing the reader's main version.
     const id = versions[S.qv] ? S.qv : S.primary;
     if (id !== S.primary && (id !== S.secondary || !S.split)) { S.secondary = id; S.split = true; save('split'); }
-    S.pass = { b: r.b, c: r.c, f: 1, to: 0 }; S.sel = r.v; S.goVerse = r.v; S.more = 8; S.screen = 'study';
+    S.pass = { b: r.b, c: r.c, f: 1, to: 0 }; S.sel = r.v; S.goVerse = r.v; S.more = 8; S.screen = 'study'; S.picker = false;
     save('pass', 'screen', 'sel', 'primary', 'secondary');
   },
   concept(v) { S.theme = S.theme === +v ? null : +v; },
@@ -1954,13 +1977,14 @@ const actions = {
   mapView(v) { if (lmap) lmap.fitBounds(MAP_VIEWS[v](), { padding: [30, 30] }); return false; },
   tiles() { S.tiles = !S.tiles; save('tiles'); },
   showPlace() { const i = C.places.findIndex((p) => p.id === S.pass.pl); if (i < 0) return false; S.place = i; S.screen = 'map'; save('screen'); setTimeout(() => { if (lmap) lmap.setView([C.places[i].lat, C.places[i].lon], 10); }, 0); },
-  picker(v) { S.picker = S.picker === (v || 'book') ? false : (v || 'book'); window.scrollTo(0, 0); },
+  picker(v) { S.picker = S.picker === (v || 'book') ? false : (v || 'book'); window.scrollTo(0, 0); if (S.picker === 'search') setTimeout(() => { const q = document.getElementById('q'); if (q) q.focus(); }, 0); },
   pickBook(v) { S.pickB = +v; S.picker = C.books[+v].ch === 1 ? 'verse' : 'chap'; if (C.books[+v].ch === 1) setPass({ b: +v, c: 1, f: 1, to: 0 }); },
   pickChap(v) { setPass({ b: S.pickB == null ? S.pass.b : S.pickB, c: +v, f: 1, to: 0 }); S.picker = 'verse'; },
   pickVerse(v) { S.picker = false; S.pickB = null; if (+v > 1) { S.sel = +v; S.goVerse = +v; save('sel'); } window.scrollTo(0, 0); },
   pickVer(v) { if (S.picker === 'ver2') { S.secondary = v; save('secondary'); } else useVersion(v); S.picker = false; },
   pickTest(v) { S.pickT = v; },
   pickerTo(v) { S.picker = v; },
+  menu() { S.menu = !S.menu; },
   toolsOpen() { S.toolsOpen = !S.toolsOpen; },
   toStudy() { S.toolsOpen = false; setTimeout(() => { const el = document.getElementById('study'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 0); },
   intro() { S.intro = !S.intro; },
@@ -2036,6 +2060,20 @@ root.addEventListener('click', (e) => {
   if (el.tagName === 'A') e.preventDefault(); // links that open in the app, such as videos, stay links only as a fallback
   if (actions[el.dataset.a](el.dataset.v) !== false) render();
 });
+// On phones a sideways swipe over the text turns the chapter, as in most Bible apps.
+let swipe = null;
+root.addEventListener('touchstart', (e) => {
+  swipe = S.screen === 'study' && !S.picker && !S.bigMap && e.touches.length === 1 && e.target.closest('.reader') ? { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() } : null;
+}, { passive: true });
+root.addEventListener('touchend', (e) => {
+  if (!swipe) return;
+  const dx = e.changedTouches[0].clientX - swipe.x, dy = e.changedTouches[0].clientY - swipe.y;
+  const quick = Date.now() - swipe.t < 600;
+  swipe = null;
+  if (!quick || Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
+  actions[dx < 0 ? 'nextCh' : 'prevCh']();
+  render();
+}, { passive: true });
 root.addEventListener('change', (e) => {
   const el = e.target.closest('[data-c]');
   if (!el) return;
@@ -2049,6 +2087,13 @@ root.addEventListener('input', (e) => {
 root.addEventListener('submit', (e) => {
   if (!e.target.matches('[data-search]')) return;
   e.preventDefault();
+  const ref = parseRef(S.q);
+  if (ref) {   // a reference such as "John 3:16" or "ዮሐ 3" opens the passage instead of searching
+    setPass({ b: ref.b, c: ref.c, f: 1, to: 0 });
+    if (ref.v) { S.sel = ref.v; S.goVerse = ref.v; save('sel'); }
+    S.picker = false; S.screen = 'study'; save('screen'); window.scrollTo(0, 0); render();
+    return;
+  }
   runSearch();
 });
 
