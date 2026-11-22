@@ -50,6 +50,7 @@ const S = {
   size: ls.get('size', 1),
   primary: ls.get('primary', ''),
   secondary: ls.get('secondary', 'kjv'),
+  recent: ls.get('recent', []),     // versions read lately, shown as one-tap buttons over the text
   highlights: {},   // these three belong to the account in use; see loadAccount()
   notes: [],
   draft: '',
@@ -84,7 +85,17 @@ let C = null; // stories, book names and study content
 // The interactive map is created once and moved into place on each render, so it keeps its zoom.
 let lmap = null, lmarkers = [], mapEl = null, ltiles = null, lart = null;
 const versions = {
-  amulb: { id: 'amulb', name: 'አማርኛ ULB (Unlocked Literal Bible)', language: 'am', dir: 'data/amulb', books: {},
+  am54: { id: 'am54', name: 'መጽሐፍ ቅዱስ 1954 (አማርኛ)', short: 'አማ 1954', language: 'am', dir: 'data/am54', books: {},
+    credit: 'Amharic Bible (1954/1962). Text from Beblia/Holy-Bible-XML-Format.' },
+  am2000: { id: 'am2000', name: 'አማርኛ 2000 (ሰማንያ አሐዱ)', short: 'አማ 2000', language: 'am', dir: 'data/am2000', books: {},
+    credit: 'Amharic 2000, Bible Society of Ethiopia. Text from Beblia/Holy-Bible-XML-Format.' },
+  amnst: { id: 'amnst', name: 'አዲሱ መደበኛ ትርጉም 2005 (አማ05)', short: 'አማ 2005', language: 'am', dir: 'data/amnst', books: {},
+    credit: 'Amharic New Standard Translation © The Bible Society of Ethiopia, 2005. Text from Beblia/Holy-Bible-XML-Format.' },
+  amnasv: { id: 'amnasv', name: 'አዲሱ መደበኛ ትርጒም (NASV)', short: 'NASV', language: 'am', dir: 'data/amnasv', books: {},
+    credit: 'Holy Bible, New Amharic Standard Version™ Copyright © 2001 by Biblica, Inc. Used with permission. All rights reserved worldwide.' },
+  amcath: { id: 'amcath', name: 'ካቶሊካዊ እትም (ኤማሁስ)', short: 'ካቶሊክ', language: 'am', dir: 'data/amcath', books: {},
+    credit: 'Amharic Catholic Version (Emmaus), Bible Society of Ethiopia. Text from Beblia/Holy-Bible-XML-Format.' },
+  amulb: { id: 'amulb', name: 'አማርኛ ULB (Unlocked Literal Bible)', short: 'ULB', language: 'am', dir: 'data/amulb', books: {},
     credit: 'Amharic Unlocked Literal Bible. Original work available at https://door43.org/. Licensed CC BY-SA 4.0.' },
   orig: { id: 'orig', name: 'ዕብራይስጥና ግሪክ (ዋናው ጽሑፍ) · Hebrew and Greek', language: 'orig', dir: 'data/orig', books: {},
     credit: 'Hebrew and Greek text from STEPBible TAHOT and TAGNT (Tyndale House, Cambridge), CC BY 4.0; the Greek follows the Nestle-Aland text.' },
@@ -104,9 +115,12 @@ const versions = {
   rotherham: { id: 'rotherham', name: 'Rotherham Emphasised Bible (1902)', language: 'en', dir: 'data/rotherham', books: {} },
   twenty: { id: 'twenty', name: 'Twentieth Century New Testament (1904)', language: 'en', dir: 'data/twenty', books: {} }
 };
+// Short labels for the one-tap version buttons.
+Object.entries({ orig: 'ዕብ/ግሪክ', bsb: 'BSB', web: 'WEB', kjv: 'KJV', asv: 'ASV', ylt: 'YLT', bbe: 'BBE', darby: 'Darby', nheb: 'NHEB',
+  webster: 'Webster', geneva: 'Geneva', acv: 'ACV', ukjv: 'UKJV', rotherham: 'Rotherham', twenty: 'TCNT' }).forEach(([id, s]) => { versions[id].short = s; });
 // The version lists are grouped by language family.
 const VERSION_GROUPS = [
-  [['አማርኛ', 'Amharic'], ['amulb']],
+  [['አማርኛ', 'Amharic'], ['am54', 'am2000', 'amnst', 'amnasv', 'amcath', 'amulb']],
   [['ዋናው ጽሑፍ', 'Original languages'], ['orig']],
   [['እንግሊዝኛ', 'English'], ['bsb', 'web', 'kjv', 'nheb', 'ukjv', 'acv', 'asv', 'bbe', 'ylt', 'darby', 'rotherham', 'webster', 'twenty', 'geneva']]
 ];
@@ -191,7 +205,7 @@ function saveAccount(fromSync) {
 
 function pickVersions() {
   const ids = Object.keys(versions);
-  if (!versions[S.primary]) S.primary = (Object.values(versions).find((v) => v.language === 'am') || versions.web).id;
+  if (!versions[S.primary]) S.primary = (versions.am54 || Object.values(versions).find((v) => v.language === 'am') || versions.web).id;
   if (!versions[S.secondary] || S.secondary === S.primary) S.secondary = ids.find((id) => id !== S.primary) || S.primary;
 }
 
@@ -1316,11 +1330,29 @@ ${tb('smaller', 'smaller', '<b style="font-size:13px">A−</b>', t('ጽሑፉን
 ${tb('larger', 'larger', '<b style="font-size:18px">A+</b>', t('ጽሑፉን አሳድግ', 'Larger text'))}
 ${tb('focus', 'focus', icon('focus'), t('ትኩረት', 'Focus'), S.focus)}
 ${p.pl ? tb('showPlace', 'show-place', icon('pin'), t('ካርታ ላይ አሳይ', 'Show on the map')) : ''}
-</div></div>
+</div>
+${quickVersions()}</div>
 ${S.picker ? picker : ''}
 <div class="cols"><article class="card stack reader${S.split || !S.focus ? '' : ' single'}">${selbar}${heads}<div class="verses" style="font-size:${[16, 19, 22, 25][S.size]}px">${verses}</div>${stepper('bottom')}</article>${S.focus ? '' : sidePanel()}</div>
 ${credits ? `<p class="muted small" lang="en">${esc(credits)}</p>` : ''}
 </div>`;
+}
+
+// One-tap version switching: the versions read lately, a button that swaps the two versions, and "more" for the full list.
+function quickVersions() {
+  const ids = [S.primary].concat(S.recent, ['am54', 'kjv', 'bsb']).filter((id, i, a) => versions[id] && a.indexOf(id) === i).slice(0, 5);
+  const short = (id) => versions[id].short || versions[id].name.replace(/\s*\(.*\)$/, '');
+  return `<div class="row chiprow qv" role="group" aria-label="${t('ትርጉም ቀይር', 'Switch version')}">${ids.map((id) => `<button class="chip" data-a="useVer" data-v="${id}" data-k="qv-${id}" aria-pressed="${id === S.primary}" title="${esc(versions[id].name)}">${esc(short(id))}</button>`).join('')}
+${S.split ? `<button class="chip" data-a="swapVer" data-k="qv-swap" title="${t('ሁለቱን ትርጉሞች አቀያይር', 'Swap the two versions')}">⇅ ${esc(short(S.secondary))}</button>` : ''}
+<button class="chip" data-a="picker" data-k="qv-more" aria-expanded="${S.picker}">${t('ሌሎች ትርጉሞች…', 'More versions…')}</button></div>`;
+}
+function useVersion(id) {
+  if (!versions[id]) return;
+  if (id === S.secondary) S.secondary = S.primary;
+  S.primary = id;
+  S.recent = [id].concat(S.recent.filter((x) => x !== id)).slice(0, 6);
+  pickVersions();
+  save('primary', 'secondary', 'recent');
 }
 
 function pinIcon(i) {
@@ -1829,6 +1861,8 @@ const actions = {
   },
   more() { S.more += 12; },
   split() { S.split = !S.split; save('split'); },
+  useVer(v) { useVersion(v); },
+  swapVer() { useVersion(S.secondary); },
   layout(v) { S.layout = v; ls.set('layout2', v); },
   focus() { S.focus = !S.focus; },
   smaller() { S.size = Math.max(0, S.size - 1); save('size'); },
@@ -1873,7 +1907,7 @@ const changes = {
   chap(v) { setPass({ c: +v, f: 1, to: 0 }); },
   from(v) { setPass({ f: +v, to: S.pass.to && S.pass.to < +v ? 0 : S.pass.to }); },
   to(v) { setPass({ to: +v, f: +v && S.pass.f > +v ? 1 : S.pass.f }); },
-  primary(v) { S.primary = v; pickVersions(); save('primary', 'secondary'); },
+  primary(v) { useVersion(v); },
   secondary(v) { S.secondary = v; save('secondary'); },
   qv(v) { S.qv = v; save('qv'); if (S.searchOn) { runSearch(); } }
 };
