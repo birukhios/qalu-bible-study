@@ -468,5 +468,6 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
   .tools.open { display: flex; flex-wrap: wrap; }
   .tools.open .lbl { display: inline; }
   .selbar { top: 112px; }
+  .sidepanel { scroll-margin-top: 120px; }
   .wrap { gap: 12px; }
 }
