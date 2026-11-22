@@ -735,3 +735,38 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .mapview .picop input { accent-color: #F2F2F3; }
 .atpinnable { color: #F5D76E; font-weight: 600; }
 .mv-overlay .mv-slot { min-height: 240px; }
+
+/* ---------- Highlights as a highlighter pen on the text itself ---------- */
+.app { --mk-yellow: rgba(255, 214, 10, .34); --mk-green: rgba(52, 199, 89, .30); --mk-blue: rgba(10, 132, 255, .32); --mk-pink: rgba(255, 55, 135, .30); }
+.app[data-theme="light"] { --mk-yellow: rgba(255, 214, 10, .55); --mk-green: rgba(52, 199, 89, .38); --mk-blue: rgba(10, 132, 255, .28); --mk-pink: rgba(255, 55, 135, .30); }
+.verse[data-hl="yellow"], .verse[data-hl="green"], .verse[data-hl="blue"], .verse[data-hl="pink"] { background: transparent; box-shadow: none; }
+.verse[data-hl="yellow"] { --mk: var(--mk-yellow); } .verse[data-hl="green"] { --mk: var(--mk-green); }
+.verse[data-hl="blue"] { --mk: var(--mk-blue); } .verse[data-hl="pink"] { --mk: var(--mk-pink); }
+.verse[data-hl]:not([data-hl=""]) > span:first-child {
+  background: linear-gradient(to bottom, transparent 12%, var(--mk) 12%, var(--mk) 90%, transparent 90%);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone; border-radius: 4px; padding: 0 2px; margin: 0 -2px;
+}
+.verse[aria-pressed="true"], .verse[aria-pressed="true"][data-hl]:not([data-hl=""]) { background-color: var(--nav-on); box-shadow: inset 0 0 0 1.5px var(--line); }
+.verse[data-flash="1"] > span:first-child { animation: hlflash .6s ease-out; }
+@keyframes hlflash { from { filter: brightness(1.8); } to { filter: none; } }
+@media (prefers-reduced-motion: reduce) { .verse[data-flash="1"] > span:first-child { animation: none; } }
+.app { --hl-yellow: #FFD60A; --hl-green: #34C759; --hl-blue: #0A84FF; --hl-pink: #FF3787; }
+.selbar .dot span { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .2); }
+
+/* ---------- Highlights list ---------- */
+.seg .count { display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 4px; border-radius: 999px; background: var(--ctl); font-size: 12px; line-height: 20px; }
+.hlchip i { display: inline-block; width: 12px; height: 12px; border-radius: 999px; margin-right: 6px; }
+.hllist { display: flex; flex-direction: column; gap: 8px; }
+.hlitem { display: flex; align-items: flex-start; gap: 8px; padding: 12px 10px 12px 14px; border-radius: 14px; background: var(--bg); border: 1px solid var(--line);
+  box-shadow: inset 5px 0 0 var(--hlc); }
+.hlitem[data-hl="yellow"] { --hlc: #FFD60A; } .hlitem[data-hl="green"] { --hlc: #34C759; } .hlitem[data-hl="blue"] { --hlc: #0A84FF; } .hlitem[data-hl="pink"] { --hlc: #FF3787; }
+.hlopen { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; text-align: left; line-height: 1.7; }
+.hlopen b { font-size: 14px; }
+.hlitem .btn.round { width: 36px; min-height: 36px; flex: none; }
+.verse[data-hl]:not([data-hl=""]), .verse[aria-pressed="false"][data-hl]:not([data-hl=""]) { box-shadow: none; }
+.verse[data-hl]:not([data-hl=""]) > span:first-child { background: none; padding: 0; margin: 0; }
+.verse[data-hl]:not([data-hl=""]) .vt {
+  background: linear-gradient(to bottom, transparent 14%, var(--mk) 14%, var(--mk) 88%, transparent 88%);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone; border-radius: 3px; padding: 0 3px; margin: 0 -1px;
+}
+.verse[aria-pressed="true"][data-hl]:not([data-hl=""]) { box-shadow: inset 0 0 0 1.5px var(--line); }

@@ -357,7 +357,7 @@ function applyGeo(refs, fit) {
   data.routes.forEach((rt) => {
     const line = rt.pts.map((p) => [p[0], p[1]]);
     L.polyline(line, { color: '#1F2023', weight: 7, opacity: 0.35, lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(lgeo);
-    L.polyline(line, { color: '#C0392B', weight: 3.5, dashArray: '10 8', lineCap: 'round', lineJoin: 'round', className: 'georoute' }).bindTooltip(tp(rt.n), { sticky: true }).addTo(lgeo);
+    L.polyline(line, { color: '#C0392B', weight: 3.5, dashArray: '10 8', lineCap: 'round', lineJoin: 'round', className: 'georoute' }).bindTooltip(rt.n[1], { sticky: true }).addTo(lgeo);
     for (let k = 1; k < line.length; k++) {   // a small arrow half way along each leg shows the direction of travel
       const [a, b] = [line[k - 1], line[k]];
       if (a[0] === b[0] && a[1] === b[1]) continue;
@@ -370,9 +370,9 @@ function applyGeo(refs, fit) {
   data.places.forEach((x, n) => {
     const [name, lat, lon, kind, conf] = x.p;
     const unsure = conf < 300, area = /region|country|people|nation|kingdom/.test(kind);
-    const verses = x.refs.slice(0, 12).map(([b, c, v]) => `<button class="geov" data-a="geoVerse" data-v="${b}.${c}.${v}">${esc(bookName(b))} ${c}:${v}</button>`).join('') + (x.refs.length > 12 ? `<span class="small">+${x.refs.length - 12}</span>` : '');
+    const verses = x.refs.slice(0, 12).map(([b, c, v]) => `<button class="geov" data-a="geoVerse" data-v="${b}.${c}.${v}">${esc(C.books[b].n[1])} ${c}:${v}</button>`).join('') + (x.refs.length > 12 ? `<span class="small">+${x.refs.length - 12}</span>` : '');
     const m = L.marker([lat, lon], { keyboard: true, alt: name, zIndexOffset: 2000 - n, icon: L.divIcon({ className: '', html: `<span class="geopin${unsure ? ' unsure' : ''}${area ? ' area' : ''}"><b>${n + 1}</b><i>${esc(name)}</i></span>`, iconSize: [30, 30], iconAnchor: [15, 15] }) })
-      .bindPopup(`<div class="geopop"><b>${n + 1}. ${esc(name)}</b><span class="small">${esc(kind)}${unsure ? ' · ' + t('ቦታው እርግጠኛ አይደለም', 'location uncertain') : ''}</span><div class="geovs">${verses}</div></div>`, { maxWidth: 260 })
+      .bindPopup(`<div class="geopop"><b>${n + 1}. ${esc(name)}</b><span class="small">${esc(kind)}${unsure ? ' · location uncertain' : ''}</span><div class="geovs">${verses}</div></div>`, { maxWidth: 260 })
       .addTo(lgeo);
     lgeoMarks.push(m);
   });
@@ -417,7 +417,7 @@ const picSlider = () => `<label class="picop"><span>${t('ሥዕሉ', 'Picture')}
 const ATLAS = { list: null };
 const km = (a, b) => { const R = 6371, d = Math.PI / 180, x = Math.sin((b[0] - a[0]) * d / 2) ** 2 + Math.cos(a[0] * d) * Math.cos(b[0] * d) * Math.sin((b[1] - a[1]) * d / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
 const routeKm = (rt) => Math.round(rt.pts.reduce((sum, p, i) => (i ? sum + km(rt.pts[i - 1], p) : 0), 0) / 10) * 10;
-const refText = (refs) => refs.slice(0, 3).map(([b, c1, c2]) => bookName(b) + (c1 ? ' ' + c1 + (c2 > c1 ? '–' + c2 : '') : '')).join(', ') + (refs.length > 3 ? '…' : '');
+const refText = (refs, en) => refs.slice(0, 3).map(([b, c1, c2]) => (en ? C.books[b].n[1] : bookName(b)) + (c1 ? ' ' + c1 + (c2 > c1 ? '–' + c2 : '') : '')).join(', ') + (refs.length > 3 ? '…' : '');
 function atlasData() {
   if (!ATLAS.list) { geoLoad('data/geo/atlas.json', (d) => { ATLAS.list = d || []; }); }
   if (!GEO.places || !GEO.routes) geoFor([]);
@@ -430,13 +430,14 @@ function atlasMapCard(a, big) {
   const rts = GEO.routes.filter((rt) => rt.maps.includes(a[0]));
   const names = a[3].map((i) => GEO.places[i][0]);
   return `<div class="atcard${big ? ' big' : ''}"><img src="${MAP_CDN}thumb/${big ? 640 : 320}/${a[0]}.jpg" alt="" loading="lazy">
-<b>${esc(m ? m[1] : '')}</b><span class="atref">${esc(m && m[2].length ? refText(m[2]) : '')}</span>
-${names.length ? `<span>${t('ስፍራዎች፦ ', 'Places: ')}${esc(names.join(', '))}</span>` : ''}
-${calib()[a[0]] ? `<span class="atpinnable">✦ ${t('በካርታው ላይ ሊቀመጥ ይችላል', 'Can be laid on the map')}</span>` : ''}${rts.length ? `<span class="atroute">〰 ${esc(rts.map((rt) => tp(rt.n)).join(' · '))}</span>` : ''}</div>`;
+<b>${esc(m ? m[1] : '')}</b><span class="atref">${esc(m && m[2].length ? refText(m[2], !big) : '')}</span>
+${names.length ? `<span>${big ? t('ስፍራዎች፦ ', 'Places: ') : 'Places: '}${esc(names.join(', '))}</span>` : ''}
+${calib()[a[0]] ? `<span class="atpinnable">✦ ${big ? t('በካርታው ላይ ሊቀመጥ ይችላል', 'Can be laid on the map') : 'Can be laid on the map'}</span>` : ''}${rts.length ? `<span class="atroute">〰 ${esc(rts.map((rt) => (big ? tp(rt.n) : rt.n[1])).join(' · '))}</span>` : ''}</div>`;
 }
 function atlasRouteCard(rt, big) {
-  return `<div class="atcard route${big ? ' big' : ''}" style="--rc:${rt.color}"><b>〰 ${esc(tp(rt.n))}</b><span class="atref">${esc(refText(rt.ch))} · ${t('ወደ ' + routeKm(rt) + ' ኪ.ሜ. ገደማ', 'about ' + routeKm(rt) + ' km')}</span>
-<span>${esc(tp(rt.d))}</span>${big ? `<ol class="atstops">${rt.pts.map((p) => `<li>${esc(p[2])}</li>`).join('')}</ol>` : `<span class="small atstopline">${esc(rt.pts.map((p) => p[2]).filter((x, i, arr) => arr.indexOf(x) === i).join(' → '))}</span>`}</div>`;
+  const en = !big;   // cards on the map itself are in English, like the map
+  return `<div class="atcard route${big ? ' big' : ''}" style="--rc:${rt.color}"><b>〰 ${esc(en ? rt.n[1] : tp(rt.n))}</b><span class="atref">${esc(refText(rt.ch, en))} · ${en ? 'about ' + routeKm(rt) + ' km' : t('ወደ ' + routeKm(rt) + ' ኪ.ሜ. ገደማ', 'about ' + routeKm(rt) + ' km')}</span>
+<span>${esc(en ? rt.d[1] : tp(rt.d))}</span>${big ? `<ol class="atstops">${rt.pts.map((p) => `<li>${esc(p[2])}</li>`).join('')}</ol>` : `<span class="small atstopline">${esc(rt.pts.map((p) => p[2]).filter((x, i, arr) => arr.indexOf(x) === i).join(' → '))}</span>`}</div>`;
 }
 function atlasSide() {
   if (!atlasData()) return `<p class="muted prose" role="status">${t('እየተጫነ ነው…', 'Loading…')}</p>`;
@@ -520,7 +521,7 @@ function atlasCluster() {
     const cp = lmap.latLngToContainerPoint([lat, lon]), W = lmap.getSize().x;
     const below = cp.y < half;   // near the top the card opens downwards, and near the sides inwards
     const side = cp.x < 150 ? 'right' : cp.x > W - 150 ? 'left' : null;
-    mk.bindTooltip(n > 1 ? `<div class="atcard"><b>${n} ${t('ካርታዎች', 'maps')}</b>${group.slice(0, 4).map((g) => { const m = MAPS.list.find((x) => x[0] === g[0]); return `<span>• ${esc(m ? m[1] : '')}</span>`; }).join('')}${n > 4 ? `<span class="small">+${n - 4}</span>` : ''}<span class="small atref">${t('ለመዘርጋት ይንኩ', 'Tap to spread them out')}</span></div>` : atlasMapCard(a), { direction: side || (below ? 'bottom' : 'top'), offset: side ? [side === 'right' ? 24 : -24, 0] : [0, below ? 24 : -24], className: 'attip', opacity: 1 });
+    mk.bindTooltip(n > 1 ? `<div class="atcard"><b>${n} maps</b>${group.slice(0, 4).map((g) => { const m = MAPS.list.find((x) => x[0] === g[0]); return `<span>• ${esc(m ? m[1] : '')}</span>`; }).join('')}${n > 4 ? `<span class="small">+${n - 4}</span>` : ''}<span class="small atref">Tap to spread them out</span></div>` : atlasMapCard(a), { direction: side || (below ? 'bottom' : 'top'), offset: side ? [side === 'right' ? 24 : -24, 0] : [0, below ? 24 : -24], className: 'attip', opacity: 1 });
     mk.on('click', () => {
       const spread = group.some((g) => g[1] !== a[1] || g[2] !== a[2]);
       if (n > 1 && spread && zoom < 10) { lmap.setView([lat, lon], Math.min(zoom + 2, lmap.getMaxZoom())); return; }
@@ -1082,7 +1083,7 @@ ${nav('study', 'book', t('አንብብ', 'Read'))}
 ${nav('browse', 'grid', t('ፈልግ', 'Explore'))}
 ${nav('journey', 'flag', t('ጉዞ', 'Journey'))}
 ${nav('map', 'pin', t('ካርታ', 'Map'))}
-${nav('notes', 'note', t('ማስታወሻዎች', 'Notes'))}
+${nav('notes', 'note', t('ማስታወሻ', 'Notes'))}
 </div>
 <div class="spacer"></div>
 <button class="nav gear" data-a="menu" data-k="menu" aria-expanded="${!!S.menu}" aria-label="${t('ቅንብሮች', 'Settings')}" title="${t('ቅንብሮች', 'Settings')}">${icon('gear', 22)}</button>
@@ -1611,7 +1612,7 @@ function studyView() {
       if (il.state === 'error') return n === nums[0] ? `<p class="small ilnote" role="alert">${t('የዋናው ቋንቋ ቃላትን መጫን አልተቻለም።', 'The original words could not be loaded.')}${offlineHint()}</p>` : '';
       return il.verses[n] ? wordRow(n, il.verses[n], heb, S.sel === n ? pickedWord() : null) : '';
     };
-    verses = nums.map((n) => `<div class="vblock">` + `<button class="verse${S.split && S.layout === 'verse' ? ' inter' : ''}" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span ${langOf(S.primary)}><sup>${n} </sup>${main.verses[n - 1] ? esc(main.verses[n - 1]) : `<i class="muted small">${t('(ይህ ቁጥር በዚህ ትርጉም የለም)', '(this verse is not in this version)')}</i>`}</span>${S.split && !stacked ? `<span class="alt" ${langOf(S.secondary)}>${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>` + under(n) + `</div>`).join('');
+    verses = nums.map((n) => `<div class="vblock">` + `<button class="verse${S.split && S.layout === 'verse' ? ' inter' : ''}" data-a="verse" data-v="${n}" data-k="v-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"${S.hlFlash === n ? ' data-flash="1"' : ''}><span ${langOf(S.primary)}><sup>${n} </sup>${main.verses[n - 1] ? '<span class="vt">' + esc(main.verses[n - 1]) + '</span>' : `<i class="muted small">${t('(ይህ ቁጥር በዚህ ትርጉም የለም)', '(this verse is not in this version)')}</i>`}</span>${S.split && !stacked ? `<span class="alt" ${langOf(S.secondary)}>${alt.state === 'loading' ? '…' : esc(alt.verses[n - 1] || '')}</span>` : ''}</button>` + under(n) + `</div>`).join('');
   }
   if (stacked) {
     // The second version gets its own pane under the first, with the same verse range.
@@ -1622,7 +1623,7 @@ function studyView() {
     else if (lo > hi2) lower = `<p class="prose" style="padding:12px">${t('ይህ ትርጉም ለዚህ ክፍል ጽሑፍ የለውም።', 'This version has no text for this passage.')}</p>`;
     else {
       lower = '';
-      for (let n = lo; n <= hi2; n++) lower += `<button class="verse" data-a="verse" data-v="${n}" data-k="w-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span ${langOf(S.secondary)}><sup>${n} </sup>${esc(alt.verses[n - 1] || '')}</span></button>`;
+      for (let n = lo; n <= hi2; n++) lower += `<button class="verse" data-a="verse" data-v="${n}" data-k="w-${n}" aria-pressed="${S.sel === n}" data-hl="${S.highlights[hlKey(n)] || ''}"><span ${langOf(S.secondary)}><sup>${n} </sup><span class="vt">${esc(alt.verses[n - 1] || '')}</span></span></button>`;
     }
     verses = `<div class="panes"><div class="pane" data-pane="1"><div class="pane-head">${esc(versions[S.primary].name)}</div>${verses}</div><div class="pane" data-pane="2"><div class="pane-head">${esc(versions[S.secondary].name)}</div>${lower}</div></div>`;
   }
@@ -1726,7 +1727,7 @@ function useVersion(id) {
 function pinIcon(i) {
   const pl = C.places[i];
   const hot = false;
-  return L.divIcon({ className: '', html: `<span class="spot${S.place === i || hot ? ' on' : ''}"><span class="em">${pl.ic || '📍'}</span><b>${esc(tp(pl.n))}</b></span>`, iconSize: [44, 44], iconAnchor: [22, 22] });
+  return L.divIcon({ className: '', html: `<span class="spot${S.place === i || hot ? ' on' : ''}"><span class="em">${pl.ic || '📍'}</span><b>${esc(pl.n[1])}</b></span>`, iconSize: [44, 44], iconAnchor: [22, 22] });
 }
 
 const MAP_VIEWS = {
@@ -1805,7 +1806,7 @@ function ensureMap() {
   }
   if (S.tiles) { ltiles.addTo(lmap); lart.remove(); } else { ltiles.remove(); lart.addTo(lmap); }
   mapEl.dataset.tiles = S.tiles ? '1' : '';
-  mapEl.querySelectorAll('[data-label]').forEach((el) => { el.textContent = tp(MAP_ART.labels[+el.dataset.label][2]); });
+  mapEl.querySelectorAll('[data-label]').forEach((el) => { el.textContent = MAP_ART.labels[+el.dataset.label][2][1]; });   // the map itself is always in English
   return mapEl;
 }
 
@@ -1872,10 +1873,31 @@ function mapView() {
 }
 
 function notesView() {
-  const body = S.notes.length
+  const tab = S.notesTab || 'notes';
+  const hls = Object.entries(S.highlights).filter(([, c]) => c);
+  const seg = `<div class="seg" role="tablist">${[['notes', t('ማስታወሻዎች', 'Notes'), S.notes.length], ['hl', t('የቀለሟቸው', 'Highlights'), hls.length]].map(([v, label, n]) => `<button role="tab" data-a="notesTab" data-v="${v}" data-k="nt-${v}" aria-pressed="${tab === v}">${label} <span class="count">${n}</span></button>`).join('')}</div>`;
+  let body;
+  if (tab === 'hl') body = highlightsList(hls);
+  else body = S.notes.length
     ? S.notes.map(noteCard).join('')
     : `<div class="card stack" style="align-items:flex-start"><p class="prose">${t('እስካሁን ማስታወሻ የለም። በጥናት ገጽ አንድ ቁጥር ይንኩና ማስታወሻ ይያዙ።', 'No notes yet. Click a verse on the Study screen and add one.')}</p><button class="btn fill" data-a="nav" data-v="study" data-k="to-study">${t('ጥናት', 'Study')}</button></div>`;
-  return `<div class="wrap narrow"><h1>${t('ማስታወሻዎች', 'Notes')}</h1><p class="muted">${t('በጥናት ጊዜ የያዟቸው ማስታወሻዎች ሁሉ በአንድ ቦታ።', 'Every note you take while studying, in one place.')}</p>${body}</div>`;
+  return `<div class="wrap narrow"><h1>${t('ማስታወሻዎችና ቀለሞች', 'Notes and highlights')}</h1><p class="muted">${t('በጥናት ጊዜ የያዟቸው ማስታወሻዎችና የቀለሟቸው ቁጥሮች በአንድ ቦታ።', 'Every note you take and every verse you highlight, in one place.')}</p>${seg}${body}</div>`;
+}
+// Every highlighted verse, in Bible order, with its text from the main version, filtered by colour.
+function highlightsList(hls) {
+  const colors = [['yellow', t('ቢጫ', 'Yellow')], ['green', t('አረንጓዴ', 'Green')], ['blue', t('ሰማያዊ', 'Blue')], ['pink', t('ሮዝ', 'Pink')]];
+  const f = S.hlFilter || 'all';
+  if (!hls.length) return `<div class="card stack" style="align-items:flex-start"><p class="prose">${t('እስካሁን የቀለሙት ቁጥር የለም። በንባብ ገጽ ቁጥር ይንኩና ቀለም ይምረጡ።', 'No highlights yet. Tap a verse while reading and choose a colour.')}</p><button class="btn fill" data-a="nav" data-v="study" data-k="to-read">${t('አንብብ', 'Read')}</button></div>`;
+  const list = hls.map(([k, c]) => { const [b, ch, v] = k.split('.').map(Number); return { k, c, b, ch, v }; })
+    .filter((x) => f === 'all' || x.c === f).sort((a, b) => a.b - b.b || a.ch - b.ch || a.v - b.v);
+  const ver = versions[S.primary];
+  const text = (x) => {
+    if (ver && ver.dir && !ver.books[x.b]) { loadBook(S.primary, x.b); return `<span class="muted">…</span>`; }
+    const tx = ver && ver.books[x.b] && (ver.books[x.b][x.ch - 1] || [])[x.v - 1];
+    return tx ? `<span ${langOf(S.primary, x.b)}>${esc(tx)}</span>` : '';
+  };
+  const chips = `<div class="row chiprow"><button class="chip" data-a="hlFilter" data-v="all" data-k="hf-all" aria-pressed="${f === 'all'}">${t('ሁሉም', 'All')} ${hls.length}</button>${colors.map(([c, label]) => { const n = hls.filter(([, x]) => x === c).length; return n ? `<button class="chip hlchip" data-a="hlFilter" data-v="${c}" data-k="hf-${c}" aria-pressed="${f === c}"><i style="background:var(--hl-${c})"></i>${label} ${n}</button>` : ''; }).join('')}</div>`;
+  return chips + `<div class="hllist">${list.map((x) => `<div class="hlitem" data-hl="${x.c}"><button class="hlopen" data-a="hlOpen" data-v="${x.k}" data-k="ho-${x.k}"><b>${esc(bookName(x.b))} ${x.ch}:${x.v}</b>${text(x)}</button><button class="btn round" data-a="hlRemove" data-v="${x.k}" data-k="hr-${x.k}" aria-label="${t('ቀለሙን አንሳ', 'Remove highlight')}" title="${t('ቀለሙን አንሳ', 'Remove highlight')}">${icon('close')}</button></div>`).join('')}</div>`;
 }
 
 // ---------- journey: the story timeline as a game ----------
@@ -2105,7 +2127,7 @@ function render() {
       applyPic(picId, fit);
       if (fit && refs && geoFor(refs)) { render.geoSlot = slotKey; S.mvFit = false; }
       if (!refs) render.geoSlot = slotKey;
-      lmarkers.forEach((m, i) => { m.setIcon(pinIcon(i)); m.setZIndexOffset(S.place === i ? 1000 : 0); m.unbindTooltip(); m.bindTooltip(tp(C.places[i].n)); });
+      lmarkers.forEach((m, i) => { m.setIcon(pinIcon(i)); m.setZIndexOffset(S.place === i ? 1000 : 0); m.unbindTooltip(); m.bindTooltip(C.places[i].n[1]); });
     }
   }
   root.querySelectorAll('.pane').forEach((pane, i) => {
@@ -2261,7 +2283,11 @@ const actions = {
     S.sel = n; S.word = i; S.wordAt = S.pass.b + '.' + S.pass.c + '.' + n; S.tab = 'words'; S.focus = false; save('sel', 'tab');
     requestAnimationFrame(() => { const el = document.getElementById('ilc-' + i); if (el) el.scrollIntoView({ block: 'nearest' }); });
   },
-  hl(v) { const k = hlKey(S.sel); S.highlights[k] = S.highlights[k] === v ? '' : v; save('highlights'); },
+  hl(v) { const k = hlKey(S.sel); S.highlights[k] = S.highlights[k] === v ? '' : v; save('highlights'); if (S.highlights[k]) { S.hlFlash = S.sel; S.sel = null; save('sel'); setTimeout(() => { S.hlFlash = null; }, 700); } },
+  notesTab(v) { S.notesTab = v; },
+  hlFilter(v) { S.hlFilter = v; },
+  hlOpen(v) { const [b, c, n] = v.split('.').map(Number); setPass({ b, c, f: 1, to: 0 }); S.sel = n; S.goVerse = n; S.screen = 'study'; save('sel', 'screen'); window.scrollTo(0, 0); },
+  hlRemove(v) { S.highlights[v] = ''; save('highlights'); },
   unsel() { S.sel = null; save('sel'); },
   clearHl() { S.highlights[hlKey(S.sel)] = ''; save('highlights'); },   // '' rather than delete, so the clearing syncs
   tab(v) { S.tab = v; save('tab'); },
