@@ -807,3 +807,10 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .mapscreen { gap: 12px; }
 .maps.atlas #mapslot .lmap { min-height: calc(100vh - 160px); }
 @media (max-width: 760px) { .maps.atlas #mapslot .lmap { min-height: 60vh; } }
+
+/* Bible scene pictures in the Context tab */
+.scenes { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+.scene { display: flex; flex-direction: column; gap: 6px; text-align: left; background: var(--ctl); border-radius: 12px; padding: 6px; }
+.scene img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: var(--line); }
+.scene span { font-size: 13px; padding: 0 4px 4px; line-height: 1.35; }
+.scene:hover { background: var(--line); }
