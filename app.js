@@ -1277,7 +1277,7 @@ function sidePanel() {
       [t('ርዝመት', 'Length'), C.books[S.pass.b].ch + ' ' + t('ምዕራፍ', C.books[S.pass.b].ch === 1 ? 'chapter' : 'chapters')],
       [t('አሁን ያሉበት', 'You are in'), t('ምዕራፍ ' + S.pass.c, 'chapter ' + S.pass.c) + ' / ' + C.books[S.pass.b].ch]
     ];
-    body = `<div class="card stack"><b style="font-size:18px">${t('ስለ ', 'About ')}${esc(bookName(S.pass.b))}</b><p class="prose">${esc(tp(about))}</p>
+    body = videoCard() + `<div class="card stack"><b style="font-size:18px">${t('ስለ ', 'About ')}${esc(bookName(S.pass.b))}</b><p class="prose">${esc(tp(about))}</p>
 <dl class="facts">${facts.map((f) => `<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join('')}</dl></div>` +
       (bg === null ? `<p class="muted prose" role="status">${t('እየተጫነ ነው…', 'Loading…')}</p>` : '') +
       (chapterNote ? `<div class="card stack"><b style="font-size:18px">${t('ስለ ምዕራፍ ' + S.pass.c, 'About chapter ' + S.pass.c)}</b><div class="notes" lang="en">${md(chapterNote)}</div></div>` : '') +
@@ -1294,8 +1294,7 @@ function sidePanel() {
 ${S.msg ? `<p class="prose" role="status">${esc(S.msg)}</p>` : ''}</div>` +
       S.notes.filter((n) => n.b === S.pass.b && n.c === S.pass.c).map(noteCard).join('');
   }
-  return `<aside class="sidepanel" aria-label="${t('ተጨማሪ ጥናት', 'Study sides')}">
-${videoCard()}
+  return `<aside class="sidepanel" id="study" aria-label="${t('ተጨማሪ ጥናት', 'Study sides')}">
 <div class="seg" role="group">${tabs.map((x) => `<button data-a="tab" data-v="${x[0]}" data-k="tab-${x[0]}" aria-pressed="${S.tab === x[0]}">${x[1]}</button>`).join('')}</div>${body}</aside>`;
 }
 
@@ -1362,7 +1361,7 @@ ${S.highlights[hlKey(S.sel)] ? `<button class="btn" data-a="clearHl" data-k="hl-
 <button class="btn" data-a="noteTab" data-k="note-open" aria-label="${t('ማስታወሻ', 'Note')}" title="${t('ማስታወሻ', 'Note')}">${icon('pen')}<span class="lbl">${t('ማስታወሻ', 'Note')}</span></button>${voiceButton('rec-bar')}
 <button class="btn" data-a="shareVerse" data-k="share-verse" aria-label="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}" title="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}">${icon('share')}<span class="lbl">${t('አጋራ', 'Share')}</span></button>
 <button class="btn" data-a="wordsTab" data-k="words-open" aria-label="${t('ዋና ቃላት', 'Original words')}" title="${t('ዋና ቃላት', 'Original words')}"><b lang="${isHebrew(p.b) ? 'he' : 'grc'}">${isHebrew(p.b) ? 'אב' : 'αβ'}</b><span class="lbl">${t('ዋና ቃላት', 'Original words')}</span></button></div>`
-    : `<p class="muted small" style="padding:6px 12px">${t('ለማቅለም፣ ማስታወሻ ለመያዝ ወይም በዋናው ቋንቋ ለማየት አንድ ቁጥር ይንኩ።', 'Tap a verse to highlight it, add a note or see it in the original language.')}</p>`;
+    : ls.get('hintSeen', false) ? '' : `<p class="muted small" style="padding:6px 12px">${t('ለማቅለም፣ ማስታወሻ ለመያዝ ወይም በዋናው ቋንቋ ለማየት አንድ ቁጥር ይንኩ።', 'Tap a verse to highlight it, add a note or see it in the original language.')}</p>`;
   const heads = S.split && S.layout === 'side' ? `<div class="row muted small" style="padding:0 12px;gap:16px"><b style="flex:1 1 220px">${esc(versions[S.primary].name)}</b><b style="flex:1 1 220px">${esc(versions[S.secondary].name)}</b></div>` : '';
 
   const title = passTitle(p), ref = passRef(p);
@@ -1377,16 +1376,18 @@ ${S.highlights[hlKey(S.sel)] ? `<button class="btn" data-a="clearHl" data-k="hl-
 <button class="btn round" data-a="prevCh" data-k="prev-top" ${first ? 'disabled' : ''} aria-label="${t('ያለፈው ምዕራፍ', 'Previous chapter')}" title="${t('ያለፈው ምዕራፍ', 'Previous chapter')} (←)">${icon('left')}</button>
 <div class="titlepills"><button class="pill-btn" data-a="picker" data-v="book" data-k="title" aria-expanded="${S.picker === 'book' || S.picker === 'chap' || S.picker === 'verse'}" title="${t('መጽሐፍና ምዕራፍ ምረጥ', 'Choose book and chapter')}"><h1>${esc(bookName(p.b) + ' ' + p.c)}</h1>${icon('down', 16)}</button><button class="pill-btn ver" data-a="picker" data-v="ver" data-k="title-ver" aria-expanded="${S.picker === 'ver'}" title="${esc(versions[S.primary].name)}">${esc(shortName(S.primary))}${icon('down', 14)}</button></div>
 <button class="btn round" data-a="nextCh" data-k="next-top" ${last ? 'disabled' : ''} aria-label="${t('ቀጣዩ ምዕራፍ', 'Next chapter')}" title="${t('ቀጣዩ ምዕራፍ', 'Next chapter')} (→)">${icon('right')}</button>
+<button class="btn round aa" data-a="toolsOpen" data-k="tools-open" aria-expanded="${S.toolsOpen}" aria-label="${t('የንባብ መሣሪያዎች', 'Reading tools')}" title="${t('የንባብ መሣሪያዎች', 'Reading tools')}"><b>Aa</b></button>
 </div>
-<div class="row tools" role="toolbar" aria-label="${t('የንባብ መሣሪያዎች', 'Reading tools')}">
+<div class="row tools${S.toolsOpen ? ' open' : ''}" role="toolbar" aria-label="${t('የንባብ መሣሪያዎች', 'Reading tools')}">
 ${tb('split', 'split', icon('split'), t('ሁለት ትርጉም', 'Two versions'), S.split)}
 ${tb('inter', 'inter', `<b style="font-size:15px" lang="${isHebrew(p.b) ? 'he' : 'grc'}">${isHebrew(p.b) ? 'אב' : 'αβ'}</b>`, isHebrew(p.b) ? t('ዕብራይስጥ ቃላት', 'Hebrew words') : t('ግሪክ ቃላት', 'Greek words'), S.inter)}
 ${tb('smaller', 'smaller', '<b style="font-size:13px">A−</b>', t('ጽሑፉን አሳንስ', 'Smaller text'))}
 ${tb('larger', 'larger', '<b style="font-size:18px">A+</b>', t('ጽሑፉን አሳድግ', 'Larger text'))}
 ${tb('focus', 'focus', icon('focus'), t('ትኩረት', 'Focus'), S.focus)}
+${S.split ? tb('swapVer', 'swap', '<b>⇅</b>', t('ትርጉሞቹን አቀያይር', 'Swap versions')) : ''}
+${S.focus ? '' : tb('toStudy', 'to-study', icon('note'), t('ጥናት፦ ዳራ፣ ካርታ፣ አባቶች', 'Study: context, maps, fathers'))}
 ${p.pl ? tb('showPlace', 'show-place', icon('pin'), t('ካርታ ላይ አሳይ', 'Show on the map')) : ''}
-</div>
-${quickVersions()}</div>
+</div></div>
 ${S.picker ? picker : ''}
 <div class="cols"><article class="card stack reader${S.split || !S.focus ? '' : ' single'}">${selbar}${heads}<div class="verses" style="font-size:${[16, 19, 22, 25][S.size]}px">${verses}</div>${stepper('bottom')}</article>${S.focus ? '' : sidePanel()}</div>
 ${credits ? `<p class="muted small" lang="en">${esc(credits)}</p>` : ''}
@@ -1419,6 +1420,7 @@ function pickerSheet(count) {
     const groups = VERSION_GROUPS.map((g) => [tp(g[0]), g[1].filter((id) => versions[id])]).concat([[t('ያስገቧቸው', 'Imported'), Object.keys(versions).filter((id) => !listed.has(id))]]).filter((g) => g[1].length);
     body = head(step === 'ver2' ? t('ሁለተኛ ትርጉም', 'Second version') : t('ትርጉም', 'Version')) +
       `<div class="seg" role="group"><button data-a="pickerTo" data-v="ver" data-k="pk-v1" aria-pressed="${step === 'ver'}">${t('ዋና ትርጉም', 'Main version')}</button><button data-a="${S.split ? 'pickerTo' : 'split'}" data-v="ver2" data-k="pk-v2" aria-pressed="${step === 'ver2'}">${S.split ? t('ሁለተኛ ትርጉም', 'Second version') : t('+ ሁለተኛ ትርጉም አክል', '+ Add a second version')}</button></div>` +
+      (step === 'ver' && S.recent.length ? `<h2 class="small muted">${t('በቅርቡ የተጠቀሙባቸው', 'Recent')}</h2><div class="row chiprow">${S.recent.filter((id) => versions[id]).map((id) => `<button class="chip" data-a="pickVer" data-v="${id}" data-k="prec-${id}" aria-pressed="${id === which}">${esc(shortName(id))}</button>`).join('')}</div>` : '') +
       groups.map((g) => `<h2 class="small muted">${esc(g[0])}</h2><div class="verlist">${g[1].map((id) => `<button class="verrow" data-a="pickVer" data-v="${id}" data-k="pver-${id}" aria-pressed="${id === which}"><b>${esc(shortName(id))}</b><span>${esc(versions[id].name)}</span></button>`).join('')}</div>`).join('') +
       (S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትርጉሞች አቀማመጥ', 'Layout of the two versions')}"><button data-a="layout" data-v="verse" data-k="lay-verse" aria-pressed="${S.layout === 'verse'}">${t('ቁጥር በቁጥር', 'Verse by verse')}</button><button data-a="layout" data-v="stack" data-k="lay-stack" aria-pressed="${S.layout === 'stack'}">${t('ላይና ታች', 'Top and bottom')}</button><button data-a="layout" data-v="side" data-k="lay-side" aria-pressed="${S.layout === 'side'}">${t('ጎን ለጎን', 'Side by side')}</button></div>` : '') +
       `<button class="btn" data-a="import" data-k="import">${t('የመጽሐፍ ቅዱስ ፋይል አስገባ…', 'Import a Bible file…')}</button>`;
@@ -1926,7 +1928,7 @@ const actions = {
   },
   concept(v) { S.theme = S.theme === +v ? null : +v; },
   open(v) { S.pass = opens[+v]; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen'); window.scrollTo(0, 0); },
-  verse(v) { S.sel = S.sel === +v ? null : +v; S.more = 8; save('sel'); },
+  verse(v) { S.sel = S.sel === +v ? null : +v; S.more = 8; save('sel'); ls.set('hintSeen', true); },
   inter() { S.inter = !S.inter; save('inter'); },
   shareVerse() { if (S.sel) shareVersePicture(S.primary, S.pass.b, S.pass.c, S.sel); return false; },
   shareDaily() { const [b, c, v] = dailyRef(); shareVersePicture(S.primary, b, c, v); return false; },
@@ -1959,6 +1961,8 @@ const actions = {
   pickVer(v) { if (S.picker === 'ver2') { S.secondary = v; save('secondary'); } else useVersion(v); S.picker = false; },
   pickTest(v) { S.pickT = v; },
   pickerTo(v) { S.picker = v; },
+  toolsOpen() { S.toolsOpen = !S.toolsOpen; },
+  toStudy() { S.toolsOpen = false; setTimeout(() => { const el = document.getElementById('study'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 0); },
   intro() { S.intro = !S.intro; },
   prevCh() {
     const p = S.pass;
