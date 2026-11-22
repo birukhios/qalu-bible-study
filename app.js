@@ -39,7 +39,7 @@ const DEFAULT_PASS = { b: 41, c: 15, f: 11, to: 32, title: ['የጠፋው ልጅ
 const S = {
   en: ls.get('en', false),
   dark: ls.get('dark', true),
-  screen: ls.get('screen', 'browse'),
+  screen: ls.get('screen', 'study'),   // the app opens on the reader, like any Bible app
   browse: ls.get('browse', 'timeline'),
   pass: ls.get('pass', DEFAULT_PASS),
   sel: ls.get('sel', null),
@@ -50,6 +50,7 @@ const S = {
   size: ls.get('size', 1),
   primary: ls.get('primary', ''),
   secondary: ls.get('secondary', 'kjv'),
+  recent: ls.get('recent', []),     // versions read lately, shown as one-tap buttons over the text
   highlights: {},   // these three belong to the account in use; see loadAccount()
   notes: [],
   draft: '',
@@ -84,10 +85,40 @@ let C = null; // stories, book names and study content
 // The interactive map is created once and moved into place on each render, so it keeps its zoom.
 let lmap = null, lmarkers = [], mapEl = null, ltiles = null, lart = null;
 const versions = {
-  amulb: { id: 'amulb', name: 'አማርኛ ULB (Unlocked Literal Bible)', language: 'am', dir: 'data/amulb', books: {},
+  am54: { id: 'am54', name: 'መጽሐፍ ቅዱስ 1954 (አማርኛ)', short: 'አማ 1954', language: 'am', dir: 'data/am54', books: {},
+    credit: 'Amharic Bible (1954/1962). Text from Beblia/Holy-Bible-XML-Format.' },
+  am2000: { id: 'am2000', name: 'አማርኛ 2000 (ሰማንያ አሐዱ)', short: 'አማ 2000', language: 'am', dir: 'data/am2000', books: {},
+    credit: 'Amharic 2000, Bible Society of Ethiopia. Text from Beblia/Holy-Bible-XML-Format.' },
+  amnst: { id: 'amnst', name: 'አዲሱ መደበኛ ትርጉም 2005 (አማ05)', short: 'አማ 2005', language: 'am', dir: 'data/amnst', books: {},
+    credit: 'Amharic New Standard Translation © The Bible Society of Ethiopia, 2005. Text from Beblia/Holy-Bible-XML-Format.' },
+  amnasv: { id: 'amnasv', name: 'አዲሱ መደበኛ ትርጒም (NASV)', short: 'NASV', language: 'am', dir: 'data/amnasv', books: {},
+    credit: 'Holy Bible, New Amharic Standard Version™ Copyright © 2001 by Biblica, Inc. Used with permission. All rights reserved worldwide.' },
+  amcath: { id: 'amcath', name: 'ካቶሊካዊ እትም (ኤማሁስ)', short: 'ካቶሊክ', language: 'am', dir: 'data/amcath', books: {},
+    credit: 'Amharic Catholic Version (Emmaus), Bible Society of Ethiopia. Text from Beblia/Holy-Bible-XML-Format.' },
+  amulb: { id: 'amulb', name: 'አማርኛ ULB (Unlocked Literal Bible)', short: 'ULB', language: 'am', dir: 'data/amulb', books: {},
     credit: 'Amharic Unlocked Literal Bible. Original work available at https://door43.org/. Licensed CC BY-SA 4.0.' },
   orig: { id: 'orig', name: 'ዕብራይስጥና ግሪክ (ዋናው ጽሑፍ) · Hebrew and Greek', language: 'orig', dir: 'data/orig', books: {},
     credit: 'Hebrew and Greek text from STEPBible TAHOT and TAGNT (Tyndale House, Cambridge), CC BY 4.0; the Greek follows the Nestle-Aland text.' },
+  niv: { id: 'niv', name: "New International Version", short: 'NIV', language: 'en', dir: 'data/niv', books: {}, credit: "New International Version (NIV), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  esv: { id: 'esv', name: "English Standard Version", short: 'ESV', language: 'en', dir: 'data/esv', books: {}, credit: "English Standard Version (ESV), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  nlt: { id: 'nlt', name: "New Living Translation", short: 'NLT', language: 'en', dir: 'data/nlt', books: {}, credit: "New Living Translation (NLT), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  nkjv: { id: 'nkjv', name: "New King James Version", short: 'NKJV', language: 'en', dir: 'data/nkjv', books: {}, credit: "New King James Version (NKJV), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  nasb: { id: 'nasb', name: "New American Standard Bible (1995)", short: 'NASB', language: 'en', dir: 'data/nasb', books: {}, credit: "New American Standard Bible (1995) (NASB), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  csb: { id: 'csb', name: "Christian Standard Bible", short: 'CSB', language: 'en', dir: 'data/csb', books: {}, credit: "Christian Standard Bible (CSB), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  nrsv: { id: 'nrsv', name: "New Revised Standard Version", short: 'NRSV', language: 'en', dir: 'data/nrsv', books: {}, credit: "New Revised Standard Version (NRSV), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  rsv: { id: 'rsv', name: "Revised Standard Version", short: 'RSV', language: 'en', dir: 'data/rsv', books: {}, credit: "Revised Standard Version (RSV), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  amp: { id: 'amp', name: "Amplified Bible", short: 'AMP', language: 'en', dir: 'data/amp', books: {}, credit: "Amplified Bible (AMP), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  ampc: { id: 'ampc', name: "Amplified Bible, Classic Edition", short: 'AMPC', language: 'en', dir: 'data/ampc', books: {}, credit: "Amplified Bible, Classic Edition (AMPC), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  net: { id: 'net', name: "New English Translation (NET)", short: 'NET', language: 'en', dir: 'data/net', books: {}, credit: "New English Translation (NET) (NET), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  gnt: { id: 'gnt', name: "Good News Translation", short: 'GNT', language: 'en', dir: 'data/gnt', books: {}, credit: "Good News Translation (GNT), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  mev: { id: 'mev', name: "Modern English Version", short: 'MEV', language: 'en', dir: 'data/mev', books: {}, credit: "Modern English Version (MEV), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  lsb: { id: 'lsb', name: "Legacy Standard Bible", short: 'LSB', language: 'en', dir: 'data/lsb', books: {}, credit: "Legacy Standard Bible (LSB), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  erv: { id: 'erv', name: "Easy-to-Read Version", short: 'ERV', language: 'en', dir: 'data/erv', books: {}, credit: "Easy-to-Read Version (ERV), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  gw: { id: 'gw', name: "GOD'S WORD Translation", short: 'GW', language: 'en', dir: 'data/gw', books: {}, credit: "GOD'S WORD Translation (GW), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  nirv: { id: 'nirv', name: "New International Reader's Version", short: 'NIrV', language: 'en', dir: 'data/nirv', books: {}, credit: "New International Reader's Version (NIrV), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  easy: { id: 'easy', name: "EasyEnglish Bible (2024)", short: 'EASY', language: 'en', dir: 'data/easy', books: {}, credit: "EasyEnglish Bible (2024) (EASY), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  tlb: { id: 'tlb', name: "The Living Bible", short: 'TLB', language: 'en', dir: 'data/tlb', books: {}, credit: "The Living Bible (TLB), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
+  hcsb: { id: 'hcsb', name: "Holman Christian Standard Bible", short: 'HCSB', language: 'en', dir: 'data/hcsb', books: {}, credit: "Holman Christian Standard Bible (HCSB), © its publisher; all rights reserved. Text from Beblia/Holy-Bible-XML-Format, for personal study." },
   bsb: { id: 'bsb', name: 'Berean Standard Bible', language: 'en', dir: 'data/bsb', books: {},
     credit: 'Berean Standard Bible (BSB), dedicated to the public domain (CC0).' },
   web: { id: 'web', name: 'World English Bible', language: 'en', dir: 'data/web', books: {} },
@@ -104,11 +135,15 @@ const versions = {
   rotherham: { id: 'rotherham', name: 'Rotherham Emphasised Bible (1902)', language: 'en', dir: 'data/rotherham', books: {} },
   twenty: { id: 'twenty', name: 'Twentieth Century New Testament (1904)', language: 'en', dir: 'data/twenty', books: {} }
 };
+// Short labels for the one-tap version buttons.
+Object.entries({ orig: 'ዕብ/ግሪክ', bsb: 'BSB', web: 'WEB', kjv: 'KJV', asv: 'ASV', ylt: 'YLT', bbe: 'BBE', darby: 'Darby', nheb: 'NHEB',
+  webster: 'Webster', geneva: 'Geneva', acv: 'ACV', ukjv: 'UKJV', rotherham: 'Rotherham', twenty: 'TCNT' }).forEach(([id, s]) => { versions[id].short = s; });
 // The version lists are grouped by language family.
 const VERSION_GROUPS = [
-  [['አማርኛ', 'Amharic'], ['amulb']],
+  [['አማርኛ', 'Amharic'], ['am54', 'am2000', 'amnst', 'amnasv', 'amcath', 'amulb']],
   [['ዋናው ጽሑፍ', 'Original languages'], ['orig']],
-  [['እንግሊዝኛ', 'English'], ['bsb', 'web', 'kjv', 'nheb', 'ukjv', 'acv', 'asv', 'bbe', 'ylt', 'darby', 'rotherham', 'webster', 'twenty', 'geneva']]
+  [['እንግሊዝኛ (ዘመናዊ)', 'English (modern)'], ['niv', 'esv', 'nlt', 'nkjv', 'nasb', 'csb', 'nrsv', 'rsv', 'amp', 'ampc', 'net', 'gnt', 'mev', 'lsb', 'erv', 'gw', 'nirv', 'easy', 'tlb', 'hcsb']],
+  [['እንግሊዝኛ (ነጻ)', 'English (public domain)'], ['bsb', 'web', 'kjv', 'nheb', 'ukjv', 'acv', 'asv', 'bbe', 'ylt', 'darby', 'rotherham', 'webster', 'twenty', 'geneva']]
 ];
 function versionOptions(selected) {
   const listed = new Set(VERSION_GROUPS.flatMap((g) => g[1]));
@@ -191,11 +226,56 @@ function saveAccount(fromSync) {
 
 function pickVersions() {
   const ids = Object.keys(versions);
-  if (!versions[S.primary]) S.primary = (Object.values(versions).find((v) => v.language === 'am') || versions.web).id;
+  if (!versions[S.primary]) S.primary = (versions.am54 || Object.values(versions).find((v) => v.language === 'am') || versions.web).id;
   if (!versions[S.secondary] || S.secondary === S.primary) S.secondary = ids.find((id) => id !== S.primary) || S.primary;
 }
 
 // Bundled versions are stored one file per book, so only the book being read is downloaded.
+// Biblica Open Bible Maps (CC BY-SA 4.0), listed in data/maps.json as [id, title, [[book, first ch, last ch]]];
+// the pictures come from Bible Image Library's server, so they need a connection.
+const MAPS = { list: null, pending: false };
+const MAP_CDN = 'https://d12do9t5rj179j.cloudfront.net/';
+const MAP_CREDIT = 'Biblica Open Bible Maps, © 2023-2026 Biblica, Inc., CC BY-SA 4.0, via bibleimagelibrary.org.';
+function bibleMaps() {
+  if (!MAPS.list && !MAPS.pending) {
+    MAPS.pending = true;
+    fetch('data/maps.json').then((r) => r.json()).then((d) => { MAPS.list = d; }).catch(() => { MAPS.list = []; }).then(() => { MAPS.pending = false; render(); });
+  }
+  return MAPS.list;
+}
+// Maps for a chapter: those naming that chapter first, then those for the whole book (c = 0 gives the book's maps).
+function mapsFor(b, c) {
+  const list = bibleMaps() || [];
+  const exact = [], book = [];
+  list.forEach((m) => {
+    if (m[2].some((x) => x[0] === b && x[1] && c >= x[1] && c <= x[2])) exact.push(m);
+    else if (m[2].some((x) => x[0] === b)) book.push(m);
+  });
+  return c ? { exact, book } : { exact: exact.concat(book), book: [] };
+}
+const mapCard = (m) => `<button class="mapcard" data-a="openMap" data-v="${m[0]}" data-k="map-${m[0]}"><img src="${MAP_CDN}thumb/320/${m[0]}.jpg" alt="" loading="lazy"><span>${esc(m[1])}</span></button>`;
+function mapsTab() {
+  if (!bibleMaps()) return `<p class="muted prose" role="status">${t('እየተጫነ ነው…', 'Loading…')}</p>`;
+  const { exact, book } = mapsFor(S.pass.b, S.pass.c);
+  return (exact.length ? `<h2>${t('ለምዕራፍ ' + S.pass.c, 'For chapter ' + S.pass.c)}</h2><div class="mapgrid">${exact.map(mapCard).join('')}</div>` : `<div class="card"><p class="muted prose">${t('ለዚህ ምዕራፍ የተለየ ካርታ የለም።', 'No map for this chapter in particular.')}</p></div>`) +
+    (book.length ? `<h2>${t('ለመጽሐፉ በሙሉ', 'For the whole book')} · ${esc(bookName(S.pass.b))}</h2><div class="mapgrid">${book.slice(0, S.more * 2).map(mapCard).join('')}</div>${book.length > S.more * 2 ? `<button class="btn" data-a="more" data-k="more-maps">${t('ተጨማሪ አሳይ', 'Show more')}</button>` : ''}` : '') +
+    `<p class="muted small" lang="en">${MAP_CREDIT} ${t('ሥዕሎቹ ኢንተርኔት ያስፈልጋቸዋል።', 'The pictures need a connection.')}</p>`;
+}
+// The full-screen viewer for one map.
+function mapViewer() {
+  if (!S.bigMap) return '';
+  const m = (MAPS.list || []).find((x) => x[0] === S.bigMap);
+  if (!m) return '';
+  const first = m[2].find((x) => x[1]);
+  return `<div class="mapview" role="dialog" aria-label="${esc(m[1])}"><div class="bar"><b>${esc(m[1])}</b>
+${first ? `<button class="btn" data-a="mapRead" data-v="${first[0]}.${first[1]}" data-k="mapread">${icon('book')}${t('ክፍሉን አንብብ', 'Read it')}</button>` : ''}
+<button class="btn" data-a="mapZoom" data-k="mapzoom">${S.mapZoom ? '−' : '+'}</button>
+<a class="btn" href="${MAP_CDN}orig/${m[0]}.pdf" target="_blank" rel="noopener">PDF</a>
+<button class="btn round" data-a="closeMap" data-k="closemap" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button></div>
+<div class="scroll${S.mapZoom ? ' zoom' : ''}"><img src="${MAP_CDN}thumb/640/${m[0]}.jpg" alt="${esc(m[1])}"></div>
+<p class="small" style="color:#bbb;padding:0 16px 12px" lang="en">${MAP_CREDIT}</p></div>`;
+}
+
 function loadBook(id, b) {
   const v = versions[id];
   v.pending = v.pending || {};
@@ -420,6 +500,7 @@ const ICONS = {
   stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>',
   play: '<path d="M7 5l12 7-12 7z"/>',
   left: '<path d="M15 5l-7 7 7 7"/>',
+  down: '<path d="M6 9l6 6 6-6"/>',
   right: '<path d="M9 5l7 7-7 7"/>',
   sliders: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>',
   pin: '<path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
@@ -741,9 +822,9 @@ function sideMenu() {
   return `<nav class="side" aria-label="${t('ዋና ማውጫ', 'Main')}">
 <div class="brand">${icon('logo', 26)}<span>ቃሉ</span></div>
 <div class="navmain">
+${nav('study', 'book', t('አንብብ', 'Read'))}
+${nav('browse', 'grid', t('ፈልግ', 'Explore'))}
 ${nav('journey', 'flag', t('ጉዞ', 'Journey'))}
-${nav('browse', 'grid', t('መጽሐፍ ቅዱስ', 'Bible'))}
-${nav('study', 'book', t('ጥናት', 'Study'))}
 ${nav('map', 'pin', t('ካርታ', 'Map'))}
 ${nav('notes', 'note', t('ማስታወሻዎች', 'Notes'))}
 </div>
@@ -809,7 +890,7 @@ function closeVideo() {
 }
 modal.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) closeVideo(); });
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeVideo();
+  if (e.key === 'Escape') { closeVideo(); if (S.bigMap || S.picker) { S.bigMap = null; S.picker = false; render(); } }
   // On the Study screen the arrow keys turn the chapter, unless the reader is typing or choosing.
   if (S.screen !== 'study' || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
   if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
@@ -1163,10 +1244,12 @@ function noteCard(n) {
 }
 
 function sidePanel() {
-  const tabs = [['words', t('ዋና ቃላት', 'Original')], ['fathers', t('አባቶች', 'Fathers')], ['context', t('ዳራ', 'Context')], ['notes', t('ማስታወሻ', 'Notes')]];
+  const tabs = [['context', t('ዳራ', 'Context')], ['maps', t('ካርታ', 'Maps')], ['fathers', t('አባቶች', 'Fathers')], ['words', t('ዋና ቃላት', 'Original')], ['notes', t('ማስታወሻ', 'Notes')]];
   const st = study();
   let body = '';
-  if (S.tab === 'words') {
+  if (S.tab === 'maps') {
+    body = mapsTab();
+  } else if (S.tab === 'words') {
     body = wordsTab();
   } else if (S.tab === 'fathers') {
     const fa = fathers();
@@ -1237,20 +1320,7 @@ function studyView() {
   const nums = [];
   for (let n = lo; n <= hi; n++) nums.push(n);
 
-  const verseNums = Array.from({ length: Math.max(count, 1) }, (_, i) => [i + 1, i + 1]);
-  const picker = `<div class="card stack" role="group" aria-label="${t('ክፍል ይምረጡ', 'Choose a passage')}">
-<div class="row" style="align-items:flex-end">
-<div class="field wide"><label for="pk-book">${t('መጽሐፍ', 'Book')}</label><select id="pk-book" data-c="book" data-k="pk-book">${options(C.books.map((b, i) => [i, tp(b.n)]), p.b)}</select></div>
-<div class="field"><label for="pk-chap">${t('ምዕራፍ', 'Chapter')}</label><select id="pk-chap" data-c="chap" data-k="pk-chap">${options(Array.from({ length: C.books[p.b].ch }, (_, i) => [i + 1, i + 1]), p.c)}</select></div>
-<div class="field"><label for="pk-from">${t('ከቁጥር', 'From verse')}</label><select id="pk-from" data-c="from" data-k="pk-from">${options(verseNums, lo)}</select></div>
-<div class="field"><label for="pk-to">${t('እስከ ቁጥር', 'To verse')}</label><select id="pk-to" data-c="to" data-k="pk-to">${options([[0, t('መጨረሻ', 'End')]].concat(verseNums), p.to && p.to <= count ? p.to : 0)}</select></div>
-</div>
-<div class="row" style="align-items:flex-end">
-<div class="field wide"><label for="pk-v1">${t('ትርጉም', 'Version')}</label><select id="pk-v1" data-c="primary" data-k="pk-v1">${versionOptions(S.primary)}</select></div>
-${S.split ? `<div class="field wide"><label for="pk-v2">${t('ሁለተኛ ትርጉም', 'Second version')}</label><select id="pk-v2" data-c="secondary" data-k="pk-v2">${versionOptions(S.secondary)}</select></div>` : ''}
-${S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትርጉሞች አቀማመጥ', 'Layout of the two versions')}"><button data-a="layout" data-v="verse" data-k="lay-verse" aria-pressed="${S.layout === 'verse'}">${t('ቁጥር በቁጥር', 'Verse by verse')}</button><button data-a="layout" data-v="stack" data-k="lay-stack" aria-pressed="${S.layout === 'stack'}">${t('ላይና ታች', 'Top and bottom')}</button><button data-a="layout" data-v="side" data-k="lay-side" aria-pressed="${S.layout === 'side'}">${t('ጎን ለጎን', 'Side by side')}</button></div>` : ''}
-<button class="btn" data-a="import" data-k="import">${t('የመጽሐፍ ቅዱስ ፋይል አስገባ…', 'Import a Bible file…')}</button>
-</div></div>`;
+  const picker = pickerSheet(count);
 
   const importCard = hasAmharic() ? '' : `<div class="card stack"><b>${t('የአማርኛ መጽሐፍ ቅዱስ ገና አልገባም', 'No Amharic Bible imported yet')}</b><p class="muted prose">${t('ለጊዜው የእንግሊዝኛ ትርጉሞች ብቻ አሉ። የአማርኛ ጽሑፍ ፋይል (JSON) ሲኖርዎት “የመጽሐፍ ቅዱስ ፋይል አስገባ” የሚለውን ይጫኑ፤ ጽሑፉ በዚህ ኮምፒውተር ላይ ብቻ ይቀመጣል።', 'Only the English versions are available for now. When you have an Amharic text file (JSON), use “Import a Bible file”. The text stays on this computer only.')}</p></div>`;
 
@@ -1305,22 +1375,71 @@ ${S.highlights[hlKey(S.sel)] ? `<button class="btn" data-a="clearHl" data-k="hl-
 <div class="readhead">
 <div class="row titlebar">
 <button class="btn round" data-a="prevCh" data-k="prev-top" ${first ? 'disabled' : ''} aria-label="${t('ያለፈው ምዕራፍ', 'Previous chapter')}" title="${t('ያለፈው ምዕራፍ', 'Previous chapter')} (←)">${icon('left')}</button>
-<button class="titlebtn" data-a="picker" data-k="title" aria-expanded="${S.picker}" title="${t('ክፍልና ትርጉም ለመቀየር', 'Change passage or version')}"><h1>${esc(title)}</h1>${ref !== title ? `<span class="muted small">${esc(ref)}</span>` : `<span class="muted small">${esc(versions[S.primary].name)}${S.split ? ' · ' + esc(versions[S.secondary].name) : ''}</span>`}</button>
+<div class="titlepills"><button class="pill-btn" data-a="picker" data-v="book" data-k="title" aria-expanded="${S.picker === 'book' || S.picker === 'chap' || S.picker === 'verse'}" title="${t('መጽሐፍና ምዕራፍ ምረጥ', 'Choose book and chapter')}"><h1>${esc(bookName(p.b) + ' ' + p.c)}</h1>${icon('down', 16)}</button><button class="pill-btn ver" data-a="picker" data-v="ver" data-k="title-ver" aria-expanded="${S.picker === 'ver'}" title="${esc(versions[S.primary].name)}">${esc(shortName(S.primary))}${icon('down', 14)}</button></div>
 <button class="btn round" data-a="nextCh" data-k="next-top" ${last ? 'disabled' : ''} aria-label="${t('ቀጣዩ ምዕራፍ', 'Next chapter')}" title="${t('ቀጣዩ ምዕራፍ', 'Next chapter')} (→)">${icon('right')}</button>
 </div>
 <div class="row tools" role="toolbar" aria-label="${t('የንባብ መሣሪያዎች', 'Reading tools')}">
-${tb('picker', 'picker', icon('sliders'), t('ክፍልና ትርጉም', 'Passage and version'), S.picker)}
 ${tb('split', 'split', icon('split'), t('ሁለት ትርጉም', 'Two versions'), S.split)}
 ${tb('inter', 'inter', `<b style="font-size:15px" lang="${isHebrew(p.b) ? 'he' : 'grc'}">${isHebrew(p.b) ? 'אב' : 'αβ'}</b>`, isHebrew(p.b) ? t('ዕብራይስጥ ቃላት', 'Hebrew words') : t('ግሪክ ቃላት', 'Greek words'), S.inter)}
 ${tb('smaller', 'smaller', '<b style="font-size:13px">A−</b>', t('ጽሑፉን አሳንስ', 'Smaller text'))}
 ${tb('larger', 'larger', '<b style="font-size:18px">A+</b>', t('ጽሑፉን አሳድግ', 'Larger text'))}
 ${tb('focus', 'focus', icon('focus'), t('ትኩረት', 'Focus'), S.focus)}
 ${p.pl ? tb('showPlace', 'show-place', icon('pin'), t('ካርታ ላይ አሳይ', 'Show on the map')) : ''}
-</div></div>
+</div>
+${quickVersions()}</div>
 ${S.picker ? picker : ''}
 <div class="cols"><article class="card stack reader${S.split || !S.focus ? '' : ' single'}">${selbar}${heads}<div class="verses" style="font-size:${[16, 19, 22, 25][S.size]}px">${verses}</div>${stepper('bottom')}</article>${S.focus ? '' : sidePanel()}</div>
 ${credits ? `<p class="muted small" lang="en">${esc(credits)}</p>` : ''}
 </div>`;
+}
+
+// One-tap version switching: the versions read lately, a button that swaps the two versions, and "more" for the full list.
+const shortName = (id) => versions[id].short || versions[id].name.replace(/\s*\(.*\)$/, '');
+
+// The passage and version chooser, as in most Bible apps: book grid → chapter grid → verse grid, or a version list.
+function pickerSheet(count) {
+  const step = S.picker;
+  if (!step) return '';
+  const b = S.pickB == null ? S.pass.b : S.pickB;
+  const head = (title, back) => `<div class="row between sheet-head">${back ? `<button class="btn round" data-a="picker" data-v="${back}" data-k="pk-back" aria-label="${t('ተመለስ', 'Back')}">${icon('left')}</button>` : '<span></span>'}<b>${esc(title)}</b><button class="btn round" data-a="picker" data-v="${step}" data-k="pk-close" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button></div>`;
+  let body;
+  if (step === 'book') {
+    const testament = S.pickT || (S.pass.b < 39 ? 'ot' : 'nt');
+    const ids = C.books.map((_, i) => i).filter((i) => (testament === 'ot' ? i < 39 : i >= 39));
+    body = head(t('መጽሐፍ', 'Book')) + `<div class="seg" role="group"><button data-a="pickTest" data-v="ot" data-k="pk-ot" aria-pressed="${testament === 'ot'}">${t('ብሉይ ኪዳን', 'Old Testament')}</button><button data-a="pickTest" data-v="nt" data-k="pk-nt" aria-pressed="${testament === 'nt'}">${t('አዲስ ኪዳን', 'New Testament')}</button></div>
+<div class="bookgrid">${ids.map((i) => `<button class="cell book" data-a="pickBook" data-v="${i}" data-k="pb-${i}" aria-pressed="${i === S.pass.b}">${esc(bookName(i))}</button>`).join('')}</div>`;
+  } else if (step === 'chap') {
+    body = head(bookName(b), 'book') + `<div class="numgrid">${Array.from({ length: C.books[b].ch }, (_, i) => `<button class="cell" data-a="pickChap" data-v="${i + 1}" data-k="pc-${i + 1}" aria-pressed="${b === S.pass.b && i + 1 === S.pass.c}">${i + 1}</button>`).join('')}</div>`;
+  } else if (step === 'verse') {
+    body = head(bookName(S.pass.b) + ' ' + S.pass.c + ' · ' + t('ቁጥር', 'Verse'), C.books[S.pass.b].ch > 1 ? 'chap' : 'book') +
+      `<div class="numgrid">${Array.from({ length: Math.max(count, 1) }, (_, i) => `<button class="cell" data-a="pickVerse" data-v="${i + 1}" data-k="pv-${i + 1}">${i + 1}</button>`).join('')}</div>`;
+  } else {
+    const which = step === 'ver2' ? S.secondary : S.primary;
+    const listed = new Set(VERSION_GROUPS.flatMap((g) => g[1]));
+    const groups = VERSION_GROUPS.map((g) => [tp(g[0]), g[1].filter((id) => versions[id])]).concat([[t('ያስገቧቸው', 'Imported'), Object.keys(versions).filter((id) => !listed.has(id))]]).filter((g) => g[1].length);
+    body = head(step === 'ver2' ? t('ሁለተኛ ትርጉም', 'Second version') : t('ትርጉም', 'Version')) +
+      `<div class="seg" role="group"><button data-a="pickerTo" data-v="ver" data-k="pk-v1" aria-pressed="${step === 'ver'}">${t('ዋና ትርጉም', 'Main version')}</button><button data-a="${S.split ? 'pickerTo' : 'split'}" data-v="ver2" data-k="pk-v2" aria-pressed="${step === 'ver2'}">${S.split ? t('ሁለተኛ ትርጉም', 'Second version') : t('+ ሁለተኛ ትርጉም አክል', '+ Add a second version')}</button></div>` +
+      groups.map((g) => `<h2 class="small muted">${esc(g[0])}</h2><div class="verlist">${g[1].map((id) => `<button class="verrow" data-a="pickVer" data-v="${id}" data-k="pver-${id}" aria-pressed="${id === which}"><b>${esc(shortName(id))}</b><span>${esc(versions[id].name)}</span></button>`).join('')}</div>`).join('') +
+      (S.split ? `<div class="seg" role="group" aria-label="${t('የሁለቱ ትርጉሞች አቀማመጥ', 'Layout of the two versions')}"><button data-a="layout" data-v="verse" data-k="lay-verse" aria-pressed="${S.layout === 'verse'}">${t('ቁጥር በቁጥር', 'Verse by verse')}</button><button data-a="layout" data-v="stack" data-k="lay-stack" aria-pressed="${S.layout === 'stack'}">${t('ላይና ታች', 'Top and bottom')}</button><button data-a="layout" data-v="side" data-k="lay-side" aria-pressed="${S.layout === 'side'}">${t('ጎን ለጎን', 'Side by side')}</button></div>` : '') +
+      `<button class="btn" data-a="import" data-k="import">${t('የመጽሐፍ ቅዱስ ፋይል አስገባ…', 'Import a Bible file…')}</button>`;
+  }
+  return `<div class="card stack sheet" role="dialog" aria-label="${t('ክፍልና ትርጉም', 'Passage and version')}">${body}</div>`;
+}
+
+function quickVersions() {
+  const ids = [S.primary].concat(S.recent, ['am54', 'kjv', 'bsb']).filter((id, i, a) => versions[id] && a.indexOf(id) === i).slice(0, 5);
+  const short = shortName;
+  return `<div class="row chiprow qv" role="group" aria-label="${t('ትርጉም ቀይር', 'Switch version')}">${ids.map((id) => `<button class="chip" data-a="useVer" data-v="${id}" data-k="qv-${id}" aria-pressed="${id === S.primary}" title="${esc(versions[id].name)}">${esc(short(id))}</button>`).join('')}
+${S.split ? `<button class="chip" data-a="swapVer" data-k="qv-swap" title="${t('ሁለቱን ትርጉሞች አቀያይር', 'Swap the two versions')}">⇅ ${esc(short(S.secondary))}</button>` : ''}
+<button class="chip" data-a="picker" data-v="ver" data-k="qv-more" aria-expanded="${S.picker === 'ver'}">${t('ሌሎች ትርጉሞች…', 'More versions…')}</button></div>`;
+}
+function useVersion(id) {
+  if (!versions[id]) return;
+  if (id === S.secondary) S.secondary = S.primary;
+  S.primary = id;
+  S.recent = [id].concat(S.recent.filter((x) => x !== id)).slice(0, 6);
+  pickVersions();
+  save('primary', 'secondary', 'recent');
 }
 
 function pinIcon(i) {
@@ -1407,6 +1526,20 @@ function ensureMap() {
   return mapEl;
 }
 
+function bibleMapsSection() {
+  const list = bibleMaps();
+  if (!list) return `<p class="muted prose" role="status">${t('ካርታዎቹ እየተጫኑ ነው…', 'Loading the maps…')}</p>`;
+  const b = S.mapBook == null ? S.pass.b : S.mapBook;
+  const books = [...new Set(list.flatMap((m) => m[2].map((x) => x[0])))].sort((x, y) => x - y);
+  const shown = b === -1 ? list.filter((m) => !m[2].length) : mapsFor(b, b === S.pass.b ? S.pass.c : 0);
+  const items = Array.isArray(shown) ? shown : shown.exact.concat(shown.book);
+  return `<h2>${t('የመጽሐፍ ቅዱስ ካርታዎች', 'Bible maps')}</h2>
+<div class="row" style="align-items:flex-end"><div class="field wide"><label for="mapbook">${t('መጽሐፍ', 'Book')}</label><select id="mapbook" data-c="mapBook" data-k="mapbook">${options(books.map((i) => [i, bookName(i)]).concat([[-1, t('አጠቃላይ ካርታዎች', 'General maps')]]), b)}</select></div>
+${b === S.pass.b ? `<span class="muted small">${t('አሁን ከሚያነቡት ምዕራፍ ' + S.pass.c + ' ጋር የሚሄዱት መጀመሪያ ናቸው', 'Maps for the chapter you are reading (' + S.pass.c + ') come first')}</span>` : ''}</div>
+<div class="mapgrid">${items.slice(0, 24 + S.more * 2).map(mapCard).join('')}</div>${items.length > 24 + S.more * 2 ? `<button class="btn" data-a="more" data-k="more-bmaps">${t('ተጨማሪ አሳይ', 'Show more')} (${items.length - 24 - S.more * 2})</button>` : ''}
+<p class="muted small" lang="en">${MAP_CREDIT}</p>`;
+}
+
 function mapView() {
   const pl = C.places[S.place];
   const here = [];
@@ -1424,6 +1557,8 @@ ${pl.note ? `<p class="muted prose">${esc(tp(pl.note))}</p>` : ''}
 <button class="btn" data-a="mapView" data-v="land" data-k="mv-land">${t('ቅድስት አገር', 'The Holy Land')}</button>
 <button class="btn" data-a="mapView" data-v="city" data-k="mv-city">${t('ኢየሩሳሌምና አካባቢዋ', 'Around Jerusalem')}</button>
 <button class="btn" data-a="tiles" data-k="tiles" aria-pressed="${S.tiles}">${icon('globe')}${t('የዛሬ ካርታ', 'Present-day map')}</button></div>
+${bibleMapsSection()}
+<h2>${t('የታሪክ ስፍራዎች ካርታ', 'Story places map')}</h2>
 <div class="maps"><div id="mapslot"><p class="muted prose" style="padding:16px">${t('ካርታውን መጫን አልተቻለም።', 'The map could not be loaded.')}</p></div>
 <div class="stack mapside">${chosen}<div class="row placelist">${list}</div></div></div>
 <p class="muted small">${t('የሥዕሎቹ ስፍራ ግምታዊ ነው፤ አንዳንዶቹም በትውፊት የሚታወቁ ናቸው። የአገሮቹ ስሞች የዛሬዎቹ ናቸው። ስፍራቸው የማይታወቅ ወይም ምሳሌ የሆኑ ታሪኮች ሥዕል የላቸውም። “የዛሬ ካርታ” የኢንተርኔት ግንኙነት ያስፈልገዋል (OpenStreetMap)።', 'Picture positions are approximate and some are traditional sites; country names are present-day. Stories whose location is unknown, and parables, have no picture. “Present-day map” needs an internet connection (OpenStreetMap).')}</p>
@@ -1635,7 +1770,7 @@ function render() {
   }
   const offBanner = navigator.onLine === false && S.screen !== 'offline' ? `<button class="offbanner" data-a="nav" data-v="offline" data-k="offbanner">${icon('wifiOff', 16)}${t('ኢንተርኔት የለም፤ የተቀመጡት ይሠራሉ', 'Offline: saved content still works')}</button>` : '';
   const view = offBanner + (S.screen === 'offline' ? offlineView() : S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'map' ? mapView() : browseView());
-  root.innerHTML = sideMenu() + '<main>' + view + '</main>';
+  root.innerHTML = sideMenu() + '<main>' + view + '</main>' + mapViewer();
   const newPanel = root.querySelector('.sidepanel');
   if (newPanel && panelTop) newPanel.scrollTop = panelTop;     // keep the side panel where the reader left it
   if (S.jump && S.screen === 'journey' && !S.play) {
@@ -1809,11 +1944,21 @@ const actions = {
   hl(v) { S.highlights[hlKey(S.sel)] = v; save('highlights'); },
   clearHl() { S.highlights[hlKey(S.sel)] = ''; save('highlights'); },   // '' rather than delete, so the clearing syncs
   tab(v) { S.tab = v; save('tab'); },
+  openMap(v) { S.bigMap = +v; S.mapZoom = false; },
+  closeMap() { S.bigMap = null; },
+  mapZoom() { S.mapZoom = !S.mapZoom; },
+  mapRead(v) { const [b, c] = v.split('.').map(Number); S.bigMap = null; setPass({ b, c, f: 1, to: 0 }); S.screen = 'study'; save('screen'); window.scrollTo(0, 0); },
   place(v) { S.place = +v; save('place'); const p = C.places[S.place]; if (lmap) lmap.setView([p.lat, p.lon], Math.max(lmap.getZoom(), 9)); },
   mapView(v) { if (lmap) lmap.fitBounds(MAP_VIEWS[v](), { padding: [30, 30] }); return false; },
   tiles() { S.tiles = !S.tiles; save('tiles'); },
   showPlace() { const i = C.places.findIndex((p) => p.id === S.pass.pl); if (i < 0) return false; S.place = i; S.screen = 'map'; save('screen'); setTimeout(() => { if (lmap) lmap.setView([C.places[i].lat, C.places[i].lon], 10); }, 0); },
-  picker() { S.picker = !S.picker; },
+  picker(v) { S.picker = S.picker === (v || 'book') ? false : (v || 'book'); window.scrollTo(0, 0); },
+  pickBook(v) { S.pickB = +v; S.picker = C.books[+v].ch === 1 ? 'verse' : 'chap'; if (C.books[+v].ch === 1) setPass({ b: +v, c: 1, f: 1, to: 0 }); },
+  pickChap(v) { setPass({ b: S.pickB == null ? S.pass.b : S.pickB, c: +v, f: 1, to: 0 }); S.picker = 'verse'; },
+  pickVerse(v) { S.picker = false; S.pickB = null; if (+v > 1) { S.sel = +v; S.goVerse = +v; save('sel'); } window.scrollTo(0, 0); },
+  pickVer(v) { if (S.picker === 'ver2') { S.secondary = v; save('secondary'); } else useVersion(v); S.picker = false; },
+  pickTest(v) { S.pickT = v; },
+  pickerTo(v) { S.picker = v; },
   intro() { S.intro = !S.intro; },
   prevCh() {
     const p = S.pass;
@@ -1828,7 +1973,9 @@ const actions = {
     window.scrollTo(0, 0);
   },
   more() { S.more += 12; },
-  split() { S.split = !S.split; save('split'); },
+  split(v) { S.split = !S.split; if (v === 'ver2') S.picker = S.split ? 'ver2' : 'ver'; save('split'); },
+  useVer(v) { useVersion(v); },
+  swapVer() { useVersion(S.secondary); },
   layout(v) { S.layout = v; ls.set('layout2', v); },
   focus() { S.focus = !S.focus; },
   smaller() { S.size = Math.max(0, S.size - 1); save('size'); },
@@ -1873,8 +2020,9 @@ const changes = {
   chap(v) { setPass({ c: +v, f: 1, to: 0 }); },
   from(v) { setPass({ f: +v, to: S.pass.to && S.pass.to < +v ? 0 : S.pass.to }); },
   to(v) { setPass({ to: +v, f: +v && S.pass.f > +v ? 1 : S.pass.f }); },
-  primary(v) { S.primary = v; pickVersions(); save('primary', 'secondary'); },
+  primary(v) { useVersion(v); },
   secondary(v) { S.secondary = v; save('secondary'); },
+  mapBook(v) { S.mapBook = +v; S.more = 8; },
   qv(v) { S.qv = v; save('qv'); if (S.searchOn) { runSearch(); } }
 };
 
