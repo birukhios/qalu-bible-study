@@ -265,7 +265,7 @@ textarea { padding: 10px; min-height: 96px; resize: vertical; font-size: 16px; }
 .field input { min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 16px; width: 100%; }
 .chip { min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--ctl); font-size: 14px; font-weight: 500; }
 .chip:hover { background: var(--line); }
-.chip[aria-pressed="true"] { background: var(--sky); color: #fff; font-weight: 700; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 700; }
 .qv { margin-top: 6px; }
 .chapters { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
 .chap { min-width: 44px; min-height: 44px; border-radius: 10px; background: var(--ctl); font-size: 15px; font-weight: 600; }
@@ -409,7 +409,7 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .pill-btn h1 { font-size: 19px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pill-btn.ver { font-weight: 700; font-size: 15px; flex: none; }
 .pill-btn svg { fill: none; stroke: currentColor; stroke-width: 2.2; flex: none; }
-.pill-btn[aria-expanded="true"] { background: var(--sky); color: #fff; }
+.pill-btn[aria-expanded="true"] { background: var(--accent); color: var(--on-accent); }
 .sheet { gap: 14px; }
 .sheet-head b { font-size: 18px; }
 .bookgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; }
@@ -417,12 +417,12 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .cell { min-height: 48px; border-radius: 10px; background: var(--ctl); font-weight: 600; font-size: 16px; padding: 4px 8px; }
 .cell.book { text-align: left; font-size: 15px; font-weight: 500; }
 .cell:hover { background: var(--line); }
-.cell[aria-pressed="true"] { background: var(--sky); color: #fff; }
+.cell[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
 .verlist { display: flex; flex-direction: column; gap: 4px; }
 .verrow { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 6px 12px; border-radius: 10px; background: var(--ctl); text-align: left; }
 .verrow b { min-width: 64px; }
 .verrow span { color: var(--muted); font-size: 14px; }
-.verrow[aria-pressed="true"] { outline: 2px solid var(--sky); }
+.verrow[aria-pressed="true"] { outline: 2px solid var(--accent); }
 /* Bible maps */
 .mapgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
 .mapcard { display: flex; flex-direction: column; gap: 6px; text-align: left; background: var(--ctl); border-radius: 12px; padding: 6px; }
@@ -440,7 +440,7 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .readhead { position: sticky; top: 0; z-index: 20; background: var(--surface); padding: 8px 0; margin-top: -8px; }
 .btn.aa { display: none; }
 .btn.aa b { font-size: 16px; }
-.btn.aa[aria-expanded="true"] { background: var(--sky); color: #fff; }
+.btn.aa[aria-expanded="true"] { background: var(--accent); color: var(--on-accent); }
 .verses { max-width: 72ch; }
 .reader.single .verses, .reader:has(.inter) .verses { max-width: none; }
 .sidepanel { scroll-margin-top: 80px; }
@@ -493,3 +493,78 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
   .titlepills .pill-btn:first-child { justify-content: flex-start; }
 }
 .sheet .searchbar { border: 0; padding: 0; background: none; }
+
+/* ---------- Glass navigation ----------
+   Bars and menus are frosted panels tinted with the theme's own charcoal (or light grey), so whatever scrolls under
+   them shows through blurred in the app's colours. A faint glow in the background gives the glass something to pick up. */
+.app {
+  --glass: rgba(31, 32, 35, .62); --glass-strong: rgba(31, 32, 35, .78);
+  --glass-line: rgba(255, 255, 255, .09); --glass-hi: rgba(255, 255, 255, .06);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .06);
+  --nav-on: rgba(236, 236, 238, .14);
+  background:
+    radial-gradient(900px 600px at 85% -10%, rgba(236, 236, 238, .05), transparent 60%),
+    radial-gradient(700px 500px at -10% 110%, rgba(236, 236, 238, .04), transparent 60%),
+    var(--surface);
+  background-attachment: fixed;
+}
+.app[data-theme="light"] {
+  --glass: rgba(245, 245, 246, .66); --glass-strong: rgba(245, 245, 246, .82);
+  --glass-line: rgba(31, 32, 35, .08); --glass-hi: rgba(255, 255, 255, .7);
+  --glass-shadow: 0 10px 30px rgba(31, 32, 35, .12), inset 0 1px 0 rgba(255, 255, 255, .8);
+  --nav-on: rgba(43, 45, 49, .10);
+  background:
+    radial-gradient(900px 600px at 85% -10%, rgba(43, 45, 49, .05), transparent 60%),
+    radial-gradient(700px 500px at -10% 110%, rgba(43, 45, 49, .04), transparent 60%),
+    var(--surface);
+}
+.side, .readhead, .extras.open, .navmain {
+  -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%);
+}
+/* Laptop: a frosted side menu with a soft highlight on the current screen. */
+.side { background: var(--glass); border-right: 1px solid var(--glass-line); }
+.nav { transition: background .18s ease, color .18s ease, transform .12s ease; }
+.nav:hover { background: var(--glass-hi); }
+.navmain .nav[aria-current="page"] { background: var(--nav-on); box-shadow: inset 0 0 0 1px var(--glass-line); }
+.nav:active { transform: scale(.97); }
+/* The reading bar floats as a glass strip over the text. */
+.readhead { background: var(--glass); border: 1px solid var(--glass-line); border-radius: 18px; padding: 8px 10px; margin-top: 0; box-shadow: var(--glass-shadow); }
+.pill-btn, .readhead .btn { background: var(--glass-hi); box-shadow: inset 0 0 0 1px var(--glass-line); }
+.pill-btn[aria-expanded="true"], .readhead .btn[aria-pressed="true"], .btn.aa[aria-expanded="true"] { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+.sheet { background: var(--glass-strong); border-color: var(--glass-line); -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); box-shadow: var(--glass-shadow); }
+@media (min-width: 761px) { .readhead { top: 12px; } }
+
+@media (max-width: 760px) {
+  /* Top bar: frosted, sticky, just the name and the settings gear. */
+  .side { position: sticky; top: 0; background: var(--glass); border-bottom: 1px solid var(--glass-line); padding: 6px 12px; padding-top: calc(6px + env(safe-area-inset-top)); }
+  .readhead { top: calc(58px + env(safe-area-inset-top)); padding: 6px; border-radius: 16px; }
+  .extras.open { background: var(--glass-strong); border-color: var(--glass-line); box-shadow: var(--glass-shadow); border-radius: 18px; }
+  .extras.open .nav.extra:hover { background: var(--glass-hi); }
+
+  /* Bottom navigation: a floating glass dock, the main way around the app. */
+  .navmain {
+    left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); padding: 6px;
+    background: var(--glass); border: 1px solid var(--glass-line); border-radius: 26px; box-shadow: var(--glass-shadow);
+    transition: transform .25s ease, opacity .25s ease;
+  }
+  .navmain .nav { min-height: 56px; border-radius: 20px; font-size: 11px; font-weight: 600; gap: 3px; color: var(--muted); }
+  .navmain .nav svg { transition: transform .18s ease; }
+  .navmain .nav[aria-current="page"] { background: var(--nav-on); color: var(--text); box-shadow: inset 0 0 0 1px var(--glass-line); }
+  .navmain .nav[aria-current="page"] svg { background: transparent; color: var(--text); padding: 0; transform: translateY(-1px) scale(1.08); }
+  .navmain .nav:active svg { transform: scale(.9); }
+  /* The dock slides away while reading downwards and comes back on the way up or at the end of the page. */
+  .app.dock-hidden .navmain { transform: translateY(calc(100% + 24px)); opacity: 0; pointer-events: none; }
+  main { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+  .selbar { top: calc(116px + env(safe-area-inset-top)); }
+}
+@media (prefers-reduced-motion: reduce) { .navmain, .nav, .navmain .nav svg { transition: none; } }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .side, .readhead, .navmain, .extras.open { background: var(--glass-strong); }
+}
+/* A blur on the top bar would make it the frame for the fixed dock inside it, so on phones the bar's glass is drawn
+   by a layer behind its content instead. */
+@media (max-width: 760px) {
+  .side { -webkit-backdrop-filter: none; backdrop-filter: none; background: transparent; isolation: isolate; }
+  .side::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--glass);
+    -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%); }
+}

@@ -2143,3 +2143,21 @@ async function start() {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 start();
+
+// Phones: the bottom dock slides away while scrolling down through the text and returns on any scroll up,
+// near the top, or at the end of the page.
+(() => {
+  let lastY = window.scrollY, ticking = false;
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY, end = y + innerHeight >= document.documentElement.scrollHeight - 40;
+      const hide = innerWidth <= 760 && y > 120 && y > lastY + 4 && !end && !S.picker && !S.menu;
+      if (hide) root.classList.add('dock-hidden');
+      else if (y < lastY - 4 || y <= 120 || end) root.classList.remove('dock-hidden');
+      lastY = y;
+      ticking = false;
+    });
+  }, { passive: true });
+})();
