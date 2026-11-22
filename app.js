@@ -67,7 +67,7 @@ const S = {
   persp: null, // the concept whose theological perspectives are open
   inter: ls.get('inter', false), // show the Hebrew or Greek words under each verse
   word: null,   // the word picked in the original-language view: its index in the selected verse
-  tiles: ls.get('tiles', false), // show the present-day map tiles in place of the illustrated map
+  tiles: true,   // the live (present-day) map is the main map // show the present-day map tiles in place of the illustrated map
   recording: false,
   msg: '',
   game: { xp: 0, streak: 0, last: '', done: {} }, // done: story number -> stars earned (1 to 3)
@@ -1850,27 +1850,12 @@ ${pl.note ? `<p class="muted prose">${esc(tp(pl.note))}</p>` : ''}
 }
 
 // The Map screen: the Atlas (pictures pinned where they happen, journeys as routes), the story places, or the gallery.
+// The Map screen: one live map with the Biblica pictures where they happen and the journeys as routes.
 function mapView() {
-  const mode = S.mapMode || 'atlas';
-  const seg = (v, label) => `<button data-a="mapMode" data-v="${v}" data-k="mm-${v}" aria-pressed="${mode === v}">${label}</button>`;
-  const head = `<div class="stack"><h1>${t('የመጽሐፍ ቅዱስ ካርታ', 'Bible map')}</h1>
-<div class="seg" role="group" aria-label="${t('የካርታ ዓይነት', 'Kind of map')}">${seg('atlas', t('አትላስ', 'Atlas'))}${seg('story', t('የታሪክ ስፍራዎች', 'Story places'))}${seg('gallery', t('ሥዕሎች', 'Pictures'))}</div></div>`;
-  let body;
-  if (mode === 'story') body = storyMapView();
-  else if (mode === 'gallery') body = bibleMapsSection();
-  else {
-    const on = (k) => S.atlas[k] !== false;
-    const chip = (k, label, extra = '') => `<button class="chip" data-a="atlasToggle" data-v="${k}" data-k="at-${k}" aria-pressed="${on(k)}">${extra}${label}</button>`;
-    const tst = S.atlas.t || 'all';
-    body = `<p class="muted">${t('ሥዕሎቹ በታሪካቸው ስፍራ ላይ ተቀምጠዋል፤ መንገዶቹም የጉዞዎቹ ናቸው። ማብራሪያ ለማየት ጠቋሚውን በላያቸው ያሳርፉ (በስልክ ይንኩ)።', 'Each picture sits where its story happens, and the lines are the great journeys. Hover over one for its explanation (tap on a phone).')}</p>
-<div class="row chiprow" role="group" aria-label="${t('ማጣሪያ', 'Filters')}">${chip('routes', t('መንገዶች', 'Routes'), '〰 ')}${chip('pics', t('ሥዕሎች', 'Pictures'), '🖼 ')}
-<button class="chip" data-a="atlasT" data-v="all" data-k="att-all" aria-pressed="${tst === 'all'}">${t('ሁሉም', 'All')}</button><button class="chip" data-a="atlasT" data-v="ot" data-k="att-ot" aria-pressed="${tst === 'ot'}">${t('ብሉይ', 'Old Testament')}</button><button class="chip" data-a="atlasT" data-v="nt" data-k="att-nt" aria-pressed="${tst === 'nt'}">${t('አዲስ', 'New Testament')}</button>
-<button class="chip" data-a="tiles" data-k="tiles" aria-pressed="${S.tiles}">${t('የዛሬ ካርታ', 'Present-day map')}</button></div>
+  return `<div class="wrap mapscreen"><h1>${t('የመጽሐፍ ቅዱስ ካርታ', 'Bible map')}</h1>
 <div class="maps atlas"><div id="mapslot"><p class="muted prose" style="padding:16px">${t('ካርታውን መጫን አልተቻለም።', 'The map could not be loaded.')}</p></div>
 <div class="stack mapside">${atlasSide()}</div></div>
-<p class="muted small" lang="en">${MAP_CREDIT} ${GEO_CREDIT}</p>`;
-  }
-  return `<div class="wrap">${head}${body}</div>`;
+<p class="muted small" lang="en">${MAP_CREDIT} ${GEO_CREDIT} Map tiles © Esri.</p></div>`;
 }
 
 function notesView() {
@@ -2115,7 +2100,7 @@ function render() {
       // Our own layer: the viewer shows its map's passages, the Maps tab the chapter being read, the Map screen the
       // chapter too when "This chapter" is on.
       const vm = slot.closest('.mapview') && viewerMap();
-      const atlasOn = !vm && !slot.matches('[data-mapslot]') && S.screen === 'map' && (S.mapMode || 'atlas') === 'atlas';
+      const atlasOn = !vm && !slot.matches('[data-mapslot]') && S.screen === 'map' && true;
       const refs = vm ? (vm[2].length ? vm[2] : [[S.pass.b, S.pass.c, S.pass.c]]) : slot.matches('[data-mapslot]') || (S.geoOn && !atlasOn) ? [[S.pass.b, S.pass.c, S.pass.c]] : null;
       applyAtlas(atlasOn);
       const picId = vm && vm[0] !== -1 && (S.mapLayer || 'pic') === 'overlay' && calib()[vm[0]] ? vm[0]
