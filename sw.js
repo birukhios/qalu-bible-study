@@ -3,10 +3,10 @@
 // Bible text, commentary, notes and the Hebrew and Greek words: saved the first time they are opened (or all at
 // once from the Offline screen) and read from the device after that. They live in their own storage (DATA), which
 // app updates do not clear; DATA's name changes only when the data files themselves change.
-const CACHE = 'qalu-v36';
+const CACHE = 'qalu-v38';
 const DATA = 'qalu-data-1';
 const SHELL = ['./', 'index.html', 'styles.css', 'app.js', 'config.js', 'icon.svg', 'manifest.webmanifest', 'data/content.json',
-  'data/fathers/index.json', 'data/land.json', 'data/offline.json', 'data/maps.json', 'vendor/leaflet/leaflet.js', 'vendor/leaflet/leaflet.css'];
+  'data/fathers/index.json', 'data/land.json', 'data/offline.json', 'data/maps.json', 'data/geo/places.json', 'data/geo/routes.json', 'vendor/leaflet/leaflet.js', 'vendor/leaflet/leaflet.css'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));

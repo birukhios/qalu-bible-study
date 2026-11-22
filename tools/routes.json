@@ -1,0 +1,20 @@
+[
+ {"id": "abraham", "n": ["የአብርሃም ጉዞ ወደ ከነዓን", "Abraham's journey to Canaan"], "ch": [[0, 11, 13]], "maps": [764],
+  "pts": ["Ur", "Haran", "Shechem", "Bethel", "Negeb", ["Egypt (On)", 30.13, 31.31], "Negeb", "Bethel", ["Hebron (Mamre)", 31.53, 35.1]]},
+ {"id": "exodus", "n": ["ዘፀአት፦ ከግብፅ እስከ ሲና", "The Exodus: Egypt to Sinai"], "ch": [[1, 12, 19]], "maps": [782, 783, 784],
+  "pts": ["Rameses", "Succoth", "Etham", ["Red Sea crossing", 30.0, 32.55], "Marah", "Elim", "Rephidim", ["Mount Sinai", 28.54, 33.97]]},
+ {"id": "wilderness", "n": ["በምድረ በዳ የተደረገው ጉዞ", "Wandering in the wilderness"], "ch": [[3, 20, 21], [3, 33, 33], [4, 2, 2], [4, 10, 10]], "maps": [788],
+  "pts": ["Kadesh-barnea", "Bene-jaakan", "Mount Hor", "Hor-haggidgad", "Jotbathah", "Ezion-geber", "Oboth", "Iye-abarim", "Ar", "Beer", "Mattanah", "Nahaliel", "Bamoth", "Pisgah"]},
+ {"id": "jesus1", "n": ["ኢየሱስ ከገሊላ ወደ ኢየሩሳሌም (ዮሐ 2–3)", "Jesus from Galilee to Jerusalem (John 2–3)"], "ch": [[42, 2, 3]], "maps": [514],
+  "pts": ["Cana", "Capernaum", ["Jordan valley", 32.2, 35.55], "Jericho", "Jerusalem"]},
+ {"id": "jesus4", "n": ["ኢየሱስ በሰማርያ በኩል (ዮሐ 4)", "Jesus through Samaria (John 4)"], "ch": [[42, 4, 4]], "maps": [515],
+  "pts": ["Jerusalem", "Sychar", "Cana", "Capernaum"]},
+ {"id": "paul1", "n": ["የጳውሎስ የመጀመሪያው የወንጌል ጉዞ", "Paul's first missionary journey"], "ch": [[43, 13, 14]], "maps": [540, 541, 525],
+  "pts": [["Antioch (Syria)", 36.2, 36.16], "Seleucia", "Salamis", "Paphos", "Perga", ["Antioch (Pisidia)", 38.31, 31.19], "Iconium", "Lystra", "Derbe", "Lystra", "Iconium", ["Antioch (Pisidia)", 38.31, 31.19], "Perga", "Attalia", ["Antioch (Syria)", 36.2, 36.16]]},
+ {"id": "paul2", "n": ["የጳውሎስ ሁለተኛው የወንጌል ጉዞ", "Paul's second missionary journey"], "ch": [[43, 15, 18]], "maps": [542, 543, 544, 545, 525],
+  "pts": [["Antioch (Syria)", 36.2, 36.16], "Tarsus", "Derbe", "Lystra", "Iconium", "Troas", "Samothrace", "Neapolis", "Philippi", "Amphipolis", "Apollonia", "Thessalonica", "Berea", "Athens", "Corinth", "Cenchreae", "Ephesus", "Caesarea", "Jerusalem", ["Antioch (Syria)", 36.2, 36.16]]},
+ {"id": "paul3", "n": ["የጳውሎስ ሦስተኛው የወንጌል ጉዞ", "Paul's third missionary journey"], "ch": [[43, 18, 21]], "maps": [545, 546, 547, 525],
+  "pts": [["Antioch (Syria)", 36.2, 36.16], "Tarsus", "Iconium", "Ephesus", "Troas", "Philippi", "Corinth", "Philippi", "Troas", "Assos", "Mitylene", "Chios", "Samos", "Miletus", "Cos", "Rhodes", "Patara", "Tyre", "Ptolemais", "Caesarea", "Jerusalem"]},
+ {"id": "rome", "n": ["የጳውሎስ ጉዞ ወደ ሮም", "Paul's voyage to Rome"], "ch": [[43, 27, 28]], "maps": [549, 550, 525],
+  "pts": ["Caesarea", "Sidon", "Myra", "Cnidus", "Fair Havens", "Malta", "Syracuse", "Rhegium", "Puteoli", "Rome"]}
+]

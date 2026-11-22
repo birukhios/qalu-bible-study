@@ -50,7 +50,8 @@ const S = {
   size: ls.get('size', 1),
   primary: ls.get('primary', ''),
   secondary: ls.get('secondary', 'kjv'),
-  recent: ls.get('recent', []),     // versions read lately, shown as one-tap buttons over the text
+  recent: ls.get('recent', []),
+  mapLayer: ls.get('mapLayer', 'pic'),     // versions read lately, shown as one-tap buttons over the text
   highlights: {},   // these three belong to the account in use; see loadAccount()
   notes: [],
   draft: '',
@@ -257,23 +258,130 @@ const mapCard = (m) => `<button class="mapcard" data-a="openMap" data-v="${m[0]}
 function mapsTab() {
   if (!bibleMaps()) return `<p class="muted prose" role="status">${t('እየተጫነ ነው…', 'Loading…')}</p>`;
   const { exact, book } = mapsFor(S.pass.b, S.pass.c);
-  return (exact.length ? `<h2>${t('ለምዕራፍ ' + S.pass.c, 'For chapter ' + S.pass.c)}</h2><div class="mapgrid">${exact.map(mapCard).join('')}</div>` : `<div class="card"><p class="muted prose">${t('ለዚህ ምዕራፍ የተለየ ካርታ የለም።', 'No map for this chapter in particular.')}</p></div>`) +
+  const refs = [[S.pass.b, S.pass.c, S.pass.c]];
+  const ours = `<div class="card stack geocard"><div class="row between"><b>${t('የዚህ ምዕራፍ ካርታ', 'This chapter on the map')}</b><button class="btn small" data-a="geoBig" data-k="geo-big">${icon('focus', 16)}${t('አስፋ', 'Expand')}</button></div>
+<div data-mapslot="panel" class="geoslot"></div>${geoList(refs)}<p class="muted small" lang="en">${GEO_CREDIT}</p></div>`;
+  return ours + (exact.length ? `<h2>${t('ማጣቀሻ ሥዕሎች', 'Reference maps')}</h2>` : '') + (exact.length ? `<h2>${t('ለምዕራፍ ' + S.pass.c, 'For chapter ' + S.pass.c)}</h2><div class="mapgrid">${exact.map(mapCard).join('')}</div>` : `<div class="card"><p class="muted prose">${t('ለዚህ ምዕራፍ የተለየ ካርታ የለም።', 'No map for this chapter in particular.')}</p></div>`) +
     (book.length ? `<h2>${t('ለመጽሐፉ በሙሉ', 'For the whole book')} · ${esc(bookName(S.pass.b))}</h2><div class="mapgrid">${book.slice(0, S.more * 2).map(mapCard).join('')}</div>${book.length > S.more * 2 ? `<button class="btn" data-a="more" data-k="more-maps">${t('ተጨማሪ አሳይ', 'Show more')}</button>` : ''}` : '') +
     `<p class="muted small" lang="en">${MAP_CREDIT} ${t('ሥዕሎቹ ኢንተርኔት ያስፈልጋቸዋል።', 'The pictures need a connection.')}</p>`;
 }
 // The full-screen viewer for one map.
+// The map open in the viewer: a Biblica map, or (id -1) the chapter being read on our own map alone.
+function viewerMap() {
+  if (S.bigMap === -1) return [-1, bookName(S.pass.b) + ' ' + S.pass.c, [[S.pass.b, S.pass.c, S.pass.c]]];
+  return S.bigMap ? (MAPS.list || []).find((x) => x[0] === S.bigMap) : null;
+}
 function mapViewer() {
-  if (!S.bigMap) return '';
-  const m = (MAPS.list || []).find((x) => x[0] === S.bigMap);
+  const m = viewerMap();
   if (!m) return '';
+  const own = m[0] === -1;
   const first = m[2].find((x) => x[1]);
-  return `<div class="mapview" role="dialog" aria-label="${esc(m[1])}"><div class="bar"><b>${esc(m[1])}</b>
-${first ? `<button class="btn" data-a="mapRead" data-v="${first[0]}.${first[1]}" data-k="mapread">${icon('book')}${t('ክፍሉን አንብብ', 'Read it')}</button>` : ''}
-<button class="btn" data-a="mapZoom" data-k="mapzoom">${S.mapZoom ? '−' : '+'}</button>
-<a class="btn" href="${MAP_CDN}orig/${m[0]}.pdf" target="_blank" rel="noopener">PDF</a>
-<button class="btn round" data-a="closeMap" data-k="closemap" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button></div>
-<div class="scroll${S.mapZoom ? ' zoom' : ''}"><img src="${MAP_CDN}thumb/640/${m[0]}.jpg" alt="${esc(m[1])}"></div>
-<p class="small" style="color:#bbb;padding:0 16px 12px" lang="en">${MAP_CREDIT}</p></div>`;
+  const list = S.mapList && S.mapList.includes(m[0]) ? S.mapList : [m[0]];
+  const at = list.indexOf(m[0]);
+  const layer = own ? 'live' : S.mapLayer || 'pic';
+  const vrefs = m[2].length ? m[2] : [[S.pass.b, S.pass.c, S.pass.c]];
+  const z = S.mapZoom || 1;
+  const pic = `<div class="mv-pic" data-zoom="${z}"><img src="${MAP_CDN}thumb/640/${m[0]}.jpg" alt="${esc(m[1])}" style="width:${z * 100}%"></div>`;
+  const live = `<div class="mv-live"><div data-mapslot class="mv-slot"></div><div class="mv-places">${geoList(vrefs)}</div></div>`;
+  const seg = (v, label) => `<button data-a="mapLayer" data-v="${v}" data-k="ml-${v}" aria-pressed="${layer === v}">${label}</button>`;
+  return `<div class="mapview" role="dialog" aria-modal="true" aria-label="${esc(m[1])}">
+<div class="mv-top"><div class="mv-title"><b>${esc(m[1])}</b>${list.length > 1 ? `<span class="small">${at + 1} / ${list.length}</span>` : ''}</div>
+<button class="mv-close" data-a="closeMap" data-k="closemap" aria-label="${t('ዝጋ', 'Close')}" title="${t('ዝጋ (Esc)', 'Close (Esc)')}">${icon('close', 22)}</button></div>
+${own ? '' : `<div class="mv-seg seg" role="group" aria-label="${t('እይታ', 'View')}">${seg('pic', t('ሥዕል', 'Picture'))}${seg('live', t('ተንቀሳቃሽ ካርታ', 'Live map'))}${seg('both', t('ሁለቱም', 'Both'))}</div>`}
+<div class="mv-stage mv-${layer}">${layer !== 'live' ? pic : ''}${layer !== 'pic' ? live : ''}
+${list.length > 1 ? `<button class="mv-nav prev" data-a="mapStep" data-v="-1" data-k="mvprev" ${at === 0 ? 'disabled' : ''} aria-label="${t('ያለፈው ካርታ', 'Previous map')}">${icon('left', 22)}</button><button class="mv-nav next" data-a="mapStep" data-v="1" data-k="mvnext" ${at === list.length - 1 ? 'disabled' : ''} aria-label="${t('ቀጣዩ ካርታ', 'Next map')}">${icon('right', 22)}</button>` : ''}</div>
+<div class="mv-tools">
+${layer !== 'live' ? `<button class="mv-btn" data-a="mapZoom" data-v="-1" data-k="mzout" ${z <= 1 ? 'disabled' : ''} aria-label="${t('አሳንስ', 'Zoom out')}">−</button><button class="mv-btn" data-a="mapZoom" data-v="1" data-k="mzin" ${z >= 4 ? 'disabled' : ''} aria-label="${t('አጉላ', 'Zoom in')}">+</button>` : ''}
+${first ? `<button class="mv-btn wide" data-a="mapRead" data-v="${first[0]}.${first[1]}" data-k="mapread">${icon('book', 18)}<span>${t('ክፍሉን አንብብ', 'Read it')}</span></button>` : ''}
+${own ? '' : `<a class="mv-btn wide" href="${MAP_CDN}orig/${m[0]}.pdf" target="_blank" rel="noopener">${icon('download', 18)}<span>PDF</span></a>`}
+</div>
+<p class="mv-credit small" lang="en">${own ? GEO_CREDIT : MAP_CREDIT + ' ' + GEO_CREDIT}</p></div>`;
+}
+// The story places (on the interactive map) that belong to the passages a Biblica map covers.
+function mapPlaces(m) {
+  const ids = new Set();
+  C.timeline.forEach((g) => g.items.forEach((it) => {
+    if (it.pl && m[2].some((x) => x[0] === it.p.b && (!x[1] || (it.p.c >= x[1] && it.p.c <= x[2])))) ids.add(it.pl);
+  }));
+  return C.places.map((p, i) => (ids.has(p.id) ? i : -1)).filter((i) => i >= 0);
+}
+
+// ---------- The app's own Bible map layer ----------
+// Places from OpenBible.info's Bible Geocoding Data (CC BY 4.0): every place each chapter mentions, numbered in the
+// order the text first names it, plus journeys traced from the Biblica maps (tools/routes.json, tools/build_geo.py).
+const GEO = { places: null, routes: null, books: {}, pending: {} };
+const GEO_CREDIT = 'Places: OpenBible.info Bible Geocoding Data, CC BY 4.0. Journeys traced from Biblica Open Bible Maps.';
+function geoLoad(path, done) {
+  if (GEO.pending[path]) return;
+  GEO.pending[path] = true;
+  fetch(path).then((r) => r.json()).then(done).catch(() => done(null)).then(() => render());
+}
+// The places and journeys for a list of passages [[book, first chapter, last chapter]], or null while loading.
+function geoFor(refs) {
+  if (!GEO.places) { geoLoad('data/geo/places.json', (d) => { GEO.places = d || []; }); return null; }
+  if (!GEO.routes) { geoLoad('data/geo/routes.json', (d) => { GEO.routes = d || []; }); return null; }
+  let waiting = false;
+  refs.forEach(([b]) => { if (!GEO.books[b]) { waiting = true; geoLoad('data/geo/' + b + '.json', (d) => { GEO.books[b] = d || {}; }); } });
+  if (waiting) return null;
+  const seen = new Map();
+  refs.forEach(([b, c1, c2]) => {
+    const chs = c1 ? Array.from({ length: c2 - c1 + 1 }, (_, i) => c1 + i) : Object.keys(GEO.books[b]).map(Number);
+    chs.forEach((c) => (GEO.books[b][c] || []).forEach(([i, vs]) => {
+      if (!seen.has(i)) seen.set(i, []);
+      vs.forEach((v) => seen.get(i).push([b, c, v]));
+    }));
+  });
+  const places = [...seen].map(([i, refsOf]) => ({ i, p: GEO.places[i], refs: refsOf }));
+  const routes = GEO.routes.filter((rt) => rt.ch.some(([b, c1, c2]) => refs.some(([rb, r1, r2]) => rb === b && (!r1 || (r1 <= c2 && r2 >= c1)))));
+  return { places, routes };
+}
+let lgeo = null, lgeoKey = '', lgeoMarks = [];
+// Draws (or clears) the layer on the shared map; fit = move the map to show it.
+function applyGeo(refs, fit) {
+  if (!lmap) return;
+  const key = refs ? JSON.stringify(refs) : '';
+  const data = refs ? geoFor(refs) : null;
+  mapEl.dataset.geo = data && (data.places.length || data.routes.length) ? '1' : '';
+  if (key === lgeoKey && (!refs || (data && lgeo))) { if (fit && data) geoFit(data); return; }
+  if (lgeo) { lgeo.remove(); lgeo = null; lgeoMarks = []; }
+  lgeoKey = refs && data ? key : '';
+  if (!data) return;
+  lgeo = L.layerGroup().addTo(lmap);
+  data.routes.forEach((rt) => {
+    const line = rt.pts.map((p) => [p[0], p[1]]);
+    L.polyline(line, { color: '#1F2023', weight: 7, opacity: 0.35, lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(lgeo);
+    L.polyline(line, { color: '#C0392B', weight: 3.5, dashArray: '10 8', lineCap: 'round', lineJoin: 'round', className: 'georoute' }).bindTooltip(tp(rt.n), { sticky: true }).addTo(lgeo);
+    for (let k = 1; k < line.length; k++) {   // a small arrow half way along each leg shows the direction of travel
+      const [a, b] = [line[k - 1], line[k]];
+      if (a[0] === b[0] && a[1] === b[1]) continue;
+      const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      const ang = Math.atan2(-(b[0] - a[0]), (b[1] - a[1]) * Math.cos(mid[0] * Math.PI / 180)) * 180 / Math.PI;
+      L.marker(mid, { interactive: false, keyboard: false, icon: L.divIcon({ className: '', html: `<span class="geoarrow" style="transform:rotate(${ang}deg)">➤</span>`, iconSize: [16, 16], iconAnchor: [8, 8] }) }).addTo(lgeo);
+    }
+    rt.pts.forEach((p) => { if (!data.places.some((x) => x.p[0] === p[2])) L.circleMarker([p[0], p[1]], { radius: 5, color: '#C0392B', weight: 2.5, fillColor: '#fff', fillOpacity: 1 }).bindTooltip(p[2], { permanent: true, direction: 'right', offset: [6, 0], className: 'geostop' }).addTo(lgeo); });
+  });
+  data.places.forEach((x, n) => {
+    const [name, lat, lon, kind, conf] = x.p;
+    const unsure = conf < 300, area = /region|country|people|nation|kingdom/.test(kind);
+    const verses = x.refs.slice(0, 12).map(([b, c, v]) => `<button class="geov" data-a="geoVerse" data-v="${b}.${c}.${v}">${esc(bookName(b))} ${c}:${v}</button>`).join('') + (x.refs.length > 12 ? `<span class="small">+${x.refs.length - 12}</span>` : '');
+    const m = L.marker([lat, lon], { keyboard: true, alt: name, zIndexOffset: 2000 - n, icon: L.divIcon({ className: '', html: `<span class="geopin${unsure ? ' unsure' : ''}${area ? ' area' : ''}"><b>${n + 1}</b><i>${esc(name)}</i></span>`, iconSize: [30, 30], iconAnchor: [15, 15] }) })
+      .bindPopup(`<div class="geopop"><b>${n + 1}. ${esc(name)}</b><span class="small">${esc(kind)}${unsure ? ' · ' + t('ቦታው እርግጠኛ አይደለም', 'location uncertain') : ''}</span><div class="geovs">${verses}</div></div>`, { maxWidth: 260 })
+      .addTo(lgeo);
+    lgeoMarks.push(m);
+  });
+  if (fit) geoFit(data);
+}
+function geoFit(data) {
+  const pts = data.places.filter((x) => !/region|country|people|nation|kingdom/.test(x.p[3])).map((x) => [x.p[1], x.p[2]]).concat(data.routes.flatMap((rt) => rt.pts.map((p) => [p[0], p[1]])));
+  const all = pts.length ? pts : data.places.map((x) => [x.p[1], x.p[2]]);
+  if (all.length > 1) lmap.fitBounds(all, { padding: [36, 36], maxZoom: 10 }); else if (all.length) lmap.setView(all[0], 9); else lmap.fitBounds(MAP_VIEWS.lands());
+}
+// The list of numbered places under a map, each opening its pin.
+function geoList(refs) {
+  const data = geoFor(refs);
+  if (!data) return `<p class="small muted">${t('ስፍራዎቹ እየተጫኑ ነው…', 'Loading the places…')}</p>`;
+  if (!data.places.length && !data.routes.length) return `<p class="small muted">${t('ይህ ክፍል የተለየ ስፍራ አይጠቅስም።', 'This passage names no places.')}</p>`;
+  return `<div class="geolist">${data.routes.map((rt) => `<span class="chip route">〰 ${esc(tp(rt.n))}</span>`).join('')}${data.places.map((x, n) => `<button class="chip geochip${x.p[4] < 300 ? ' unsure' : ''}" data-a="geoPlace" data-v="${n}" data-k="gp-${n}"><b>${n + 1}</b>${esc(x.p[0])}</button>`).join('')}</div>`;
 }
 
 function loadBook(id, b) {
@@ -894,7 +1002,8 @@ function closeVideo() {
 }
 modal.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) closeVideo(); });
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { closeVideo(); if (S.bigMap || S.picker) { S.bigMap = null; S.picker = false; render(); } }
+  if (e.key === 'Escape') { closeVideo(); if (S.bigMap || S.picker) { if (S.bigMap) actions.closeMap(); S.picker = false; render(); } }
+  if (S.bigMap && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { actions.mapStep(e.key === 'ArrowLeft' ? -1 : 1); render(); return; }
   // On the Study screen the arrow keys turn the chapter, unless the reader is typing or choosing.
   if (S.screen !== 'study' || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
   if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
@@ -1263,7 +1372,7 @@ function noteCard(n) {
 }
 
 function sidePanel() {
-  const tabs = [['context', t('ዳራ', 'Context')], ['maps', t('ካርታ', 'Maps')], ['fathers', t('አባቶች', 'Fathers')], ['words', t('ዋና ቃላት', 'Original')], ['notes', t('ማስታወሻ', 'Notes')]];
+  const tabs = [['context', t('ዳራ', 'Context'), icon('book', 18)], ['maps', t('ካርታ', 'Maps'), icon('pin', 18)], ['fathers', t('አባቶች', 'Fathers'), icon('user', 18)], ['words', t('ዋና ቃላት', 'Original'), `<b lang="${isHebrew(S.pass.b) ? 'he' : 'grc'}">${isHebrew(S.pass.b) ? 'א' : 'α'}</b>`], ['notes', t('ማስታወሻ', 'Notes'), icon('pen', 18)]];
   const st = study();
   let body = '';
   if (S.tab === 'maps') {
@@ -1314,7 +1423,7 @@ ${S.msg ? `<p class="prose" role="status">${esc(S.msg)}</p>` : ''}</div>` +
       S.notes.filter((n) => n.b === S.pass.b && n.c === S.pass.c).map(noteCard).join('');
   }
   return `<aside class="sidepanel" id="study" aria-label="${t('ተጨማሪ ጥናት', 'Study sides')}">
-<div class="seg" role="group">${tabs.map((x) => `<button data-a="tab" data-v="${x[0]}" data-k="tab-${x[0]}" aria-pressed="${S.tab === x[0]}">${x[1]}</button>`).join('')}</div>${body}</aside>`;
+<div class="studytabs" role="tablist" aria-label="${t('ተጨማሪ ጥናት', 'Study')}">${tabs.map((x) => `<button role="tab" data-a="tab" data-v="${x[0]}" data-k="tab-${x[0]}" aria-pressed="${S.tab === x[0]}" aria-selected="${S.tab === x[0]}">${x[2]}<span>${x[1]}</span></button>`).join('')}</div><div class="studybody">${body}</div></aside>`;
 }
 
 // The card for BibleProject's overview video of a book (and the part of the book a chapter falls in).
@@ -1375,10 +1484,10 @@ function studyView() {
   const colors = [['yellow', t('ቢጫ', 'Yellow')], ['green', t('አረንጓዴ', 'Green')], ['blue', t('ሰማያዊ', 'Blue')], ['pink', t('ሮዝ', 'Pink')]];
   const selbar = S.sel
     ? `<div class="row selbar" role="toolbar" aria-label="${t('የቁጥር መሣሪያዎች', 'Verse tools')}"><b class="small">${t('ቁ. ' + S.sel, 'v. ' + S.sel)}</b>
-${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl-${c[0]}" aria-label="${c[1]}" title="${c[1]}"><span style="background:var(--hl-${c[0]})"></span></button>`).join('')}
-${S.highlights[hlKey(S.sel)] ? `<button class="btn" data-a="clearHl" data-k="hl-clear" aria-label="${t('ቀለሙን አጥፋ', 'Clear the highlight')}" title="${t('ቀለሙን አጥፋ', 'Clear the highlight')}">${icon('close')}<span class="lbl">${t('አጥፋ', 'Clear')}</span></button>` : ''}
+${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl-${c[0]}" aria-pressed="${S.highlights[hlKey(S.sel)] === c[0]}" aria-label="${c[1]}" title="${S.highlights[hlKey(S.sel)] === c[0] ? t('ቀለሙን አንሳ', 'Remove highlight') : c[1]}"><span style="background:var(--hl-${c[0]})"></span></button>`).join('')}
 <button class="btn" data-a="noteTab" data-k="note-open" aria-label="${t('ማስታወሻ', 'Note')}" title="${t('ማስታወሻ', 'Note')}">${icon('pen')}<span class="lbl">${t('ማስታወሻ', 'Note')}</span></button>${voiceButton('rec-bar')}
 <button class="btn" data-a="shareVerse" data-k="share-verse" aria-label="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}" title="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}">${icon('share')}<span class="lbl">${t('አጋራ', 'Share')}</span></button>
+<button class="btn done" data-a="unsel" data-k="unsel" aria-label="${t('ጨርስ', 'Done')}" title="${t('ጨርስ', 'Done')}">${icon('check')}</button>
 <button class="btn" data-a="wordsTab" data-k="words-open" aria-label="${t('ዋና ቃላት', 'Original words')}" title="${t('ዋና ቃላት', 'Original words')}"><b lang="${isHebrew(p.b) ? 'he' : 'grc'}">${isHebrew(p.b) ? 'אב' : 'αβ'}</b><span class="lbl">${t('ዋና ቃላት', 'Original words')}</span></button></div>`
     : ls.get('hintSeen', false) ? '' : `<p class="muted small" style="padding:6px 12px">${t('ለማቅለም፣ ማስታወሻ ለመያዝ ወይም በዋናው ቋንቋ ለማየት አንድ ቁጥር ይንኩ።', 'Tap a verse to highlight it, add a note or see it in the original language.')}</p>`;
   const heads = S.split && S.layout === 'side' ? `<div class="row muted small" style="padding:0 12px;gap:16px"><b style="flex:1 1 220px">${esc(versions[S.primary].name)}</b><b style="flex:1 1 220px">${esc(versions[S.secondary].name)}</b></div>` : '';
@@ -1469,7 +1578,8 @@ function useVersion(id) {
 
 function pinIcon(i) {
   const pl = C.places[i];
-  return L.divIcon({ className: '', html: `<span class="spot${S.place === i ? ' on' : ''}"><span class="em">${pl.ic || '📍'}</span><b>${esc(tp(pl.n))}</b></span>`, iconSize: [44, 44], iconAnchor: [22, 22] });
+  const hot = false;
+  return L.divIcon({ className: '', html: `<span class="spot${S.place === i || hot ? ' on' : ''}"><span class="em">${pl.ic || '📍'}</span><b>${esc(tp(pl.n))}</b></span>`, iconSize: [44, 44], iconAnchor: [22, 22] });
 }
 
 const MAP_VIEWS = {
@@ -1581,6 +1691,7 @@ ${pl.note ? `<p class="muted prose">${esc(tp(pl.note))}</p>` : ''}
 <button class="btn" data-a="mapView" data-v="all" data-k="mv-all">${t('ሁሉም ስፍራዎች', 'All places')}</button>
 <button class="btn" data-a="mapView" data-v="land" data-k="mv-land">${t('ቅድስት አገር', 'The Holy Land')}</button>
 <button class="btn" data-a="mapView" data-v="city" data-k="mv-city">${t('ኢየሩሳሌምና አካባቢዋ', 'Around Jerusalem')}</button>
+<button class="btn" data-a="geoOn" data-k="geo-on" aria-pressed="${!!S.geoOn}">${icon('pin')}${t('የ' + bookName(S.pass.b) + ' ' + S.pass.c + ' ስፍራዎች', 'Places in ' + bookName(S.pass.b) + ' ' + S.pass.c)}</button>
 <button class="btn" data-a="tiles" data-k="tiles" aria-pressed="${S.tiles}">${icon('globe')}${t('የዛሬ ካርታ', 'Present-day map')}</button></div>
 ${bibleMapsSection()}
 <h2>${t('የታሪክ ስፍራዎች ካርታ', 'Story places map')}</h2>
@@ -1804,12 +1915,21 @@ function render() {
     if (now && S.game.done[0]) now.scrollIntoView({ block: 'center' });
     S.jump = false;
   }
-  const slot = root.querySelector('#mapslot');
+  const slot = root.querySelector('.mapview [data-mapslot]') || root.querySelector('[data-mapslot]') || root.querySelector('#mapslot');
   if (slot) {
     const el = ensureMap();
     if (el) {
       slot.replaceChildren(el);
       lmap.invalidateSize();
+      // Our own layer: the viewer shows its map's passages, the Maps tab the chapter being read, the Map screen the
+      // chapter too when "This chapter" is on.
+      const vm = slot.closest('.mapview') && viewerMap();
+      const refs = vm ? (vm[2].length ? vm[2] : [[S.pass.b, S.pass.c, S.pass.c]]) : slot.matches('[data-mapslot]') || S.geoOn ? [[S.pass.b, S.pass.c, S.pass.c]] : null;
+      const slotKey = (vm ? 'v' + vm[0] : slot.dataset.mapslot || 'screen') + '|' + JSON.stringify(refs);
+      const fit = S.mvFit || render.geoSlot !== slotKey;
+      applyGeo(refs, fit && !!refs);
+      if (fit && refs && geoFor(refs)) { render.geoSlot = slotKey; S.mvFit = false; }
+      if (!refs) render.geoSlot = slotKey;
       lmarkers.forEach((m, i) => { m.setIcon(pinIcon(i)); m.setZIndexOffset(S.place === i ? 1000 : 0); m.unbindTooltip(); m.bindTooltip(tp(C.places[i].n)); });
     }
   }
@@ -1966,13 +2086,21 @@ const actions = {
     S.sel = n; S.word = i; S.wordAt = S.pass.b + '.' + S.pass.c + '.' + n; S.tab = 'words'; S.focus = false; save('sel', 'tab');
     requestAnimationFrame(() => { const el = document.getElementById('ilc-' + i); if (el) el.scrollIntoView({ block: 'nearest' }); });
   },
-  hl(v) { S.highlights[hlKey(S.sel)] = v; save('highlights'); },
+  hl(v) { const k = hlKey(S.sel); S.highlights[k] = S.highlights[k] === v ? '' : v; save('highlights'); },
+  unsel() { S.sel = null; save('sel'); },
   clearHl() { S.highlights[hlKey(S.sel)] = ''; save('highlights'); },   // '' rather than delete, so the clearing syncs
   tab(v) { S.tab = v; save('tab'); },
-  openMap(v) { S.bigMap = +v; S.mapZoom = false; },
-  closeMap() { S.bigMap = null; },
-  mapZoom() { S.mapZoom = !S.mapZoom; },
-  mapRead(v) { const [b, c] = v.split('.').map(Number); S.bigMap = null; setPass({ b, c, f: 1, to: 0 }); S.screen = 'study'; save('screen'); window.scrollTo(0, 0); },
+  openMap(v) { S.mapList = [...root.querySelectorAll('.mapcard')].map((e) => +e.dataset.v).filter((x, i, a) => a.indexOf(x) === i); S.bigMap = +v; S.mapZoom = 1; S.mvFit = true; document.body.style.overflow = 'hidden'; },
+  mapStep(v) { const i = S.mapList.indexOf(S.bigMap) + +v; if (S.mapList[i] != null) { S.bigMap = S.mapList[i]; S.mapZoom = 1; S.mvFit = true; } },
+  mapLayer(v) { S.mapLayer = v; S.mvFit = true; ls.set('mapLayer', v); },
+  geoPlace(v) { const m = lgeoMarks[+v]; if (m) { lmap.setView(m.getLatLng(), Math.max(lmap.getZoom(), 8)); m.openPopup(); } return false; },
+  geoVerse(v) { const [b, c, n] = v.split('.').map(Number); S.bigMap = null; document.body.style.overflow = ''; setPass({ b, c, f: 1, to: 0 }); S.sel = n; S.goVerse = n; S.screen = 'study'; save('sel', 'screen'); },
+  geoBig() { S.mapList = []; S.bigMap = -1; S.mapLayer = 'live'; S.mvFit = true; document.body.style.overflow = 'hidden'; },
+  geoOn() { S.geoOn = !S.geoOn; render.geoSlot = ''; },
+  mvPlace(v) { S.place = +v; if (lmap) lmap.setView([C.places[+v].lat, C.places[+v].lon], 9); },
+  closeMap() { S.bigMap = null; document.body.style.overflow = ''; },
+  mapZoom(v) { S.mapZoom = Math.min(4, Math.max(1, (S.mapZoom || 1) + +v)); },
+  mapRead(v) { const [b, c] = v.split('.').map(Number); S.bigMap = null; document.body.style.overflow = ''; setPass({ b, c, f: 1, to: 0 }); S.screen = 'study'; save('screen'); window.scrollTo(0, 0); },
   place(v) { S.place = +v; save('place'); const p = C.places[S.place]; if (lmap) lmap.setView([p.lat, p.lon], Math.max(lmap.getZoom(), 9)); },
   mapView(v) { if (lmap) lmap.fitBounds(MAP_VIEWS[v](), { padding: [30, 30] }); return false; },
   tiles() { S.tiles = !S.tiles; save('tiles'); },
@@ -2062,6 +2190,18 @@ root.addEventListener('click', (e) => {
 });
 // On phones a sideways swipe over the text turns the chapter, as in most Bible apps.
 let swipe = null;
+// In the map viewer, a swipe sideways moves between maps and a swipe down closes it (when the picture is not zoomed).
+let mvSwipe = null;
+document.addEventListener('touchstart', (e) => { mvSwipe = S.bigMap && e.touches.length === 1 && e.target.closest('.mv-pic') && (S.mapZoom || 1) === 1 ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null; }, { passive: true });
+document.addEventListener('touchend', (e) => {
+  if (!mvSwipe) return;
+  const dx = e.changedTouches[0].clientX - mvSwipe.x, dy = e.changedTouches[0].clientY - mvSwipe.y;
+  mvSwipe = null;
+  if (dy > 90 && Math.abs(dx) < dy * 0.6) actions.closeMap();
+  else if (Math.abs(dx) > 70 && Math.abs(dy) < Math.abs(dx) * 0.6) actions.mapStep(dx < 0 ? 1 : -1);
+  else return;
+  render();
+}, { passive: true });
 root.addEventListener('touchstart', (e) => {
   swipe = S.screen === 'study' && !S.picker && !S.bigMap && e.touches.length === 1 && e.target.closest('.reader') ? { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() } : null;
 }, { passive: true });
