@@ -658,3 +658,36 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
   .selbar .btn { min-width: 38px; padding: 0 8px; }
   .selbar > b { display: none; }
 }
+
+/* ---------- Our own Bible map layer ---------- */
+.geoslot { height: 300px; border-radius: 12px; overflow: hidden; }
+.geoslot .lmap { width: 100%; height: 100%; min-height: 0; }
+.geocard .btn.small { min-height: 36px; padding: 0 12px; font-size: 13px; gap: 6px; }
+.lmap[data-geo="1"] .spot { opacity: .28; filter: grayscale(.6); }
+.lmap[data-geo="1"] .maplabel { opacity: .5; }
+.geopin { position: relative; display: block; width: 30px; height: 30px; }
+.geopin b { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 999px;
+  background: #C0392B; color: #fff; font: 700 13px/1 system-ui, sans-serif; border: 2.5px solid #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .45); }
+.geopin.unsure b { background: #fff; color: #C0392B; border: 2.5px dashed #C0392B; }
+.geopin.area b { background: #7A5C3A; }
+.geopin i { position: absolute; left: 34px; top: 5px; white-space: nowrap; font: 700 12px/1.6 system-ui, sans-serif; font-style: normal; color: #2B2118;
+  background: rgba(255, 250, 238, .92); padding: 0 6px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0, 0, 0, .25); pointer-events: none; }
+.geoarrow { display: block; color: #C0392B; font-size: 14px; line-height: 16px; text-align: center; text-shadow: 0 0 3px #fff, 0 0 3px #fff; }
+.georoute { animation: geodash 1.2s linear infinite; }
+@keyframes geodash { to { stroke-dashoffset: -18; } }
+@media (prefers-reduced-motion: reduce) { .georoute { animation: none; } }
+.geopop { display: flex; flex-direction: column; gap: 4px; font-family: inherit; }
+.geopop b { font-size: 15px; }
+.geovs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.geov { padding: 4px 8px; border-radius: 999px; background: #EDEDEF; color: #1F2023; font-size: 12px; font-weight: 600; }
+.geov:hover { background: #2B2D31; color: #fff; }
+.geolist { display: flex; flex-wrap: wrap; gap: 6px; }
+.mv-places .geolist { flex-wrap: nowrap; }
+.geochip { gap: 6px; }
+.geochip b { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; border-radius: 999px; background: #C0392B; color: #fff; font-size: 11px; }
+.geochip.unsure b { background: transparent; color: #C0392B; border: 1.5px dashed #C0392B; }
+.chip.route { background: rgba(192, 57, 43, .15); color: inherit; }
+.mv-places .muted { color: #B9BBC1; }
+.lmap[data-zoom="far"] .geopin i, .lmap[data-zoom="far"] .geostop { display: none; }
+.leaflet-tooltip.geostop { background: rgba(255, 250, 238, .92); border: 0; box-shadow: 0 1px 4px rgba(0, 0, 0, .25); color: #2B2118; font: 600 11px/1.5 system-ui, sans-serif; padding: 0 6px; }
+.leaflet-tooltip.geostop::before { display: none; }

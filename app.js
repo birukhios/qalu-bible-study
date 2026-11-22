@@ -258,36 +258,44 @@ const mapCard = (m) => `<button class="mapcard" data-a="openMap" data-v="${m[0]}
 function mapsTab() {
   if (!bibleMaps()) return `<p class="muted prose" role="status">${t('እየተጫነ ነው…', 'Loading…')}</p>`;
   const { exact, book } = mapsFor(S.pass.b, S.pass.c);
-  return (exact.length ? `<h2>${t('ለምዕራፍ ' + S.pass.c, 'For chapter ' + S.pass.c)}</h2><div class="mapgrid">${exact.map(mapCard).join('')}</div>` : `<div class="card"><p class="muted prose">${t('ለዚህ ምዕራፍ የተለየ ካርታ የለም።', 'No map for this chapter in particular.')}</p></div>`) +
+  const refs = [[S.pass.b, S.pass.c, S.pass.c]];
+  const ours = `<div class="card stack geocard"><div class="row between"><b>${t('የዚህ ምዕራፍ ካርታ', 'This chapter on the map')}</b><button class="btn small" data-a="geoBig" data-k="geo-big">${icon('focus', 16)}${t('አስፋ', 'Expand')}</button></div>
+<div data-mapslot="panel" class="geoslot"></div>${geoList(refs)}<p class="muted small" lang="en">${GEO_CREDIT}</p></div>`;
+  return ours + (exact.length ? `<h2>${t('ማጣቀሻ ሥዕሎች', 'Reference maps')}</h2>` : '') + (exact.length ? `<h2>${t('ለምዕራፍ ' + S.pass.c, 'For chapter ' + S.pass.c)}</h2><div class="mapgrid">${exact.map(mapCard).join('')}</div>` : `<div class="card"><p class="muted prose">${t('ለዚህ ምዕራፍ የተለየ ካርታ የለም።', 'No map for this chapter in particular.')}</p></div>`) +
     (book.length ? `<h2>${t('ለመጽሐፉ በሙሉ', 'For the whole book')} · ${esc(bookName(S.pass.b))}</h2><div class="mapgrid">${book.slice(0, S.more * 2).map(mapCard).join('')}</div>${book.length > S.more * 2 ? `<button class="btn" data-a="more" data-k="more-maps">${t('ተጨማሪ አሳይ', 'Show more')}</button>` : ''}` : '') +
     `<p class="muted small" lang="en">${MAP_CREDIT} ${t('ሥዕሎቹ ኢንተርኔት ያስፈልጋቸዋል።', 'The pictures need a connection.')}</p>`;
 }
 // The full-screen viewer for one map.
+// The map open in the viewer: a Biblica map, or (id -1) the chapter being read on our own map alone.
+function viewerMap() {
+  if (S.bigMap === -1) return [-1, bookName(S.pass.b) + ' ' + S.pass.c, [[S.pass.b, S.pass.c, S.pass.c]]];
+  return S.bigMap ? (MAPS.list || []).find((x) => x[0] === S.bigMap) : null;
+}
 function mapViewer() {
-  if (!S.bigMap) return '';
-  const m = (MAPS.list || []).find((x) => x[0] === S.bigMap);
+  const m = viewerMap();
   if (!m) return '';
+  const own = m[0] === -1;
   const first = m[2].find((x) => x[1]);
   const list = S.mapList && S.mapList.includes(m[0]) ? S.mapList : [m[0]];
   const at = list.indexOf(m[0]);
-  const layer = S.mapLayer || 'pic';
-  const places = mapPlaces(m);
+  const layer = own ? 'live' : S.mapLayer || 'pic';
+  const vrefs = m[2].length ? m[2] : [[S.pass.b, S.pass.c, S.pass.c]];
   const z = S.mapZoom || 1;
   const pic = `<div class="mv-pic" data-zoom="${z}"><img src="${MAP_CDN}thumb/640/${m[0]}.jpg" alt="${esc(m[1])}" style="width:${z * 100}%"></div>`;
-  const live = `<div class="mv-live"><div data-mapslot class="mv-slot"></div>${places.length ? `<div class="mv-places">${places.map((i) => `<button class="chip" data-a="mvPlace" data-v="${i}" data-k="mvp-${i}">${C.places[i].ic || '📍'} ${esc(tp(C.places[i].n))}</button>`).join('')}</div>` : `<p class="small mv-note">${t('ለዚህ ክፍል በታሪክ ካርታው ላይ የተመዘገበ ስፍራ የለም፤ መላውን አገር ያሳያል።', 'No story places are listed for this passage yet; showing the whole region.')}</p>`}</div>`;
+  const live = `<div class="mv-live"><div data-mapslot class="mv-slot"></div><div class="mv-places">${geoList(vrefs)}</div></div>`;
   const seg = (v, label) => `<button data-a="mapLayer" data-v="${v}" data-k="ml-${v}" aria-pressed="${layer === v}">${label}</button>`;
   return `<div class="mapview" role="dialog" aria-modal="true" aria-label="${esc(m[1])}">
 <div class="mv-top"><div class="mv-title"><b>${esc(m[1])}</b>${list.length > 1 ? `<span class="small">${at + 1} / ${list.length}</span>` : ''}</div>
 <button class="mv-close" data-a="closeMap" data-k="closemap" aria-label="${t('ዝጋ', 'Close')}" title="${t('ዝጋ (Esc)', 'Close (Esc)')}">${icon('close', 22)}</button></div>
-<div class="mv-seg seg" role="group" aria-label="${t('እይታ', 'View')}">${seg('pic', t('ሥዕል', 'Picture'))}${seg('live', t('ተንቀሳቃሽ ካርታ', 'Live map'))}${seg('both', t('ሁለቱም', 'Both'))}</div>
+${own ? '' : `<div class="mv-seg seg" role="group" aria-label="${t('እይታ', 'View')}">${seg('pic', t('ሥዕል', 'Picture'))}${seg('live', t('ተንቀሳቃሽ ካርታ', 'Live map'))}${seg('both', t('ሁለቱም', 'Both'))}</div>`}
 <div class="mv-stage mv-${layer}">${layer !== 'live' ? pic : ''}${layer !== 'pic' ? live : ''}
 ${list.length > 1 ? `<button class="mv-nav prev" data-a="mapStep" data-v="-1" data-k="mvprev" ${at === 0 ? 'disabled' : ''} aria-label="${t('ያለፈው ካርታ', 'Previous map')}">${icon('left', 22)}</button><button class="mv-nav next" data-a="mapStep" data-v="1" data-k="mvnext" ${at === list.length - 1 ? 'disabled' : ''} aria-label="${t('ቀጣዩ ካርታ', 'Next map')}">${icon('right', 22)}</button>` : ''}</div>
 <div class="mv-tools">
 ${layer !== 'live' ? `<button class="mv-btn" data-a="mapZoom" data-v="-1" data-k="mzout" ${z <= 1 ? 'disabled' : ''} aria-label="${t('አሳንስ', 'Zoom out')}">−</button><button class="mv-btn" data-a="mapZoom" data-v="1" data-k="mzin" ${z >= 4 ? 'disabled' : ''} aria-label="${t('አጉላ', 'Zoom in')}">+</button>` : ''}
 ${first ? `<button class="mv-btn wide" data-a="mapRead" data-v="${first[0]}.${first[1]}" data-k="mapread">${icon('book', 18)}<span>${t('ክፍሉን አንብብ', 'Read it')}</span></button>` : ''}
-<a class="mv-btn wide" href="${MAP_CDN}orig/${m[0]}.pdf" target="_blank" rel="noopener">${icon('download', 18)}<span>PDF</span></a>
+${own ? '' : `<a class="mv-btn wide" href="${MAP_CDN}orig/${m[0]}.pdf" target="_blank" rel="noopener">${icon('download', 18)}<span>PDF</span></a>`}
 </div>
-<p class="mv-credit small" lang="en">${MAP_CREDIT}</p></div>`;
+<p class="mv-credit small" lang="en">${own ? GEO_CREDIT : MAP_CREDIT + ' ' + GEO_CREDIT}</p></div>`;
 }
 // The story places (on the interactive map) that belong to the passages a Biblica map covers.
 function mapPlaces(m) {
@@ -296,6 +304,84 @@ function mapPlaces(m) {
     if (it.pl && m[2].some((x) => x[0] === it.p.b && (!x[1] || (it.p.c >= x[1] && it.p.c <= x[2])))) ids.add(it.pl);
   }));
   return C.places.map((p, i) => (ids.has(p.id) ? i : -1)).filter((i) => i >= 0);
+}
+
+// ---------- The app's own Bible map layer ----------
+// Places from OpenBible.info's Bible Geocoding Data (CC BY 4.0): every place each chapter mentions, numbered in the
+// order the text first names it, plus journeys traced from the Biblica maps (tools/routes.json, tools/build_geo.py).
+const GEO = { places: null, routes: null, books: {}, pending: {} };
+const GEO_CREDIT = 'Places: OpenBible.info Bible Geocoding Data, CC BY 4.0. Journeys traced from Biblica Open Bible Maps.';
+function geoLoad(path, done) {
+  if (GEO.pending[path]) return;
+  GEO.pending[path] = true;
+  fetch(path).then((r) => r.json()).then(done).catch(() => done(null)).then(() => render());
+}
+// The places and journeys for a list of passages [[book, first chapter, last chapter]], or null while loading.
+function geoFor(refs) {
+  if (!GEO.places) { geoLoad('data/geo/places.json', (d) => { GEO.places = d || []; }); return null; }
+  if (!GEO.routes) { geoLoad('data/geo/routes.json', (d) => { GEO.routes = d || []; }); return null; }
+  let waiting = false;
+  refs.forEach(([b]) => { if (!GEO.books[b]) { waiting = true; geoLoad('data/geo/' + b + '.json', (d) => { GEO.books[b] = d || {}; }); } });
+  if (waiting) return null;
+  const seen = new Map();
+  refs.forEach(([b, c1, c2]) => {
+    const chs = c1 ? Array.from({ length: c2 - c1 + 1 }, (_, i) => c1 + i) : Object.keys(GEO.books[b]).map(Number);
+    chs.forEach((c) => (GEO.books[b][c] || []).forEach(([i, vs]) => {
+      if (!seen.has(i)) seen.set(i, []);
+      vs.forEach((v) => seen.get(i).push([b, c, v]));
+    }));
+  });
+  const places = [...seen].map(([i, refsOf]) => ({ i, p: GEO.places[i], refs: refsOf }));
+  const routes = GEO.routes.filter((rt) => rt.ch.some(([b, c1, c2]) => refs.some(([rb, r1, r2]) => rb === b && (!r1 || (r1 <= c2 && r2 >= c1)))));
+  return { places, routes };
+}
+let lgeo = null, lgeoKey = '', lgeoMarks = [];
+// Draws (or clears) the layer on the shared map; fit = move the map to show it.
+function applyGeo(refs, fit) {
+  if (!lmap) return;
+  const key = refs ? JSON.stringify(refs) : '';
+  const data = refs ? geoFor(refs) : null;
+  mapEl.dataset.geo = data && (data.places.length || data.routes.length) ? '1' : '';
+  if (key === lgeoKey && (!refs || (data && lgeo))) { if (fit && data) geoFit(data); return; }
+  if (lgeo) { lgeo.remove(); lgeo = null; lgeoMarks = []; }
+  lgeoKey = refs && data ? key : '';
+  if (!data) return;
+  lgeo = L.layerGroup().addTo(lmap);
+  data.routes.forEach((rt) => {
+    const line = rt.pts.map((p) => [p[0], p[1]]);
+    L.polyline(line, { color: '#1F2023', weight: 7, opacity: 0.35, lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(lgeo);
+    L.polyline(line, { color: '#C0392B', weight: 3.5, dashArray: '10 8', lineCap: 'round', lineJoin: 'round', className: 'georoute' }).bindTooltip(tp(rt.n), { sticky: true }).addTo(lgeo);
+    for (let k = 1; k < line.length; k++) {   // a small arrow half way along each leg shows the direction of travel
+      const [a, b] = [line[k - 1], line[k]];
+      if (a[0] === b[0] && a[1] === b[1]) continue;
+      const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      const ang = Math.atan2(-(b[0] - a[0]), (b[1] - a[1]) * Math.cos(mid[0] * Math.PI / 180)) * 180 / Math.PI;
+      L.marker(mid, { interactive: false, keyboard: false, icon: L.divIcon({ className: '', html: `<span class="geoarrow" style="transform:rotate(${ang}deg)">➤</span>`, iconSize: [16, 16], iconAnchor: [8, 8] }) }).addTo(lgeo);
+    }
+    rt.pts.forEach((p) => { if (!data.places.some((x) => x.p[0] === p[2])) L.circleMarker([p[0], p[1]], { radius: 5, color: '#C0392B', weight: 2.5, fillColor: '#fff', fillOpacity: 1 }).bindTooltip(p[2], { permanent: true, direction: 'right', offset: [6, 0], className: 'geostop' }).addTo(lgeo); });
+  });
+  data.places.forEach((x, n) => {
+    const [name, lat, lon, kind, conf] = x.p;
+    const unsure = conf < 300, area = /region|country|people|nation|kingdom/.test(kind);
+    const verses = x.refs.slice(0, 12).map(([b, c, v]) => `<button class="geov" data-a="geoVerse" data-v="${b}.${c}.${v}">${esc(bookName(b))} ${c}:${v}</button>`).join('') + (x.refs.length > 12 ? `<span class="small">+${x.refs.length - 12}</span>` : '');
+    const m = L.marker([lat, lon], { keyboard: true, alt: name, zIndexOffset: 2000 - n, icon: L.divIcon({ className: '', html: `<span class="geopin${unsure ? ' unsure' : ''}${area ? ' area' : ''}"><b>${n + 1}</b><i>${esc(name)}</i></span>`, iconSize: [30, 30], iconAnchor: [15, 15] }) })
+      .bindPopup(`<div class="geopop"><b>${n + 1}. ${esc(name)}</b><span class="small">${esc(kind)}${unsure ? ' · ' + t('ቦታው እርግጠኛ አይደለም', 'location uncertain') : ''}</span><div class="geovs">${verses}</div></div>`, { maxWidth: 260 })
+      .addTo(lgeo);
+    lgeoMarks.push(m);
+  });
+  if (fit) geoFit(data);
+}
+function geoFit(data) {
+  const pts = data.places.filter((x) => !/region|country|people|nation|kingdom/.test(x.p[3])).map((x) => [x.p[1], x.p[2]]).concat(data.routes.flatMap((rt) => rt.pts.map((p) => [p[0], p[1]])));
+  const all = pts.length ? pts : data.places.map((x) => [x.p[1], x.p[2]]);
+  if (all.length > 1) lmap.fitBounds(all, { padding: [36, 36], maxZoom: 10 }); else if (all.length) lmap.setView(all[0], 9); else lmap.fitBounds(MAP_VIEWS.lands());
+}
+// The list of numbered places under a map, each opening its pin.
+function geoList(refs) {
+  const data = geoFor(refs);
+  if (!data) return `<p class="small muted">${t('ስፍራዎቹ እየተጫኑ ነው…', 'Loading the places…')}</p>`;
+  if (!data.places.length && !data.routes.length) return `<p class="small muted">${t('ይህ ክፍል የተለየ ስፍራ አይጠቅስም።', 'This passage names no places.')}</p>`;
+  return `<div class="geolist">${data.routes.map((rt) => `<span class="chip route">〰 ${esc(tp(rt.n))}</span>`).join('')}${data.places.map((x, n) => `<button class="chip geochip${x.p[4] < 300 ? ' unsure' : ''}" data-a="geoPlace" data-v="${n}" data-k="gp-${n}"><b>${n + 1}</b>${esc(x.p[0])}</button>`).join('')}</div>`;
 }
 
 function loadBook(id, b) {
@@ -1492,8 +1578,7 @@ function useVersion(id) {
 
 function pinIcon(i) {
   const pl = C.places[i];
-  const m = S.bigMap && (MAPS.list || []).find((x) => x[0] === S.bigMap);
-  const hot = m && mapPlaces(m).includes(i);
+  const hot = false;
   return L.divIcon({ className: '', html: `<span class="spot${S.place === i || hot ? ' on' : ''}"><span class="em">${pl.ic || '📍'}</span><b>${esc(tp(pl.n))}</b></span>`, iconSize: [44, 44], iconAnchor: [22, 22] });
 }
 
@@ -1606,6 +1691,7 @@ ${pl.note ? `<p class="muted prose">${esc(tp(pl.note))}</p>` : ''}
 <button class="btn" data-a="mapView" data-v="all" data-k="mv-all">${t('ሁሉም ስፍራዎች', 'All places')}</button>
 <button class="btn" data-a="mapView" data-v="land" data-k="mv-land">${t('ቅድስት አገር', 'The Holy Land')}</button>
 <button class="btn" data-a="mapView" data-v="city" data-k="mv-city">${t('ኢየሩሳሌምና አካባቢዋ', 'Around Jerusalem')}</button>
+<button class="btn" data-a="geoOn" data-k="geo-on" aria-pressed="${!!S.geoOn}">${icon('pin')}${t('የ' + bookName(S.pass.b) + ' ' + S.pass.c + ' ስፍራዎች', 'Places in ' + bookName(S.pass.b) + ' ' + S.pass.c)}</button>
 <button class="btn" data-a="tiles" data-k="tiles" aria-pressed="${S.tiles}">${icon('globe')}${t('የዛሬ ካርታ', 'Present-day map')}</button></div>
 ${bibleMapsSection()}
 <h2>${t('የታሪክ ስፍራዎች ካርታ', 'Story places map')}</h2>
@@ -1829,17 +1915,21 @@ function render() {
     if (now && S.game.done[0]) now.scrollIntoView({ block: 'center' });
     S.jump = false;
   }
-  const slot = root.querySelector('.mapview [data-mapslot]') || root.querySelector('#mapslot');
+  const slot = root.querySelector('.mapview [data-mapslot]') || root.querySelector('[data-mapslot]') || root.querySelector('#mapslot');
   if (slot) {
     const el = ensureMap();
     if (el) {
       slot.replaceChildren(el);
       lmap.invalidateSize();
-      if (S.mvFit && slot.matches('[data-mapslot]')) {   // the viewer's live map opens on the places of that map's passages
-        S.mvFit = false;
-        const m = (MAPS.list || []).find((x) => x[0] === S.bigMap), pts = m ? mapPlaces(m).map((i) => [C.places[i].lat, C.places[i].lon]) : [];
-        if (pts.length > 1) lmap.fitBounds(pts, { padding: [40, 40], maxZoom: 9 }); else if (pts.length) lmap.setView(pts[0], 8); else lmap.fitBounds(MAP_VIEWS.lands());
-      }
+      // Our own layer: the viewer shows its map's passages, the Maps tab the chapter being read, the Map screen the
+      // chapter too when "This chapter" is on.
+      const vm = slot.closest('.mapview') && viewerMap();
+      const refs = vm ? (vm[2].length ? vm[2] : [[S.pass.b, S.pass.c, S.pass.c]]) : slot.matches('[data-mapslot]') || S.geoOn ? [[S.pass.b, S.pass.c, S.pass.c]] : null;
+      const slotKey = (vm ? 'v' + vm[0] : slot.dataset.mapslot || 'screen') + '|' + JSON.stringify(refs);
+      const fit = S.mvFit || render.geoSlot !== slotKey;
+      applyGeo(refs, fit && !!refs);
+      if (fit && refs && geoFor(refs)) { render.geoSlot = slotKey; S.mvFit = false; }
+      if (!refs) render.geoSlot = slotKey;
       lmarkers.forEach((m, i) => { m.setIcon(pinIcon(i)); m.setZIndexOffset(S.place === i ? 1000 : 0); m.unbindTooltip(); m.bindTooltip(tp(C.places[i].n)); });
     }
   }
@@ -2003,6 +2093,10 @@ const actions = {
   openMap(v) { S.mapList = [...root.querySelectorAll('.mapcard')].map((e) => +e.dataset.v).filter((x, i, a) => a.indexOf(x) === i); S.bigMap = +v; S.mapZoom = 1; S.mvFit = true; document.body.style.overflow = 'hidden'; },
   mapStep(v) { const i = S.mapList.indexOf(S.bigMap) + +v; if (S.mapList[i] != null) { S.bigMap = S.mapList[i]; S.mapZoom = 1; S.mvFit = true; } },
   mapLayer(v) { S.mapLayer = v; S.mvFit = true; ls.set('mapLayer', v); },
+  geoPlace(v) { const m = lgeoMarks[+v]; if (m) { lmap.setView(m.getLatLng(), Math.max(lmap.getZoom(), 8)); m.openPopup(); } return false; },
+  geoVerse(v) { const [b, c, n] = v.split('.').map(Number); S.bigMap = null; document.body.style.overflow = ''; setPass({ b, c, f: 1, to: 0 }); S.sel = n; S.goVerse = n; S.screen = 'study'; save('sel', 'screen'); },
+  geoBig() { S.mapList = []; S.bigMap = -1; S.mapLayer = 'live'; S.mvFit = true; document.body.style.overflow = 'hidden'; },
+  geoOn() { S.geoOn = !S.geoOn; render.geoSlot = ''; },
   mvPlace(v) { S.place = +v; if (lmap) lmap.setView([C.places[+v].lat, C.places[+v].lon], 9); },
   closeMap() { S.bigMap = null; document.body.style.overflow = ''; },
   mapZoom(v) { S.mapZoom = Math.min(4, Math.max(1, (S.mapZoom || 1) + +v)); },
