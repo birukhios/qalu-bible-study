@@ -71,7 +71,7 @@ for vid, make in [('bsb', lambda: from_scrollmapper('BSB')), ('darby', lambda: f
                   ('geneva', lambda: from_scrollmapper('Geneva1599')), ('nheb', lambda: from_scrollmapper('NHEB')),
                   ('webster', lambda: from_scrollmapper('Webster')),
                   ('acv', lambda: from_scrollmapper('ACV')), ('ukjv', lambda: from_scrollmapper('UKJV')),
-                  ('rotherham', lambda: from_scrollmapper('Rotherham')), ('twenty', lambda: from_scrollmapper('Twenty')),
+                  ('rotherham', lambda: from_scrollmapper('Rotherham')),
                   ('orig', from_interlinear)]:
     if len(sys.argv) > 4 and vid not in sys.argv[4].split(','):
         continue  # an optional fifth argument limits the run to some versions, e.g. "wal,som"
