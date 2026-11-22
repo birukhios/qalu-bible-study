@@ -802,3 +802,8 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .tools.open { background: var(--surface); }
 .tools.open .btn[aria-pressed="true"] { background: var(--nav-on); color: var(--text); }
 .tools.open .btn[aria-pressed="true"]::after { content: '✓'; margin-left: auto; font-weight: 700; }
+
+/* Map screen: one big live map */
+.mapscreen { gap: 12px; }
+.maps.atlas #mapslot .lmap { min-height: calc(100vh - 160px); }
+@media (max-width: 760px) { .maps.atlas #mapslot .lmap { min-height: 60vh; } }
