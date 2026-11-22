@@ -402,3 +402,36 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
   .card.video .stack .btn, .card.video .stack .muted.small:nth-child(3) { display: none; }
   .card.video .stack b[style] { font-size: 16px !important; }
 }
+
+/* Passage and version chooser (Bible-app style) */
+.titlepills { flex: 1 1 auto; display: flex; justify-content: center; gap: 8px; min-width: 0; }
+.pill-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border-radius: 999px; background: var(--ctl); color: var(--text); min-width: 0; }
+.pill-btn h1 { font-size: 19px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pill-btn.ver { font-weight: 700; font-size: 15px; flex: none; }
+.pill-btn svg { fill: none; stroke: currentColor; stroke-width: 2.2; flex: none; }
+.pill-btn[aria-expanded="true"] { background: var(--sky); color: #fff; }
+.sheet { gap: 14px; }
+.sheet-head b { font-size: 18px; }
+.bookgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; }
+.numgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px; }
+.cell { min-height: 48px; border-radius: 10px; background: var(--ctl); font-weight: 600; font-size: 16px; padding: 4px 8px; }
+.cell.book { text-align: left; font-size: 15px; font-weight: 500; }
+.cell:hover { background: var(--line); }
+.cell[aria-pressed="true"] { background: var(--sky); color: #fff; }
+.verlist { display: flex; flex-direction: column; gap: 4px; }
+.verrow { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 6px 12px; border-radius: 10px; background: var(--ctl); text-align: left; }
+.verrow b { min-width: 64px; }
+.verrow span { color: var(--muted); font-size: 14px; }
+.verrow[aria-pressed="true"] { outline: 2px solid var(--sky); }
+/* Bible maps */
+.mapgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.mapcard { display: flex; flex-direction: column; gap: 6px; text-align: left; background: var(--ctl); border-radius: 12px; padding: 6px; }
+.mapcard img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 8px; background: var(--line); }
+.mapcard span { font-size: 13px; padding: 0 4px 4px; }
+.mapview { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .9); display: flex; flex-direction: column; }
+.mapview .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 16px; color: #fff; }
+.mapview .bar b { flex: 1 1 100%; font-size: 16px; }
+.mapview .bar .btn { flex: none; }
+.mapview .scroll { flex: 1; overflow: auto; display: flex; justify-content: center; align-items: flex-start; padding: 0 8px 16px; }
+.mapview img { max-width: 100%; height: auto; }
+.mapview .scroll.zoom img { max-width: none; width: 200%; }

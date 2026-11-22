@@ -19,6 +19,13 @@ VERSIONS = {  # app id: Beblia file
     'amnst': 'AmharicNSTBible.xml',      # New Standard Translation 2005, Bible Society of Ethiopia
     'amnasv': 'AmharicNASVBible.xml',    # Addisu Medebegna Tirgum (New Amharic Standard Version), Biblica 2001
     'amcath': 'AmharicCatholicBible.xml',  # Amharic Catholic version
+    # English versions under copyright (by their publishers), for personal study use:
+    'niv': 'EnglishNIVBible.xml', 'esv': 'EnglishESVBible.xml', 'nlt': 'EnglishNLTBible.xml', 'nkjv': 'EnglishNKJBible.xml',
+    'nasb': 'EnglishNASBBible.xml', 'csb': 'EnglishCSBBible.xml', 'nrsv': 'EnglishNRSVBible.xml', 'rsv': 'EnglishRSVBible.xml',
+    'amp': 'EnglishAmplifiedBible.xml', 'ampc': 'EnglishAmplifiedClassicBible.xml', 'net': 'EnglishNETBible.xml',
+    'gnt': 'EnglishGNTBible.xml', 'mev': 'EnglishMEVBible.xml', 'lsb': 'EnglishLSBBible.xml', 'erv': 'EnglishERVBible.xml',
+    'gw': 'EnglishGWBible.xml', 'nirv': 'EnglishNIRVBible.xml', 'easy': 'EnglishEASYBible.xml', 'tlb': 'EnglishTLBible.xml',
+    'hcsb': 'EnglishHCSBBible.xml',
 }
 src, out = sys.argv[1:3]
 only = set(sys.argv[3].split(',')) if len(sys.argv) > 3 else None
