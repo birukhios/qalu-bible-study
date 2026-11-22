@@ -770,3 +770,35 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
   -webkit-box-decoration-break: clone; box-decoration-break: clone; border-radius: 3px; padding: 0 3px; margin: 0 -1px;
 }
 .verse[aria-pressed="true"][data-hl]:not([data-hl=""]) { box-shadow: inset 0 0 0 1.5px var(--line); }
+
+/* ---------- Reading bar, simplified: passage · version · search · Aa (a menu with the reading tools) ---------- */
+.readhead { flex-wrap: nowrap; justify-content: space-between; gap: 8px; }
+.readhead .titlebar { flex: 1 1 auto; min-width: 0; }
+.btn.aa { display: inline-flex !important; align-items: center; justify-content: center; }
+.tools, .tools.open { display: none; }
+.tools.open {
+  display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 2px;
+  position: absolute; top: calc(100% + 8px); right: 8px; width: 270px; padding: 6px; z-index: 40;
+  background: var(--glass-strong); border: 1px solid var(--glass-line); border-radius: 16px; box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
+}
+.tools.open .btn { justify-content: flex-start; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: transparent; box-shadow: none; width: 100%; }
+.tools.open .btn:hover { background: var(--glass-hi); }
+.tools.open .btn[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.tools.open .btn .lbl, .tools.open .lbl { display: inline !important; white-space: nowrap; }
+.tools.open .btn b { min-width: 22px; text-align: center; }
+@media (min-width: 761px) {
+  .titlebar > .btn[data-a="prevCh"], .titlebar > .btn[data-a="nextCh"] { display: inline-flex; }
+  .readhead .btn.round { width: 44px; min-height: 44px; }
+}
+
+/* ---------- Verse toolbar: one row of icons ---------- */
+.selbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 4px; padding: 6px 8px; width: fit-content; max-width: 100%; }
+.selbar::-webkit-scrollbar { display: none; }
+.selbar .lbl { display: none !important; }
+.selbar .btn { flex: none; min-width: 42px; width: 42px; padding: 0; justify-content: center; }
+.selbar .dot { flex: none; }
+.selbar > b { flex: none; padding: 0 4px; }
+.tools.open { background: var(--surface); }
+.tools.open .btn[aria-pressed="true"] { background: var(--nav-on); color: var(--text); }
+.tools.open .btn[aria-pressed="true"]::after { content: '✓'; margin-left: auto; font-weight: 700; }
