@@ -1032,3 +1032,74 @@ details.backup[open] summary::after { transform: rotate(90deg); }
   .kbtn { font-size: 18px; min-height: 56px; }
   .kstage { border-radius: 20px; }
 }
+
+/* Four tabs on phones: Journey and Map live on Explore's shortcuts there. */
+@media (max-width: 760px) { .navmain .nav.deskonly { display: none; } }
+.shortcuts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.shortcut { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 6px; border-radius: 18px; background: var(--bg); border: 1px solid var(--line); text-align: center; font-size: 13px; line-height: 1.3; }
+.shortcut:hover { border-color: var(--sc); }
+.sc-ic { width: 46px; height: 46px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, color-mix(in srgb, var(--sc) 75%, #fff), var(--sc)); box-shadow: 0 6px 14px color-mix(in srgb, var(--sc) 35%, transparent); }
+.shortcut b { font-weight: 600; }
+@media (max-width: 760px) { .shortcuts { gap: 8px; } .shortcut { padding: 10px 2px; font-size: 12px; } .sc-ic { width: 42px; height: 42px; } }
+
+/* Kids: livelier scenes */
+.kstage svg { animation: k-scenein .7s cubic-bezier(.2, 1.2, .3, 1) both; }
+@keyframes k-scenein { from { transform: scale(1.12) rotate(-1.5deg); filter: blur(6px) saturate(1.6); opacity: 0; } to { transform: none; filter: none; opacity: 1; } }
+.kstage [data-kp], .kgame [data-kp] { cursor: pointer; }
+.k-tapped { animation: k-tapped .6s cubic-bezier(.2, 1.8, .4, 1) !important; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes k-tapped { 0% { transform: scale(1); } 30% { transform: scale(1.25, .8); } 55% { transform: scale(.9, 1.2) translateY(-14px); } 80% { transform: scale(1.05, .95); } 100% { transform: scale(1); } }
+.k-flash { opacity: 0; animation: k-flash 4.5s 1s infinite; }
+@keyframes k-flash { 0%, 62%, 66%, 70%, 100% { opacity: 0; } 63% { opacity: .75; } 68% { opacity: .5; } }
+.kspark { position: fixed; z-index: 3000; width: 0; height: 0; pointer-events: none; }
+.kspark i { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 3px; background: var(--c); animation: k-spark .75s ease-out forwards; transform: rotate(var(--a)); }
+@keyframes k-spark { to { transform: rotate(var(--a)) translateY(-54px) scale(.3); opacity: 0; } }
+.khint { margin: -4px 0 0; text-align: center; font-size: 14px; font-weight: 700; color: var(--muted); animation: k-bob 1.8s ease-in-out infinite; }
+.kids-hero::before, .kids-hero::after { content: ''; position: absolute; top: 18px; width: 70px; height: 24px; border-radius: 999px; background: #fff; opacity: .9; box-shadow: 18px -10px 0 4px #fff, 40px 0 0 0 #fff; animation: k-drift 12s ease-in-out infinite; }
+.kids-hero::before { left: 6%; } .kids-hero::after { right: 34%; top: 40px; transform: scale(.7); animation-duration: 16s; }
+.khero-sound { position: absolute; top: 10px; right: 10px; z-index: 1; }
+.khero-sound .kround { background: rgba(255, 255, 255, .85); color: #1F2023; }
+.kround[aria-pressed] { font-size: 20px; }
+.ktabs { margin-top: 4px; }
+.ktabs button { font: 800 16px var(--kfont); min-height: 50px; }
+.kgtitle { font: 800 20px var(--kfont); text-align: center; flex: 1; }
+.kgames { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.kgcard { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 24px; background: var(--bg); border: 3px solid var(--kc); box-shadow: 0 7px 0 var(--kc); text-align: left; font-family: var(--kfont); transition: transform .15s; }
+.kgcard:hover { transform: translateY(-3px) rotate(.5deg); }
+.kgcard b { font-size: 20px; font-weight: 800; }
+.kgem { font-size: 46px; width: 74px; height: 74px; border-radius: 22px; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--kc) 22%, var(--surface)); flex: none; animation: k-bob 2.2s ease-in-out infinite; }
+.kgame { display: flex; flex-direction: column; gap: 14px; }
+.kgame > .ktext { justify-content: center; }
+.kgame > .ktext span { font-size: 19px; font-weight: 800; }
+.center { text-align: center; }
+/* Picture puzzle */
+.kpuzzle-top { display: flex; align-items: center; gap: 12px; }
+.kthumb.mini { width: 120px; flex: none; border-radius: 12px; }
+.kpuzzle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 20px; background: var(--kc); aspect-ratio: 400 / 260; box-shadow: 0 8px 0 color-mix(in srgb, var(--kc) 60%, #000); }
+.ktile { padding: 0; border-radius: 10px; overflow: hidden; position: relative; transition: transform .15s; }
+.ktile svg { display: block; width: 100%; height: 100%; pointer-events: none; }
+.ktile.sel { transform: scale(.9); box-shadow: 0 0 0 4px #FFFFFF, 0 0 0 7px #1F2023; z-index: 1; animation: k-shake .5s ease-in-out infinite; }
+.ktile:active { transform: scale(.94); }
+/* Memory pairs */
+.kmemory { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; perspective: 900px; }
+.kmem { aspect-ratio: 3 / 4; padding: 0; background: none; }
+.kmem-in { position: relative; display: block; width: 100%; height: 100%; transition: transform .45s cubic-bezier(.3, 1.4, .5, 1); transform-style: preserve-3d; }
+.kmem.open .kmem-in, .kmem.done .kmem-in { transform: rotateY(180deg); }
+.kmem-back, .kmem-face { position: absolute; inset: 0; border-radius: 16px; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; }
+.kmem-back { background: repeating-linear-gradient(45deg, rgba(255, 255, 255, .12) 0 6px, transparent 6px 14px), linear-gradient(135deg, #FF6B6B, #EF3340 55%, #7A0C1F); color: #fff; font: 800 34px var(--kfont); box-shadow: 0 5px 0 #8E1424; }
+.kmem-face { transform: rotateY(180deg); background: linear-gradient(#E8F7FF, #BFE6FF); box-shadow: 0 5px 0 #7FB8D8; padding: 12%; }
+.kmem-face svg { width: 100%; height: 100%; }
+.kmem.done .kmem-face { background: linear-gradient(#E8FBE6, #BFEFBB); box-shadow: 0 5px 0 #43A047; animation: k-tada .6s; }
+/* Story in order */
+.korder { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.kocard { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 20px; background: var(--bg); border: 3px solid var(--line); box-shadow: 0 5px 0 var(--line); text-align: left; font-family: var(--kfont); }
+.kocard .kthumb { border-radius: 12px; }
+.kocap { font-size: 14px; font-weight: 700; line-height: 1.4; }
+.kocard.placed { border-color: #43A047; box-shadow: 0 5px 0 #2E7D32; opacity: .75; }
+.kocard.wrong { border-color: #E53935; animation: k-shake .4s; }
+.kobadge { position: absolute; top: -10px; left: -10px; width: 42px; height: 42px; border-radius: 50%; background: #43A047; color: #fff; font: 800 22px var(--kfont); display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 0 #2E7D32; animation: k-pop .4s cubic-bezier(.2, 1.8, .4, 1) both; }
+@media (max-width: 760px) {
+  .kmemory { gap: 7px; }
+  .kmem-back { font-size: 26px; }
+  .kocap { font-size: 12px; }
+  .kgem { font-size: 38px; width: 62px; height: 62px; }
+}

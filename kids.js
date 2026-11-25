@@ -115,6 +115,7 @@ KS.bubbles = () => `<g fill="none" stroke="#DFF4FF" stroke-width="2"><circle cx=
 KS.rainbow = () => `<g fill="none" stroke-width="9">${['#EF3340', '#FF8A3D', '#FFD54A', '#5BAE5B', '#3FA2D9', '#7E57C2'].map((c, i) => `<path d="M-${140 - i * 9} 0 A${140 - i * 9} ${140 - i * 9} 0 0 1 ${140 - i * 9} 0" stroke="${c}"/>`).join('')}</g>`;
 KS.sling = () => `<g><path d="M0 0 Q-8 -20 -2 -34" stroke="#8A5A2B" stroke-width="2" fill="none"/><circle cx="-2" cy="-36" r="4" fill="#8C8C8C"/></g>`;
 KS.glow = () => `<defs><radialGradient id="kglowg"><stop offset="0" stop-color="#FFFBE6" stop-opacity=".95"/><stop offset=".45" stop-color="#FFE9A0" stop-opacity=".55"/><stop offset="1" stop-color="#FFE9A0" stop-opacity="0"/></radialGradient></defs><circle r="75" fill="url(#kglowg)" class="k-glow"/>`;
+KS.rays = () => `<g opacity=".55">${Array.from({ length: 12 }, (_, i) => `<path d="M0 0 L-14 -190 L14 -190 Z" fill="#FFF3C4" opacity="${i % 2 ? .35 : .6}" transform="rotate(${i * 30})"/>`).join('')}</g>`;
 KS.question = () => `<text x="0" y="0" font-size="30" font-weight="800" fill="#FFFFFF" font-family="sans-serif" text-anchor="middle">?</text>`;
 
 // Backgrounds: sky and ground for each kind of scene.
@@ -129,17 +130,18 @@ function kPiece(p, i) {
   const [name, x, y, sc = 1, anim = '', opt = {}] = p;
   const make = KS[name];
   if (!make) return '';
-  return `<g transform="translate(${x} ${y}) scale(${sc})"><g class="k-in" style="animation-delay:${Math.min(0.1 * i, 0.6)}s"><g class="${anim ? 'k-' + anim : ''}">${make(opt)}</g></g></g>`;
+  return `<g transform="translate(${x} ${y}) scale(${sc})" data-kp="${name}"><g class="k-in" style="animation-delay:${Math.min(0.1 * i, 0.6)}s"><g class="${anim ? 'k-' + anim : ''}">${make(opt)}</g></g></g>`;
 }
-function kScene(sc, small) {
+function kScene(sc, small, vb) {
   const [top, mid, ground] = KBG[sc.bg] || KBG.day;
   const id = 'kg' + (sc.bg || 'day');
-  return `<svg class="kscene${small ? ' small' : ''}" viewBox="0 0 400 260" role="img" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+  return `<svg class="kscene${small ? ' small' : ''}" viewBox="${vb || '0 0 400 260'}" role="img" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
 <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${mid}"/></linearGradient></defs>
 <rect width="400" height="260" fill="url(#${id})"/>
 ${sc.bg === 'night' || sc.bg === 'dark' ? Array.from({ length: 18 }, (_, i) => `<circle class="k-twinkle" style="animation-delay:${(i % 6) * 0.4}s" cx="${(i * 73) % 400}" cy="${(i * 37) % 130 + 8}" r="${1 + (i % 3) * 0.6}" fill="#fff"/>`).join('') : ''}
 ${ground ? `<path d="M0 205 Q100 188 200 200 T400 196 V260 H0Z" fill="${ground}"/>` : ''}
 ${sc.items.map(kPiece).join('')}
+${sc.bg === 'storm' && !small ? '<rect class="k-flash" width="400" height="260" fill="#FFFFFF" pointer-events="none"/>' : ''}
 </svg>`;
 }
 
@@ -150,7 +152,7 @@ const P = (o) => o; // readability: person options
 const KIDS = [
   { id: 'creation', c: '#FFB547', n: ['እግዚአብሔር ዓለምን ፈጠረ', 'God makes the world'], ref: [0, 1, 1], from: 'ዘፍጥረት 1–2 · Genesis 1–2',
     scenes: [
-      { bg: 'dark', items: [['glow', 200, 120, 1.4, 'pulse'], ['star', 120, 60, 1, 'twinkle'], ['star', 290, 80, 1.2, 'twinkle']],
+      { bg: 'dark', items: [['rays', 200, 120, 1, 'spin'], ['glow', 200, 120, 1.4, 'pulse'], ['star', 120, 60, 1, 'twinkle'], ['star', 290, 80, 1.2, 'twinkle']],
         t: ['በመጀመሪያ ሁሉም ጨለማ ነበር። እግዚአብሔርም “ብርሃን ይሁን” አለ፤ ብርሃንም ሆነ!', 'In the beginning everything was dark. God said, “Let there be light!” And there was light!'] },
       { bg: 'sea', items: [['cloud', 90, 60, 1, 'drift'], ['cloud', 300, 45, .8, 'drift'], ['waves', 100, 190, 1, '', { c: '#3FA2D9' }], ['hills', 200, 200, 1, 'rise', { c: '#7CCF6E' }]],
         t: ['እግዚአብሔር ሰማይን፣ ባሕርንና የብስን ሠራ።', 'God made the sky, the sea and the dry land.'] },
@@ -352,8 +354,11 @@ function kSay(text) {
 function kidsHome() {
   const done = (S.kids && S.kids.done) || {};
   const total = KIDS.reduce((n, k) => n + (done[k.id] || 0), 0);
-  return `<div class="kids-hero"><div class="kbubble">${t('ሰላም! እኔ ቃሊ ነኝ። ከመጽሐፍ ቅዱስ ታሪክ አብረን እንማር!', 'Hi! I’m Qali. Let’s learn a Bible story together!')}</div>${kQali({ anim: 'jump', cls: 'big' })}</div>
-<div class="row between"><h1 class="ktitle">${t('የልጆች ታሪኮች', 'Stories for kids')}</h1><span class="kpill">${kStars(1, 1)} ${total} / ${KIDS.length * 3}</span></div>
+  const tab = S.kidTab || 'stories';
+  const tabs = `<div class="seg ktabs" role="tablist">${[['stories', '📖', t('ታሪኮች', 'Stories')], ['games', '🎮', t('ጨዋታዎች', 'Games')]].map(([v, em, l]) => `<button role="tab" data-a="kidTab" data-v="${v}" data-k="kt-${v}" aria-pressed="${tab === v}">${em} ${l}</button>`).join('')}</div>`;
+  if (tab === 'games') return `<div class="kids-hero"><span class="khero-sound">${soundBtn()}</span><div class="kbubble">${t('እንጫወት! አንድ ጨዋታ ምረጥ።', 'Let’s play! Pick a game.')}</div>${kQali({ anim: 'jump', cls: 'big' })}</div>${tabs}${gamesHome()}`;
+  return `<div class="kids-hero"><span class="khero-sound">${soundBtn()}</span><div class="kbubble">${t('ሰላም! እኔ ቃሊ ነኝ። ከመጽሐፍ ቅዱስ ታሪክ አብረን እንማር!', 'Hi! I’m Qali. Let’s learn a Bible story together!')}</div>${kQali({ anim: 'jump', cls: 'big' })}</div>
+${tabs}<div class="row between"><h1 class="ktitle">${t('የልጆች ታሪኮች', 'Stories for kids')}</h1><span class="kpill">${kStars(1, 1)} ${total} / ${KIDS.length * 3}</span></div>
 <div class="kgrid">${KIDS.map((k, i) => `<button class="kcard" style="--kc:${k.c}" data-a="kidOpen" data-v="${i}" data-k="kid-${k.id}">
 <span class="kthumb">${kScene(k.scenes[0], true)}</span><b>${esc(tp(k.n))}</b><span class="row between" style="width:100%"><span class="ksmall">${esc(k.from.split(' · ')[S.en ? 1 : 0])}</span>${kStars(done[k.id] || 0)}</span></button>`).join('')}</div>
 <p class="muted small" style="margin-top:12px">${t('ታሪኮቹ ለልጆች በቀላል ቋንቋ እንደገና የተጻፉ ናቸው፤ ሙሉውን ታሪክ ከወላጆችዎ ጋር በመጽሐፍ ቅዱስ ያንብቡ።', 'The stories are retold simply for children; read the full story in the Bible together with a grown-up.')}</p>`;
@@ -366,8 +371,9 @@ function kidsPlayer() {
 ${label}</div>`;
   if (typeof st.step === 'number') {
     const sc = k.scenes[st.step], text = tp(sc.t), last = st.step === k.scenes.length - 1;
-    return `<div class="kplayer" style="--kc:${k.c}">${head(kVoice() ? `<button class="kround" data-a="kidSay" data-k="kid-say" aria-label="${t('አንብብልኝ', 'Read it to me')}" title="${t('አንብብልኝ', 'Read it to me')}">${icon('speaker')}</button>` : '<span style="width:48px"></span>')}
+    return `<div class="kplayer" style="--kc:${k.c}">${head(`<span class="row" style="gap:6px;flex-wrap:nowrap">${kVoice() ? `<button class="kround" data-a="kidSay" data-k="kid-say" aria-label="${t('አንብብልኝ', 'Read it to me')}" title="${t('አንብብልኝ', 'Read it to me')}">${icon('speaker')}</button>` : ''}${soundBtn()}</span>`)}
 <div class="kstage" data-scene="${st.i}-${st.step}">${kScene(sc)}</div>
+<p class="khint">${t('👆 ገጸ ባሕርያቱን ንካቸው!', '👆 Tap the characters!')}</p>
 <div class="ktext">${kQali({ anim: 'nod', nod: true })}<p>${esc(text)}</p></div>
 <div class="knav"><button class="kbtn ghost" data-a="kidStep" data-v="-1" data-k="kid-prev" ${st.step === 0 ? 'disabled' : ''} aria-label="${t('ያለፈው', 'Back')}">${icon('left', 28)}</button>
 <button class="kbtn" data-a="kidStep" data-v="1" data-k="kid-next">${last ? t('ጥያቄዎች!', 'Quiz time!') : t('ቀጥል', 'Next')}${icon('right', 26)}</button></div></div>`;
@@ -391,26 +397,28 @@ ${kQali({ anim: 'jump', happy: true, cls: 'big' })}
 <p class="ksmall">${t(st.right + ' ከ' + k.quiz.length + ' ጥያቄዎች በትክክል መለሱ።', 'You got ' + st.right + ' of ' + k.quiz.length + ' questions right.')}</p>
 <div class="kverse"><span class="ksmall"><b>${t('የሚታወስ ጥቅስ', 'Memory verse')}</b></span><p ${langOf(S.primary, b)}>${verse === null ? '…' : esc(verse || '')}</p><b>${esc(verseRef(b, c, v))}</b></div>
 <div class="knav wrap"><button class="kbtn ghost" data-a="kidAgain" data-k="kid-again">${t('እንደገና', 'Play again')}</button><button class="kbtn" data-a="kidClose" data-k="kid-more">${t('ሌሎች ታሪኮች', 'More stories')}</button></div>
+<div class="knav wrap"><button class="kbtn ghost" data-a="kgFromStory" data-v="puzzle" data-k="kid-puzzle">🧩 ${t('እንቆቅልሽ', 'Puzzle')}</button><button class="kbtn ghost" data-a="kgFromStory" data-v="order" data-k="kid-order">🔢 ${t('በቅደም ተከተል', 'Put in order')}</button></div>
 <button class="linkbtn" data-a="kidRead" data-k="kid-read">${t('ሙሉውን ታሪክ በመጽሐፍ ቅዱስ አንብብ', 'Read the whole story in the Bible')}</button></div></div>`;
 }
 function kidsView() {
-  return `<div class="wrap kids">${S.kid ? kidsPlayer() : kidsHome()}</div>`;
+  return `<div class="wrap kids">${S.kg ? gameView() : S.kid ? kidsPlayer() : kidsHome()}</div>`;
 }
 
 const kidActions = {
-  kidOpen(v) { S.kid = { i: +v, step: 0, q: 0, picked: null, right: 0 }; window.scrollTo(0, 0); },
-  kidClose() { S.kid = null; if ('speechSynthesis' in window) speechSynthesis.cancel(); },
+  kidOpen(v) { S.kid = { i: +v, step: 0, q: 0, picked: null, right: 0 }; window.scrollTo(0, 0); sfx(SCENE_SOUND[KIDS[+v].scenes[0].bg] || 'whoosh'); },
+  kidClose() { S.kid = null; S.kg = null; if ('speechSynthesis' in window) speechSynthesis.cancel(); },
   kidStep(v) {
     const k = KIDS[S.kid.i], n = S.kid.step + +v;
     if ('speechSynthesis' in window) speechSynthesis.cancel();
-    if (n >= k.scenes.length) { S.kid.step = 'quiz'; S.kid.q = 0; S.kid.picked = null; return; }
+    if (n >= k.scenes.length) { S.kid.step = 'quiz'; S.kid.q = 0; S.kid.picked = null; sfx('pop'); return; }
     S.kid.step = Math.max(0, n);
+    sfx('whoosh'); setTimeout(() => sfx(SCENE_SOUND[k.scenes[S.kid.step].bg] || 'tap'), 280);
   },
   kidSay() { const k = KIDS[S.kid.i]; kSay(tp(k.scenes[S.kid.step].t)); return false; },
   kidPick(v) {
     const k = KIDS[S.kid.i];
     S.kid.picked = +v;
-    if (+v === k.quiz[S.kid.q][2]) S.kid.right++;
+    if (+v === k.quiz[S.kid.q][2]) { S.kid.right++; sfx('right'); } else sfx('wrong');
   },
   kidNextQ() {
     const k = KIDS[S.kid.i];
@@ -419,6 +427,7 @@ const kidActions = {
     S.kids = S.kids || { done: {} };
     S.kids.done[k.id] = Math.max(S.kids.done[k.id] || 0, 1 + S.kid.right);
     save('kids');
+    sfx('fanfare');
   },
   kidAgain() { S.kid = { i: S.kid.i, step: 0, q: 0, picked: null, right: 0 }; },
   kidRead() {
@@ -426,3 +435,197 @@ const kidActions = {
     S.kid = null; setPass({ b, c, f: 1, to: 0 }); S.sel = v; S.goVerse = v; S.screen = 'study'; save('screen', 'sel'); window.scrollTo(0, 0);
   }
 };
+
+// ---------- sound: every effect is made in the browser with the Web Audio API, no files ----------
+const KSND = { ctx: null };
+function kctx() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  if (!KSND.ctx) KSND.ctx = new AC();
+  if (KSND.ctx.state === 'suspended') KSND.ctx.resume();
+  return KSND.ctx;
+}
+const kSoundOn = () => ls.get('kidSound', true);
+function kTone(f, d, o = {}) {
+  const c = kctx(); if (!c) return;
+  const t0 = c.currentTime + (o.at || 0), osc = c.createOscillator(), g = c.createGain();
+  osc.type = o.type || 'sine'; osc.frequency.setValueAtTime(f, t0);
+  if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t0 + d);
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(o.vol || 0.15, t0 + (o.attack || 0.01)); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+  osc.connect(g).connect(c.destination); osc.start(t0); osc.stop(t0 + d + 0.05);
+}
+function kNoise(d, o = {}) {
+  const c = kctx(); if (!c) return;
+  const t0 = c.currentTime + (o.at || 0), len = Math.floor(c.sampleRate * d), buf = c.createBuffer(1, len, c.sampleRate), data = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+  const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+  src.buffer = buf; f.type = o.type || 'lowpass'; f.frequency.setValueAtTime(o.freq || 1000, t0); if (o.to) f.frequency.exponentialRampToValueAtTime(o.to, t0 + d); f.Q.value = o.q || 1;
+  g.gain.setValueAtTime(o.vol || 0.2, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+  src.connect(f).connect(g).connect(c.destination); src.start(t0);
+}
+function kBaa(pitch = 340) {
+  const c = kctx(); if (!c) return;
+  const t0 = c.currentTime, o = c.createOscillator(), lfo = c.createOscillator(), lg = c.createGain(), f = c.createBiquadFilter(), g = c.createGain();
+  o.type = 'sawtooth'; o.frequency.value = pitch; lfo.frequency.value = 20; lg.gain.value = 16; lfo.connect(lg).connect(o.frequency);
+  f.type = 'lowpass'; f.frequency.value = 1500;
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.1, t0 + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.6);
+  o.connect(f).connect(g).connect(c.destination); o.start(t0); lfo.start(t0); o.stop(t0 + 0.65); lfo.stop(t0 + 0.65);
+}
+const SFX = {
+  tap: () => kTone(880, 0.09, { type: 'triangle', vol: 0.1, to: 1320 }),
+  pop: () => kTone(420, 0.14, { vol: 0.18, to: 980 }),
+  flip: () => kTone(620, 0.07, { type: 'square', vol: 0.04, to: 940 }),
+  right: () => [523, 659, 784, 1047].forEach((f, i) => kTone(f, 0.22, { type: 'triangle', vol: 0.14, at: i * 0.08 })),
+  match: () => [784, 1175].forEach((f, i) => kTone(f, 0.25, { type: 'triangle', vol: 0.13, at: i * 0.1 })),
+  wrong: () => kTone(240, 0.35, { type: 'sawtooth', vol: 0.06, to: 120 }),
+  fanfare: () => { [523, 659, 784].forEach((f, i) => kTone(f, 0.16, { type: 'triangle', vol: 0.14, at: i * 0.12 })); [523, 659, 784, 1047].forEach((f) => kTone(f, 1, { type: 'triangle', vol: 0.07, at: 0.38 })); },
+  whoosh: () => kNoise(0.35, { vol: 0.1, freq: 400, to: 3000, type: 'bandpass', q: 0.8 }),
+  roar: () => { kNoise(0.8, { vol: 0.32, freq: 320, to: 110 }); kTone(95, 0.7, { type: 'sawtooth', vol: 0.1, to: 68 }); },
+  baa: () => kBaa(340), qali: () => kBaa(520),
+  chirp: () => [0, 0.14, 0.32].forEach((a) => kTone(2300, 0.08, { vol: 0.07, at: a, to: 3300 })),
+  blub: () => [0, 0.09, 0.2].forEach((a) => kTone(280 + Math.random() * 200, 0.08, { vol: 0.12, at: a, to: 900 })),
+  splash: () => kNoise(0.6, { vol: 0.22, freq: 2600, to: 600, type: 'bandpass', q: 0.6 }),
+  thunder: () => kNoise(1.8, { vol: 0.42, freq: 420, to: 55 }),
+  yay: () => { kTone(523, 0.12, { type: 'triangle', vol: 0.13 }); kTone(784, 0.22, { type: 'triangle', vol: 0.13, at: 0.1 }); },
+  sparkle: () => { for (let i = 0; i < 5; i++) kTone(1500 + Math.random() * 1500, 0.12, { vol: 0.045, at: i * 0.05 }); },
+  chime: () => [1047, 1319, 1568].forEach((f, i) => kTone(f, 0.6, { vol: 0.07, at: i * 0.12 }))
+};
+function sfx(name) { if (kSoundOn() && SFX[name]) { try { SFX[name](); } catch (e) { /* no sound */ } } }
+// What each piece says when tapped.
+const PIECE_SOUND = { lion: 'roar', sheep: 'baa', qali: 'qali', dove: 'chirp', fish: 'blub', bigfish: 'blub', sun: 'sparkle', star: 'sparkle', moon: 'chime', glow: 'chime', rays: 'chime',
+  person: 'yay', baby: 'yay', ark: 'splash', boat: 'splash', waves: 'splash', wall: 'splash', rain: 'splash', cloud: 'whoosh', tree: 'pop', flower: 'pop', heart: 'pop', basket: 'pop', notes: 'chime', manger: 'chime', tomb: 'whoosh', rainbow: 'chime', stone: 'whoosh' };
+// The sound a scene opens with.
+const SCENE_SOUND = { storm: 'thunder', under: 'blub', sea: 'splash', night: 'chime', dark: 'chime', day: 'chirp', dawn: 'chirp', desert: 'whoosh', evening: 'chime' };
+
+// Tapping a piece of a scene: it bounces, sparkles and makes its sound.
+document.addEventListener('click', (e) => {
+  const piece = e.target.closest && e.target.closest('.kstage [data-kp], .kgame [data-kp]');
+  if (!piece) return;
+  const inner = piece.firstElementChild;
+  inner.classList.remove('k-tapped'); void inner.getBBox(); inner.classList.add('k-tapped');
+  sfx(PIECE_SOUND[piece.dataset.kp] || 'tap');
+  kSparkle(e.clientX, e.clientY);
+  if (piece.dataset.kp === 'cloud' && piece.closest('svg').querySelector('.k-flash')) sfx('thunder');
+});
+function kSparkle(x, y, n = 10) {
+  const box = document.createElement('div');
+  box.className = 'kspark'; box.style.left = x + 'px'; box.style.top = y + 'px';
+  box.innerHTML = Array.from({ length: n }, (_, i) => `<i style="--a:${(360 / n) * i}deg;--c:${['#FFD54A', '#EF3340', '#3FA2D9', '#66BB6A', '#B388FF'][i % 5]}"></i>`).join('');
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 800);
+}
+
+// ---------- games: a picture puzzle, memory pairs, and putting the story in order ----------
+const GAMES = [
+  ['puzzle', '🧩', ['የሥዕል እንቆቅልሽ', 'Picture puzzle'], ['ቁርጥራጮቹን አቀያይረው ሥዕሉን ሙሉ', 'Swap the pieces to finish the picture'], '#FF8A3D'],
+  ['memory', '🃏', ['ጥንዶቹን ፈልግ', 'Find the pairs'], ['ካርዶቹን ገልብጠህ ተመሳሳዮቹን አገናኝ', 'Turn the cards and match the pairs'], '#3FA2D9'],
+  ['order', '🔢', ['ታሪኩን በቅደም ተከተል', 'Story in order'], ['ሥዕሎቹን ከመጀመሪያው እስከ መጨረሻው ንካ', 'Tap the pictures from first to last'], '#66BB6A']
+];
+const MEMO_SPRITES = { lion: '-42 -50 84 56', sheep: '-24 -34 46 38', dove: '-24 -24 58 34', fish: '-24 -12 48 24', sun: '-42 -42 84 84', star: '-10 -10 20 20', heart: '-17 -18 34 26', qali: '-30 -62 70 70', ark: '-84 -78 168 100', bigfish: '-106 -50 190 100', tree: '-36 -66 72 70', basket: '-24 -14 48 24' };
+const kShuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+function startGame(type, i) {
+  if (type === 'memory') {
+    const kinds = kShuffle(Object.keys(MEMO_SPRITES)).slice(0, 6);
+    S.kg = { type, cards: kShuffle(kinds.concat(kinds)).map((s) => ({ s, open: false, done: false })), first: null, lock: false, moves: 0, found: 0 };
+  } else if (i == null) {
+    S.kg = { type: 'pick', game: type };
+  } else if (type === 'puzzle') {
+    const k = KIDS[i], scene = k.scenes.length - 1;
+    let order;
+    do order = kShuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]); while (order.every((x, j) => x === j));
+    S.kg = { type, i, scene, order, sel: null, moves: 0 };
+  } else if (type === 'order') {
+    let shown;
+    do shown = kShuffle([0, 1, 2, 3]); while (shown.every((x, j) => x === j));
+    S.kg = { type, i, shown, next: 0, wrong: null };
+  }
+  sfx('whoosh');
+}
+function gameWon(type) {
+  S.kg.won = true;
+  S.kids = S.kids || { done: {} };
+  S.kids.games = S.kids.games || {};
+  S.kids.games[type] = (S.kids.games[type] || 0) + 1;
+  save('kids');
+  setTimeout(() => sfx('fanfare'), 250);
+}
+function gameHead(title) {
+  return `<div class="kbar"><button class="kround" data-a="kgBack" data-k="kg-back" aria-label="${t('ተመለስ', 'Back')}">${icon('left')}</button><b class="kgtitle">${title}</b>${soundBtn()}</div>`;
+}
+function winCard(type, msg) {
+  return `<div class="kdone kwin"><div class="kconfetti" aria-hidden="true">${Array.from({ length: 28 }, (_, i) => `<i style="--x:${(i * 37) % 100}%;--d:${(i % 7) * 0.18}s;--c:${['#EF3340', '#FFD54A', '#3FA2D9', '#66BB6A', '#B388FF', '#FF8A3D'][i % 6]}"></i>`).join('')}</div>
+${kQali({ anim: 'jump', happy: true, cls: 'big' })}<h2 class="ktitle">${t('አሸነፍክ!', 'You did it!')}</h2><p class="ksmall">${msg}</p>
+<div class="knav wrap"><button class="kbtn ghost" data-a="kgAgain" data-k="kg-again">${t('እንደገና', 'Play again')}</button><button class="kbtn" data-a="kgBack" data-k="kg-done">${t('ሌሎች ጨዋታዎች', 'More games')}</button></div></div>`;
+}
+function gameView() {
+  const g = S.kg;
+  const meta = GAMES.find((x) => x[0] === (g.type === 'pick' ? g.game : g.type));
+  const title = `${meta[1]} ${esc(tp(meta[2]))}`;
+  if (g.type === 'pick') {
+    return `<div class="kgame" style="--kc:${meta[4]}">${gameHead(title)}<p class="ktext"><span>${t('የትኛውን ታሪክ?', 'Which story?')}</span></p>
+<div class="kgrid">${KIDS.map((k, i) => `<button class="kcard" style="--kc:${k.c}" data-a="kgStart" data-v="${g.game}.${i}" data-k="kgs-${k.id}"><span class="kthumb">${kScene(k.scenes[g.game === 'puzzle' ? k.scenes.length - 1 : 0], true)}</span><b>${esc(tp(k.n))}</b></button>`).join('')}</div></div>`;
+  }
+  if (g.type === 'puzzle') {
+    const k = KIDS[g.i], sc = k.scenes[g.scene];
+    const w = 400 / 3, h = 260 / 3;
+    if (g.won) return `<div class="kgame" style="--kc:${k.c}">${gameHead(title)}<div class="kstage">${kScene(sc)}</div>${winCard('puzzle', t('ሥዕሉን በ' + g.moves + ' እንቅስቃሴ ጨረስክ!', 'You finished the picture in ' + g.moves + ' moves!'))}</div>`;
+    return `<div class="kgame" style="--kc:${k.c}">${gameHead(title)}
+<div class="kpuzzle-top"><span class="kthumb mini">${kScene(sc, true)}</span><p class="ksmall">${t('ሁለት ቁርጥራጮችን ንካ፤ ቦታ ይቀያየራሉ።', 'Tap two pieces to swap them.')}<br><b>${t('እንቅስቃሴ', 'Moves')}: ${g.moves}</b></p></div>
+<div class="kpuzzle">${g.order.map((tile, pos) => `<button class="ktile${g.sel === pos ? ' sel' : ''}${tile === pos ? ' ok' : ''}" data-a="kgTile" data-v="${pos}" data-k="kt-${pos}" aria-label="${t('ቁርጥራጭ', 'Piece')} ${pos + 1}">${kScene(sc, true, `${(tile % 3) * w} ${Math.floor(tile / 3) * h} ${w} ${h}`)}</button>`).join('')}</div></div>`;
+  }
+  if (g.type === 'memory') {
+    const cards = g.cards.map((c, i) => `<button class="kmem${c.open || c.done ? ' open' : ''}${c.done ? ' done' : ''}" data-a="kgCard" data-v="${i}" data-k="km-${i}" aria-label="${c.open || c.done ? c.s : t('ካርድ', 'Card')}"><span class="kmem-in"><span class="kmem-back">ቃ</span><span class="kmem-face"><svg viewBox="${MEMO_SPRITES[c.s]}" aria-hidden="true">${KS[c.s]({})}</svg></span></span></button>`).join('');
+    return `<div class="kgame" style="--kc:#3FA2D9">${gameHead(title)}${g.won ? winCard('memory', t('ሁሉንም ጥንዶች በ' + g.moves + ' ሙከራ አገኘህ!', 'You found every pair in ' + g.moves + ' tries!')) : `<p class="ksmall center">${t('ጥንድ', 'Pairs')}: <b>${g.found} / 6</b> · ${t('ሙከራ', 'Tries')}: <b>${g.moves}</b></p><div class="kmemory">${cards}</div>`}</div>`;
+  }
+  // Story in order
+  const k = KIDS[g.i];
+  if (g.won) return `<div class="kgame" style="--kc:${k.c}">${gameHead(title)}${winCard('order', t('ታሪኩን በትክክለኛው ቅደም ተከተል አስቀመጥክ!', 'You put the story in the right order!'))}</div>`;
+  return `<div class="kgame" style="--kc:${k.c}">${gameHead(title)}<p class="ktext"><span>${t('መጀመሪያ የሆነውን ንካ፤ ቀጥሎ የሆነውን…', 'Tap what happened first, then next…')}</span></p>
+<div class="korder">${g.shown.map((s) => { const placed = s < g.next; return `<button class="kocard${placed ? ' placed' : ''}${g.wrong === s ? ' wrong' : ''}" data-a="kgOrder" data-v="${s}" data-k="ko-${s}" ${placed ? 'disabled' : ''}><span class="kthumb">${kScene(k.scenes[s], true)}</span>${placed ? `<span class="kobadge">${s + 1}</span>` : ''}<span class="kocap">${esc(tp(k.scenes[s].t).split(/[።.!]/)[0])}</span></button>`; }).join('')}</div></div>`;
+}
+const soundBtn = () => `<button class="kround" data-a="kidSound" data-k="kid-sound" aria-pressed="${kSoundOn()}" aria-label="${kSoundOn() ? t('ድምፅ አጥፋ', 'Sound off') : t('ድምፅ አብራ', 'Sound on')}" title="${kSoundOn() ? t('ድምፅ አጥፋ', 'Sound off') : t('ድምፅ አብራ', 'Sound on')}">${kSoundOn() ? '🔊' : '🔈'}</button>`;
+function gamesHome() {
+  const wins = (S.kids && S.kids.games) || {};
+  return `<div class="kgames">${GAMES.map(([id, em, n, d, c]) => `<button class="kgcard" style="--kc:${c}" data-a="kgOpen" data-v="${id}" data-k="kg-${id}"><span class="kgem">${em}</span><span class="stack" style="gap:4px;align-items:flex-start"><b>${esc(tp(n))}</b><span class="ksmall">${esc(tp(d))}</span>${wins[id] ? `<span class="kpill">🏆 ${wins[id]}</span>` : ''}</span></button>`).join('')}</div>`;
+}
+
+Object.assign(kidActions, {
+  kidSound() { ls.set('kidSound', !kSoundOn()); if (kSoundOn()) sfx('pop'); },
+  kidTab(v) { S.kidTab = v; sfx('tap'); },
+  kgOpen(v) { startGame(v); },
+  kgStart(v) { const [type, i] = v.split('.'); startGame(type, +i); },
+  kgBack() { S.kg = S.kg && S.kg.type !== 'pick' && S.kg.type !== 'memory' && !S.kg.won && S.kg.from !== 'story' ? { type: 'pick', game: S.kg.type } : null; sfx('tap'); },
+  kgAgain() { const g = S.kg; startGame(g.type, g.i); },
+  kgTile(v) {
+    const g = S.kg, pos = +v;
+    if (g.sel == null) { g.sel = pos; sfx('tap'); return; }
+    if (g.sel === pos) { g.sel = null; return; }
+    [g.order[g.sel], g.order[pos]] = [g.order[pos], g.order[g.sel]];
+    g.sel = null; g.moves++;
+    sfx(g.order[pos] === pos ? 'match' : 'flip');
+    if (g.order.every((x, j) => x === j)) gameWon('puzzle');
+  },
+  kgCard(v) {
+    const g = S.kg, c = g.cards[+v];
+    if (g.lock || c.open || c.done) return false;
+    c.open = true; sfx('flip');
+    if (g.first == null) { g.first = +v; return; }
+    const a = g.cards[g.first];
+    g.moves++;
+    if (a.s === c.s) {
+      a.done = c.done = true; a.open = c.open = false; g.found++; g.first = null;
+      setTimeout(() => sfx(PIECE_SOUND[c.s] || 'match'), 120); sfx('match');
+      if (g.found === 6) gameWon('memory');
+    } else {
+      g.lock = true; g.first = null;
+      setTimeout(() => { a.open = c.open = false; g.lock = false; if (S.kg === g) render(); }, 900);
+    }
+  },
+  kgOrder(v) {
+    const g = S.kg, s = +v;
+    if (s === g.next) { g.next++; g.wrong = null; sfx('right'); if (g.next === 4) gameWon('order'); }
+    else { g.wrong = s; sfx('wrong'); setTimeout(() => { if (S.kg === g) { g.wrong = null; render(); } }, 600); }
+  },
+  kgFromStory(v) { const i = S.kid.i; S.kid = null; startGame(v, i); S.kg.from = 'story'; }
+});

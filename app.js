@@ -945,7 +945,7 @@ function mergeRecords(a, b) {
     updated: Math.max(a.updated || 0, b.updated || 0),
     plans: mergePlans(a.plans, b.plans, newer === a),
     memo: mergeMemo(a.memo, b.memo),
-    kids: { done: (() => { const d = Object.assign({}, (a.kids || {}).done); Object.entries((b.kids || {}).done || {}).forEach(([k, v]) => { d[k] = Math.max(d[k] || 0, v); }); return d; })() }
+    kids: (() => { const most = (x, y) => { const d = Object.assign({}, x); Object.entries(y || {}).forEach(([k, v]) => { d[k] = Math.max(d[k] || 0, v); }); return d; }; return { done: most((a.kids || {}).done, (b.kids || {}).done), games: most((a.kids || {}).games, (b.kids || {}).games) }; })()
   };
 }
 
@@ -1196,15 +1196,15 @@ ${S.msg ? `<p class="small" role="alert">${esc(S.msg)}</p>` : ''}
 }
 
 function sideMenu() {
-  const nav = (screen, ic, label) => `<button class="nav" data-a="nav" data-v="${screen}" data-k="nav-${screen}" ${S.screen === screen ? 'aria-current="page"' : ''}>${icon(ic, 20)}${esc(label)}</button>`;
+  const nav = (screen, ic, label, wide) => `<button class="nav${wide ? ' deskonly' : ''}" data-a="nav" data-v="${screen}" data-k="nav-${screen}" ${S.screen === screen ? 'aria-current="page"' : ''}>${icon(ic, 20)}${esc(label)}</button>`;
   return `<nav class="side" aria-label="${t('ዋና ማውጫ', 'Main')}">
 <div class="brand"><img class="brandmark" src="icon.svg" alt="" width="28" height="28"><span>ቃሉ</span></div>
 <div class="navmain">
 ${nav('study', 'book', t('አንብብ', 'Read'))}
 ${nav('browse', 'grid', t('ፈልግ', 'Explore'))}
-${nav('journey', 'flag', t('ጉዞ', 'Journey'))}
+${nav('journey', 'flag', t('ጉዞ', 'Journey'), true)}
 ${nav('kids', 'smile', t('ልጆች', 'Kids'))}
-${nav('map', 'pin', t('ካርታ', 'Map'))}
+${nav('map', 'pin', t('ካርታ', 'Map'), true)}
 ${nav('notes', 'note', t('ማስታወሻ', 'Notes'))}
 </div>
 <div class="spacer"></div>
@@ -1833,6 +1833,12 @@ function shareVersePicture(id, b, c, v) {
   render();
 }
 
+// Big shortcuts on Explore to the screens that are not in the phone's bottom bar.
+function exploreShortcuts() {
+  const go = (screen, ic, am, en, c) => `<button class="shortcut" style="--sc:${c}" data-a="nav" data-v="${screen}" data-k="sc-${screen}"><span class="sc-ic">${icon(ic, 24)}</span><b>${t(am, en)}</b></button>`;
+  return `<div class="shortcuts">${go('journey', 'flag', 'የታሪክ ጉዞ', 'Story journey', '#FF8A3D')}${go('map', 'pin', 'ካርታ', 'Bible map', '#3FA2D9')}${go('plans', 'check', 'የንባብ ዕቅድ', 'Reading plan', '#66BB6A')}${go('offline', 'download', 'ከመስመር ውጭ', 'Offline', '#7E57C2')}</div>`;
+}
+
 function browseView() {
   const modes = [['timeline', t('የታሪክ መስመር', 'Story timeline')], ['chrono', t('በጊዜ ቅደም ተከተል', 'Chronological')], ['canon', t('መደበኛ ቅደም ተከተል', 'Traditional order')], ['themes', t('ጽንሰ ሐሳቦች', 'Concepts')]];
   const notes = {
@@ -1872,6 +1878,7 @@ ${groups.join('')}`;
   return `<div class="wrap" style="max-width:980px">
 <h1>${t('ፈልግ', 'Explore')}</h1>
 ${searchBar()}
+${S.searchOn ? '' : exploreShortcuts()}
 ${main}
 </div>`;
 }
