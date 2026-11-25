@@ -824,3 +824,8 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .planitem[aria-pressed="true"] .tick { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .planitem[aria-pressed="true"] > span:last-child { color: var(--muted); text-decoration: line-through; }
 .planbar { border-color: var(--accent); padding: 10px 14px; }
+
+/* Memory verses */
+.memo-text { font-size: 20px; line-height: 1.9; min-height: 3.8em; }
+.memo-text .gap { color: var(--muted); letter-spacing: .05em; }
+.toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 2000; background: var(--accent); color: var(--on-accent); padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.35); max-width: calc(100vw - 32px); text-align: center; }

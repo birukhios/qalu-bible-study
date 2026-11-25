@@ -71,7 +71,7 @@ const S = {
   recording: false,
   msg: '',
   game: { xp: 0, streak: 0, last: '', done: {} }, // done: story number -> stars earned (1 to 3)
-  gone: [], updated: 0, plans: { active: null, p: {} }, // see blankAccount()
+  gone: [], updated: 0, plans: { active: null, p: {} }, memo: {}, // see blankAccount()
   play: null, // the story lesson in progress on the Journey screen
   jump: true,
   openBook: ls.get('openBook', null), // the book whose chapter list is open on the Bible screen
@@ -177,9 +177,9 @@ function save(...keys) {
 }
 
 // ---------- accounts: each one keeps its own highlights, notes and Journey progress ----------
-const PERSONAL = ['highlights', 'notes', 'game', 'gone', 'updated', 'plans'];
+const PERSONAL = ['highlights', 'notes', 'game', 'gone', 'updated', 'plans', 'memo'];
 // gone: ids of deleted notes, so a deletion also reaches the account's other devices; updated: time of the last change.
-const blankAccount = () => ({ highlights: {}, notes: [], game: { xp: 0, streak: 0, last: '', done: {} }, gone: [], updated: 0, plans: { active: null, p: {} } });
+const blankAccount = () => ({ highlights: {}, notes: [], game: { xp: 0, streak: 0, last: '', done: {} }, gone: [], updated: 0, plans: { active: null, p: {} }, memo: {} });
 const accountId = () => (S.user ? 'google:' + (S.user.sub || S.user.email) : S.guest ? 'guest' : '');
 let accountReady = '';    // the account whose data is in S
 
@@ -865,6 +865,7 @@ const ICONS = {
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   bolt: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  memo: '<path d="M12 4C8 4 5 6.5 5 10c0 2 1 3.4 2 4.4V19h4v-2h2v2h4v-4.6c1-1 2-2.4 2-4.4 0-3.5-3-6-7-6z"/><path d="M12 8v5M9.5 10.5h5"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   download: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>',
   wifiOff: '<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 12.5a10 10 0 0 1 5.5-2.8M19 12.5a10 10 0 0 0-2.3-1.6M2 8.8a15 15 0 0 1 4.7-2.8M22 8.8A15 15 0 0 0 11 5"/><circle cx="12" cy="20" r="1"/>',
@@ -938,10 +939,17 @@ function mergeRecords(a, b) {
     game: { xp: Math.max(ga.xp || 0, gb.xp || 0), streak: lastGame.streak || 0, last: lastGame.last || '', done },
     gone,
     updated: Math.max(a.updated || 0, b.updated || 0),
-    plans: mergePlans(a.plans, b.plans, newer === a)
+    plans: mergePlans(a.plans, b.plans, newer === a),
+    memo: mergeMemo(a.memo, b.memo)
   };
 }
 
+// Memory verses: for each verse, the copy practised (or removed) last wins.
+function mergeMemo(a, b) {
+  const out = Object.assign({}, a);
+  Object.entries(b || {}).forEach(([k, v]) => { if (!out[k] || (v.seen || 0) > (out[k].seen || 0)) out[k] = v; });
+  return out;
+}
 // Reading plans: the plan in use comes from the newer copy; days and chapters read are kept from both.
 function mergePlans(a, b, aNewer) {
   a = a || { active: null, p: {} }; b = b || { active: null, p: {} };
@@ -1875,6 +1883,7 @@ function studyView() {
     ? `<div class="row selbar" role="toolbar" aria-label="${t('የቁጥር መሣሪያዎች', 'Verse tools')}"><b class="small">${t('ቁ. ' + S.sel, 'v. ' + S.sel)}</b>
 ${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl-${c[0]}" aria-pressed="${S.highlights[hlKey(S.sel)] === c[0]}" aria-label="${c[1]}" title="${S.highlights[hlKey(S.sel)] === c[0] ? t('ቀለሙን አንሳ', 'Remove highlight') : c[1]}"><span style="background:var(--hl-${c[0]})"></span></button>`).join('')}
 <button class="btn" data-a="noteTab" data-k="note-open" aria-label="${t('ማስታወሻ', 'Note')}" title="${t('ማስታወሻ', 'Note')}">${icon('pen')}<span class="lbl">${t('ማስታወሻ', 'Note')}</span></button>${voiceButton('rec-bar')}
+<button class="btn" data-a="memoAdd" data-k="memo-add" aria-pressed="${!!(S.memo[hlKey(S.sel)] && !S.memo[hlKey(S.sel)].off)}" aria-label="${t('ለማጥናት (በቃል ለመያዝ) ጨምር', 'Add to memory verses')}" title="${t('ለማጥናት (በቃል ለመያዝ) ጨምር', 'Add to memory verses')}">${icon('memo')}<span class="lbl">${t('በቃል', 'Memorise')}</span></button>
 <button class="btn" data-a="shareVerse" data-k="share-verse" aria-label="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}" title="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}">${icon('share')}<span class="lbl">${t('አጋራ', 'Share')}</span></button>
 <button class="btn done" data-a="unsel" data-k="unsel" aria-label="${t('ጨርስ', 'Done')}" title="${t('ጨርስ', 'Done')}">${icon('check')}</button>
 <button class="btn" data-a="wordsTab" data-k="words-open" aria-label="${t('ዋና ቃላት', 'Original words')}" title="${t('ዋና ቃላት', 'Original words')}"><b lang="${isHebrew(p.b) ? 'he' : 'grc'}">${isHebrew(p.b) ? 'אב' : 'αβ'}</b><span class="lbl">${t('ዋና ቃላት', 'Original words')}</span></button></div>`
@@ -2099,6 +2108,49 @@ function mapView() {
 <p class="muted small" lang="en">${MAP_CREDIT} ${GEO_CREDIT} Map tiles © Esri.</p></div>`;
 }
 
+// ---------- memory verses: practise with fewer and fewer hints, and see each verse again after longer breaks ----------
+const MEMO_DAYS = [0, 1, 3, 7, 14, 30, 60];
+const memoKeys = () => Object.keys(S.memo).filter((k) => !S.memo[k].off).sort((x, y) => { const a = x.split('.').map(Number), b = y.split('.').map(Number); return a[0] - b[0] || a[1] - b[1] || a[2] - b[2]; });
+const memoDue = () => memoKeys().filter((k) => (S.memo[k].due || '') <= today());
+const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+function memoText(k) {
+  const [b, c, v] = k.split('.').map(Number);
+  return verseText(S.primary, b, c, v);
+}
+// Hints, from the whole verse (0) to nothing (3): every other word kept, then only first letters.
+function memoHint(text, step) {
+  if (step === 0) return esc(text);
+  if (step === 3) return `<span class="muted">${t('ጥቅሱን በልብዎ ይበሉ፤ ከዚያ “አሳይ” ይጫኑ።', 'Say the verse from memory, then press “Show”.')}</span>`;
+  return text.split(/(\s+)/).map((w, i) => {
+    if (/^\s+$/.test(w) || !w) return w;
+    const m = w.match(/^([^\p{L}\p{N}]*)([\p{L}\p{N}])(.*?)([^\p{L}\p{N}]*)$/u);
+    if (!m) return esc(w);
+    const hide = step === 2 || (i / 2) % 2 === 1;
+    return hide ? esc(m[1] + m[2]) + '<span class="gap">' + '_'.repeat(Math.min(6, Math.max(2, m[3].length))) + '</span>' + esc(m[4]) : esc(w);
+  }).join('');
+}
+function memoView() {
+  const keys = memoKeys(), due = memoDue();
+  const run = S.memoRun;
+  if (run && run.i < run.queue.length) {
+    const k = run.queue[run.i], [b, c, v] = k.split('.').map(Number), tx = memoText(k);
+    const step = run.step;
+    return `<div class="card stack memo-card"><div class="row between"><span class="muted small">${run.i + 1} / ${run.queue.length}</span><button class="btn" data-a="memoQuit" data-k="mq">${t('አቁም', 'Stop')}</button></div>
+<b style="font-size:22px">${esc(verseRef(b, c, v))}</b>
+<p class="prose memo-text" ${langOf(S.primary, b)}>${tx === null ? '…' : memoHint(tx, step)}</p>
+<div class="seg" role="group" aria-label="${t('ፍንጭ', 'Hints')}">${[t('ሙሉ', 'Full'), t('ግማሽ', 'Half'), t('ፊደል ብቻ', 'Letters'), t('ምንም', 'None')].map((l, i) => `<button data-a="memoStep" data-v="${i}" data-k="ms-${i}" aria-pressed="${step === i}">${l}</button>`).join('')}</div>
+${step === 3 ? `<button class="btn" data-a="memoStep" data-v="0" data-k="ms-show">${t('አሳይ', 'Show')}</button>` : ''}
+<div class="row"><button class="btn fill" data-a="memoGrade" data-v="1" data-k="mg-yes">${icon('check', 18)}${t('አውቄዋለሁ', 'I knew it')}</button><button class="btn" data-a="memoGrade" data-v="0" data-k="mg-no">${t('ገና ነው', 'Not yet')}</button></div></div>`;
+  }
+  const done = run ? `<div class="card"><p class="prose" role="status">${t('ለዛሬ ጨርሰዋል። ' + run.known + ' ከ' + run.total + ' አውቀዋል።', 'Done for today: you knew ' + run.known + ' of ' + run.total + '.')}</p></div>` : '';
+  if (!keys.length) return done + `<div class="card stack" style="align-items:flex-start"><p class="prose">${t('እስካሁን በቃል ለመያዝ የመረጡት ጥቅስ የለም። በንባብ ገጽ ቁጥር ይንኩና “በቃል” የሚለውን ይጫኑ።', 'No memory verses yet. Tap a verse while reading and press “Memorise”.')}</p><button class="btn fill" data-a="nav" data-v="study" data-k="to-read-m">${t('አንብብ', 'Read')}</button></div>`;
+  const level = (k) => S.memo[k].lv || 0;
+  return done + `<div class="card stack"><b>${due.length ? t(due.length + ' ጥቅሶች ዛሬ ይለማመዱ', due.length + (due.length === 1 ? ' verse' : ' verses') + ' to practise today') : t('ዛሬ የሚለማመዱት የለም፤ ነገ ይመለሱ።', 'Nothing due today; come back tomorrow.')}</b>
+<span class="muted small">${t('ያወቁት ጥቅስ ቀስ በቀስ በረዘመ ጊዜ ይመለሳል (1፣ 3፣ 7፣ 14፣ 30 ቀን)፤ ያላወቁት በቅርቡ ይመለሳል።', 'A verse you know comes back after longer and longer breaks (1, 3, 7, 14, 30 days); one you don’t comes back soon.')}</span>
+<div class="row"><button class="btn fill" data-a="memoStart" data-v="due" data-k="m-due" ${due.length ? '' : 'disabled'}>${t('ተለማመድ', 'Practise')}</button><button class="btn" data-a="memoStart" data-v="all" data-k="m-all">${t('ሁሉንም ተለማመድ', 'Practise all')} (${keys.length})</button></div></div>
+<div class="stack" style="gap:8px">${keys.map((k) => { const [b, c, v] = k.split('.').map(Number), tx = memoText(k); return `<div class="hlitem"><button class="hlopen" data-a="hlOpen" data-v="${k}" data-k="mo-${k}"><b>${esc(verseRef(b, c, v))} · <span class="muted">${'●'.repeat(Math.min(level(k), 5))}${'○'.repeat(5 - Math.min(level(k), 5))}</span></b><span ${langOf(S.primary, b)}>${tx === null ? '…' : esc(tx)}</span></button><button class="btn round" data-a="memoRemove" data-v="${k}" data-k="mr-${k}" aria-label="${t('አስወግድ', 'Remove')}" title="${t('አስወግድ', 'Remove')}">${icon('close')}</button></div>`; }).join('')}</div>`;
+}
+
 // ---------- reading plans ----------
 // Each plan is a list of days; each day a list of readings ({ b, c } for a chapter, or a story passage).
 const PLAN_LIST = [
@@ -2184,9 +2236,10 @@ function planBar() {
 function notesView() {
   const tab = S.notesTab || 'notes';
   const hls = Object.entries(S.highlights).filter(([, c]) => c);
-  const seg = `<div class="seg" role="tablist">${[['notes', t('ማስታወሻዎች', 'Notes'), S.notes.length], ['hl', t('የቀለሟቸው', 'Highlights'), hls.length]].map(([v, label, n]) => `<button role="tab" data-a="notesTab" data-v="${v}" data-k="nt-${v}" aria-pressed="${tab === v}">${label} <span class="count">${n}</span></button>`).join('')}</div>`;
+  const seg = `<div class="seg" role="tablist">${[['notes', t('ማስታወሻዎች', 'Notes'), S.notes.length], ['hl', t('የቀለሟቸው', 'Highlights'), hls.length], ['memo', t('በቃል', 'Memory'), memoKeys().length]].map(([v, label, n]) => `<button role="tab" data-a="notesTab" data-v="${v}" data-k="nt-${v}" aria-pressed="${tab === v}">${label} <span class="count">${n}</span></button>`).join('')}</div>`;
   let body;
   if (tab === 'hl') body = highlightsList(hls);
+  else if (tab === 'memo') body = memoView();
   else body = S.notes.length
     ? S.notes.map(noteCard).join('')
     : `<div class="card stack" style="align-items:flex-start"><p class="prose">${t('እስካሁን ማስታወሻ የለም። በጥናት ገጽ አንድ ቁጥር ይንኩና ማስታወሻ ይያዙ።', 'No notes yet. Click a verse on the Study screen and add one.')}</p><button class="btn fill" data-a="nav" data-v="study" data-k="to-study">${t('ጥናት', 'Study')}</button></div>`;
@@ -2449,7 +2502,8 @@ function render() {
   }
   const offBanner = navigator.onLine === false && S.screen !== 'offline' ? `<button class="offbanner" data-a="nav" data-v="offline" data-k="offbanner">${icon('wifiOff', 16)}${t('ኢንተርኔት የለም፤ የተቀመጡት ይሠራሉ', 'Offline: saved content still works')}</button>` : '';
   const view = offBanner + (S.screen === 'offline' ? offlineView() : S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'plans' ? plansView() : S.screen === 'map' ? mapView() : browseView());
-  root.innerHTML = sideMenu() + '<main>' + view + '</main>' + mapViewer() + picViewer();
+  root.innerHTML = sideMenu() + '<main>' + view + '</main>' + mapViewer() + picViewer() + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : '');
+  if (S.toast && !render.toastTimer) render.toastTimer = setTimeout(() => { S.toast = ''; render.toastTimer = null; render(); }, 2600);
   const newPanel = root.querySelector('.sidepanel');
   if (newPanel && panelTop) newPanel.scrollTop = panelTop;     // keep the side panel where the reader left it
   if (S.jump && S.screen === 'journey' && !S.play) {
@@ -2609,6 +2663,28 @@ const actions = {
   book(v) { S.openBook = S.openBook === +v ? null : +v; save('openBook'); },
   chapter(v) { const [b, c] = v.split('.').map(Number); S.pass = { b, c, f: 1, to: 0 }; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen', 'sel'); window.scrollTo(0, 0); },
   jumpTo(v) { const el = document.getElementById(v); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return false; },
+  memoAdd() {
+    const k = hlKey(S.sel), m = S.memo[k];
+    if (m && !m.off) { S.memo[k] = { off: true, seen: Date.now() }; S.toast = t('ከበቃል ጥቅሶች ተወግዷል', 'Removed from memory verses'); }
+    else { S.memo[k] = { lv: 0, due: today(), seen: Date.now() }; S.toast = t('ወደ በቃል ጥቅሶች ተጨምሯል፤ በማስታወሻዎች ገጽ ይለማመዱ።', 'Added to memory verses; practise them on the Notes screen.'); }
+    save('memo');
+  },
+  memoRemove(v) { S.memo[v] = { off: true, seen: Date.now() }; save('memo'); },
+  memoStart(v) {
+    const queue = v === 'due' ? memoDue() : memoKeys();
+    S.memoRun = { queue: queue.slice().sort(() => Math.random() - 0.5), i: 0, step: 0, known: 0, total: queue.length };
+    S.memoRun.step = Math.min(3, (S.memo[S.memoRun.queue[0]] || {}).lv || 0);
+  },
+  memoStep(v) { S.memoRun.step = +v; },
+  memoGrade(v) {
+    const run = S.memoRun, k = run.queue[run.i], m = S.memo[k];
+    if (+v) { m.lv = Math.min((m.lv || 0) + 1, MEMO_DAYS.length - 1); m.due = addDays(MEMO_DAYS[m.lv]); run.known++; }
+    else { m.lv = Math.max(0, (m.lv || 0) - 1); m.due = today(); }
+    m.seen = Date.now(); save('memo');
+    run.i++;
+    if (run.i < run.queue.length) run.step = Math.min(3, (S.memo[run.queue[run.i]] || {}).lv || 0);
+  },
+  memoQuit() { S.memoRun = null; },
   planStart(v) {
     if (!S.plans.p[v]) S.plans.p[v] = { start: today(), read: {} };
     S.plans.active = v; save('plans');
