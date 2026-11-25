@@ -1135,3 +1135,7 @@ details.backup[open] summary::after { transform: rotate(90deg); }
 .kanim { width: 100%; min-height: 44px; background: var(--kc); color: #fff; font: 800 14px var(--kfont); border-top: 2px solid color-mix(in srgb, var(--kc) 60%, #000); }
 .obsnum.anim { background: #FFD54A; color: #1F2023; }
 @media (max-width: 760px) { .kcard-main b { font-size: 15px; } .kanim { font-size: 13px; } }
+.krec { position: relative; font-size: 18px; }
+.krec.on { background: #E53935; color: #fff; animation: k-pulse 1s ease-in-out infinite; }
+.kdot { position: absolute; top: 6px; right: 6px; width: 9px; height: 9px; border-radius: 50%; background: #43A047; box-shadow: 0 0 0 2px var(--bg); }
+.kbar .kgtitle { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 17px; }

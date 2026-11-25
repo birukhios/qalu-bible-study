@@ -369,7 +369,7 @@ function kidsPlayer() {
 ${label}</div>`;
   if (typeof st.step === 'number') {
     const sc = k.scenes[st.step], text = tp(sc.t), last = st.step === k.scenes.length - 1;
-    return `<div class="kplayer" style="--kc:${k.c}">${head(`<span class="row" style="gap:6px;flex-wrap:nowrap">${hasNarration('kids-' + k.id + '-' + st.step) ? `<button class="kround" data-a="kidSay" data-k="kid-say" aria-label="${t('አንብብልኝ', 'Read it to me')}" title="${t('አንብብልኝ', 'Read it to me')}">${icon('speaker')}</button>${autoBtn()}` : ''}${soundBtn()}</span>`)}
+    return `<div class="kplayer" style="--kc:${k.c}">${head(`<span class="row" style="gap:6px;flex-wrap:nowrap">${recBtn('kids-' + k.id + '-' + st.step)}${hasNarration('kids-' + k.id + '-' + st.step) ? `<button class="kround" data-a="kidSay" data-k="kid-say" aria-label="${t('አንብብልኝ', 'Read it to me')}" title="${t('አንብብልኝ', 'Read it to me')}">${icon('speaker')}</button>${autoBtn()}` : ''}${soundBtn()}</span>`)}
 <div class="kstage" data-scene="${st.i}-${st.step}">${kScene(sc)}</div>
 <p class="khint">${t('👆 ገጸ ባሕርያቱን ንካቸው!', '👆 Tap the characters!')}</p>
 <div class="ktext">${kQali({ anim: 'nod', nod: true })}<p>${esc(text)}</p></div>
@@ -723,7 +723,7 @@ function obsReader() {
   const d = obsData();
   if (!d) return `<p class="ktext"><span>${t('እየተጫነ ነው…', 'Loading…')}</span></p>`;
   const st = d[S.obs.i], fi = S.obs.f, last = fi >= st.f.length;
-  const bar = `<div class="kbar"><button class="kround" data-a="obsClose" data-k="obs-close" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button><b class="kgtitle">${st.n}. ${esc(st.t)}</b><span class="row" style="gap:6px;flex-wrap:nowrap">${!last && hasNarration('obs-' + st.f[fi][0]) ? `<button class="kround" data-a="obsSay" data-k="obs-say" aria-label="${t('አንብብልኝ', 'Read it to me')}">${icon('speaker')}</button>${autoBtn()}` : ''}${soundBtn()}</span></div>`;
+  const bar = `<div class="kbar"><button class="kround" data-a="obsClose" data-k="obs-close" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button><b class="kgtitle">${st.n}. ${esc(st.t)}</b><span class="row" style="gap:6px;flex-wrap:nowrap">${!last ? recBtn('obs-' + st.f[fi][0]) : ''}${!last && hasNarration('obs-' + st.f[fi][0]) ? `<button class="kround" data-a="obsSay" data-k="obs-say" aria-label="${t('አንብብልኝ', 'Read it to me')}">${icon('speaker')}</button>${autoBtn()}` : ''}${soundBtn()}</span></div>`;
   const prog = `<div class="obsprog"><i style="width:${Math.round(100 * Math.min(fi + 1, st.f.length) / st.f.length)}%"></i></div>`;
   if (last) {
     const next = d[S.obs.i + 1];
@@ -792,16 +792,45 @@ ${st && k ? `<button class="kanim" data-a="kidOpen" data-v="${it.kid}" data-k="k
 const NARR = { have: null, audio: null };
 fetch('data/audio/index.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((d) => { NARR.have = { am: new Set(d.am || []), en: new Set(d.en || []) }; if (S.screen === 'kids') render(); });
 const narrLang = () => (S.en ? 'en' : 'am');
-const hasNarration = (key) => !!(NARR.have && NARR.have[narrLang()].has(key)) || !!kVoice();
+// A grown-up can record a page in their own voice; that recording is used first (kept on this device).
+const MYVOICE = { keys: new Set(), rec: null };
+const myKey = (key) => 'narr:' + narrLang() + ':' + key;
+setTimeout(() => idb('audio', 'readonly', (st) => st.getAllKeys()).then((keys) => { (keys || []).forEach((k) => { if (String(k).startsWith('narr:')) MYVOICE.keys.add(String(k)); }); }).catch(() => {}), 0);   // after app.js has defined idb
+const hasNarration = (key) => MYVOICE.keys.has(myKey(key)) || !!(NARR.have && NARR.have[narrLang()].has(key)) || !!kVoice();
+const recBtn = (key) => !navigator.mediaDevices || !window.MediaRecorder ? '' : MYVOICE.rec
+  ? `<button class="kround krec on" data-a="kidRecStop" data-k="kid-rec" aria-label="${t('ቀረጻውን አቁም', 'Stop recording')}" title="${t('ቀረጻውን አቁም', 'Stop recording')}">⏹</button>`
+  : `<button class="kround krec" data-a="kidRec" data-v="${key}" data-k="kid-rec" aria-label="${t('ይህን ገጽ በራስዎ ድምፅ ይቅረጹ', 'Record this page in your own voice')}" title="${t('ይህን ገጽ በራስዎ ድምፅ ይቅረጹ', 'Record this page in your own voice')}">🎙️${MYVOICE.keys.has(myKey(key)) ? '<i class="kdot"></i>' : ''}</button>`;
 const kAuto = () => ls.get('kidAuto', true);
 function narrate(key, text) {
   if (NARR.audio) { NARR.audio.pause(); NARR.audio = null; }
   if ('speechSynthesis' in window) speechSynthesis.cancel();
-  if (NARR.have && NARR.have[narrLang()].has(key)) {
+  if (MYVOICE.keys.has(myKey(key))) {
+    idb('audio', 'readonly', (st) => st.get(myKey(key))).then((blob) => { if (!blob) return kSay(text); NARR.audio = new Audio(URL.createObjectURL(blob)); NARR.audio.play().catch(() => {}); });
+  } else if (NARR.have && NARR.have[narrLang()].has(key)) {
     NARR.audio = new Audio(`data/audio/${narrLang()}/${key}.m4a`);
     NARR.audio.play().catch(() => kSay(text));
   } else kSay(text);
 }
 function stopNarration() { if (NARR.audio) { NARR.audio.pause(); NARR.audio = null; } if ('speechSynthesis' in window) speechSynthesis.cancel(); }
 const autoBtn = () => `<button class="kround" data-a="kidAuto" data-k="kid-auto" aria-pressed="${kAuto()}" title="${kAuto() ? t('ራሱ ያንብብ፦ በርቷል', 'Read to me: on') : t('ራሱ ያንብብ፦ ጠፍቷል', 'Read to me: off')}" aria-label="${t('ራሱ ያንብብልኝ', 'Read to me')}">${kAuto() ? '🎧' : '🔇'}</button>`;
-Object.assign(kidActions, { kidAuto() { ls.set('kidAuto', !kAuto()); if (!kAuto()) stopNarration(); } });
+Object.assign(kidActions, {
+  kidAuto() { ls.set('kidAuto', !kAuto()); if (!kAuto()) stopNarration(); },
+  async kidRec(key) {
+    stopNarration();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const chunks = [], rec = new MediaRecorder(stream);
+      rec.ondataavailable = (e) => chunks.push(e.data);
+      rec.onstop = async () => {
+        stream.getTracks().forEach((tr) => tr.stop());
+        const k = myKey(key);
+        await idb('audio', 'readwrite', (st) => st.put(new Blob(chunks, { type: rec.mimeType }), k)).catch(() => {});
+        MYVOICE.keys.add(k); MYVOICE.rec = null;
+        S.toast = t('ተቀምጧል፤ ይህ ገጽ በእርስዎ ድምፅ ይነበባል።', 'Saved: this page will be read in your voice.'); sfx('chime'); render();
+      };
+      MYVOICE.rec = rec; rec.start(); sfx('pop'); render();
+    } catch (e) { S.toast = t('ማይክሮፎኑን መጠቀም አልተቻለም።', 'The microphone could not be used.'); render(); }
+    return false;
+  },
+  kidRecStop() { if (MYVOICE.rec) MYVOICE.rec.stop(); return false; }
+});
