@@ -500,7 +500,7 @@ const SCENE_SOUND = { storm: 'thunder', under: 'blub', sea: 'splash', night: 'ch
 // Tapping a piece of a scene: it bounces, sparkles and makes its sound.
 document.addEventListener('click', (e) => {
   const piece = e.target.closest && e.target.closest('.kstage [data-kp], .kgame [data-kp]');
-  if (!piece) return;
+  if (!piece || piece.closest('.kcolor')) return;
   const inner = piece.firstElementChild;
   inner.classList.remove('k-tapped'); void inner.getBBox(); inner.classList.add('k-tapped');
   sfx(PIECE_SOUND[piece.dataset.kp] || 'tap');
@@ -519,7 +519,8 @@ function kSparkle(x, y, n = 10) {
 const GAMES = [
   ['puzzle', '🧩', ['የሥዕል እንቆቅልሽ', 'Picture puzzle'], ['ቁርጥራጮቹን አቀያይረው ሥዕሉን ሙሉ', 'Swap the pieces to finish the picture'], '#FF8A3D'],
   ['memory', '🃏', ['ጥንዶቹን ፈልግ', 'Find the pairs'], ['ካርዶቹን ገልብጠህ ተመሳሳዮቹን አገናኝ', 'Turn the cards and match the pairs'], '#3FA2D9'],
-  ['order', '🔢', ['ታሪኩን በቅደም ተከተል', 'Story in order'], ['ሥዕሎቹን ከመጀመሪያው እስከ መጨረሻው ንካ', 'Tap the pictures from first to last'], '#66BB6A']
+  ['order', '🔢', ['ታሪኩን በቅደም ተከተል', 'Story in order'], ['ሥዕሎቹን ከመጀመሪያው እስከ መጨረሻው ንካ', 'Tap the pictures from first to last'], '#66BB6A'],
+  ['colour', '🎨', ['ቀለም ቀባ', 'Colouring'], ['ቀለም ምረጥና ሥዕሉን ንካ', 'Pick a colour and tap the picture'], '#EF3340']
 ];
 const MEMO_SPRITES = { lion: '-42 -50 84 56', sheep: '-24 -34 46 38', dove: '-24 -24 58 34', fish: '-24 -12 48 24', sun: '-42 -42 84 84', star: '-10 -10 20 20', heart: '-17 -18 34 26', qali: '-30 -62 70 70', ark: '-84 -78 168 100', bigfish: '-106 -50 190 100', tree: '-36 -66 72 70', basket: '-24 -14 48 24' };
 const kShuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -535,6 +536,8 @@ function startGame(type, i) {
     let order;
     do order = kShuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]); while (order.every((x, j) => x === j));
     S.kg = { type, i, scene, order, sel: null, moves: 0 };
+  } else if (type === 'colour') {
+    S.kg = { type, i, scene: 0, fills: {}, color: KCOLORS[0], done: false };
   } else if (type === 'order') {
     let shown;
     do shown = kShuffle([0, 1, 2, 3]); while (shown.every((x, j) => x === j));
@@ -565,6 +568,17 @@ function gameView() {
   if (g.type === 'pick') {
     return `<div class="kgame" style="--kc:${meta[4]}">${gameHead(title)}<p class="ktext"><span>${t('የትኛውን ታሪክ?', 'Which story?')}</span></p>
 <div class="kgrid">${KIDS.map((k, i) => `<button class="kcard" style="--kc:${k.c}" data-a="kgStart" data-v="${g.game}.${i}" data-k="kgs-${k.id}"><span class="kthumb">${kScene(k.scenes[g.game === 'puzzle' ? k.scenes.length - 1 : 0], true)}</span><b>${esc(tp(k.n))}</b></button>`).join('')}</div></div>`;
+  }
+  if (g.type === 'colour') {
+    const k = KIDS[g.i], sc = k.scenes[g.scene];
+    return `<div class="kgame" style="--kc:${k.c}">${gameHead(title)}
+<div class="kstage kcolor" data-scene="c${g.i}-${g.scene}">${kScene(sc)}</div>
+<div class="kpalette" role="radiogroup" aria-label="${t('ቀለሞች', 'Colours')}">${KCOLORS.map((c) => `<button class="kswatch${g.color === c ? ' on' : ''}" style="--sw:${c}" data-a="kcPick" data-v="${c}" data-k="kc-${c.slice(1)}" aria-label="${c}" role="radio" aria-checked="${g.color === c}"></button>`).join('')}</div>
+<div class="kctl"><button class="kbtn ghost" data-a="kcScene" data-v="-1" data-k="kc-prev" ${g.scene === 0 ? 'disabled' : ''}>${icon('left', 24)}</button>
+<button class="kbtn ghost" data-a="kcMagic" data-k="kc-magic">✨ ${t('አስማት', 'Magic')}</button>
+<button class="kbtn ghost" data-a="kcClear" data-k="kc-clear">🧽 ${t('አጽዳ', 'Clear')}</button>
+<button class="kbtn ghost" data-a="kcScene" data-v="1" data-k="kc-next" ${g.scene === k.scenes.length - 1 ? 'disabled' : ''}>${icon('right', 24)}</button></div>
+<button class="kbtn" data-a="kcSave" data-k="kc-save">💾 ${t('ሥዕሌን አስቀምጥ', 'Save my picture')}</button></div>`;
   }
   if (g.type === 'puzzle') {
     const k = KIDS[g.i], sc = k.scenes[g.scene];
@@ -628,4 +642,60 @@ Object.assign(kidActions, {
     else { g.wrong = s; sfx('wrong'); setTimeout(() => { if (S.kg === g) { g.wrong = null; render(); } }, 600); }
   },
   kgFromStory(v) { const i = S.kid.i; S.kid = null; startGame(v, i); S.kg.from = 'story'; }
+});
+
+// ---------- colouring: the story scenes as outlines; tap a shape to paint it ----------
+const KCOLORS = ['#EF3340', '#FF8A3D', '#FFD54A', '#7CCF6E', '#2E9E5B', '#8FD3FF', '#3F7FD9', '#7E57C2', '#F59AB0', '#8D5A3B', '#C68A5E', '#FFFFFF', '#2B2D31'];
+const KSHAPES = 'path,rect,circle,ellipse,polygon';
+// Turns the scene on screen into a colouring page and paints the shapes already coloured.
+function kColorPrep() {
+  const svg = document.querySelector('.kcolor svg');
+  if (!svg || !S.kg) return;
+  svg.querySelectorAll(KSHAPES).forEach((el, i) => {
+    const own = el.getAttribute('fill'), group = el.parentElement && el.parentElement.closest('[fill]');
+    const fill = own || (group && group.getAttribute('fill'));
+    el.dataset.ci = i;
+    el.dataset.orig = fill && fill !== 'none' ? fill : '';
+    if (!el.dataset.orig) { el.setAttribute('stroke', '#2B2D31'); return; }   // lines only (reeds, rain, ropes)
+    el.setAttribute('fill', S.kg.fills[i] || '#FFFFFF');
+    el.setAttribute('stroke', '#2B2D31'); el.setAttribute('stroke-width', '1.3'); el.setAttribute('vector-effect', 'non-scaling-stroke');
+    el.removeAttribute('opacity');
+  });
+  svg.querySelectorAll('text').forEach((tx) => tx.setAttribute('fill', '#2B2D31'));
+}
+document.addEventListener('click', (e) => {
+  const el = e.target.closest && e.target.closest('.kcolor [data-ci]');
+  if (!el || !S.kg || S.kg.type !== 'colour' || !el.dataset.orig) return;
+  S.kg.fills[el.dataset.ci] = S.kg.color;
+  el.setAttribute('fill', S.kg.color);
+  el.classList.remove('k-painted'); void el.getBBox(); el.classList.add('k-painted');
+  sfx('pop');
+  kSparkle(e.clientX, e.clientY, 6);
+});
+async function kColorSave() {
+  const svg = document.querySelector('.kcolor svg');
+  if (!svg) return;
+  const clone = svg.cloneNode(true);
+  clone.setAttribute('width', 1200); clone.setAttribute('height', 780); clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' }));
+  const img = new Image();
+  await new Promise((ok, bad) => { img.onload = ok; img.onerror = bad; img.src = url; });
+  const c = document.createElement('canvas'); c.width = 1200; c.height = 780;
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 1200, 780); g.drawImage(img, 0, 0, 1200, 780);
+  g.font = '700 26px "Noto Sans Ethiopic", sans-serif'; g.fillStyle = '#EF3340'; g.textAlign = 'right'; g.fillText('ቃሉ · Qalu', 1180, 760);
+  URL.revokeObjectURL(url);
+  const blob = await new Promise((done) => c.toBlob(done, 'image/png'));
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'qalu-colouring.png'; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+Object.assign(kidActions, {
+  kcPick(v) { S.kg.color = v; sfx('tap'); },
+  kcScene(v) { const k = KIDS[S.kg.i]; S.kg.scene = Math.max(0, Math.min(k.scenes.length - 1, S.kg.scene + +v)); S.kg.fills = {}; sfx('whoosh'); },
+  kcClear() { S.kg.fills = {}; sfx('whoosh'); },
+  kcMagic() {
+    const svg = document.querySelector('.kcolor svg');
+    if (svg) svg.querySelectorAll('[data-ci]').forEach((el) => { if (el.dataset.orig && !el.dataset.orig.startsWith('url(')) S.kg.fills[el.dataset.ci] = el.dataset.orig; else if (el.dataset.orig) S.kg.fills[el.dataset.ci] = '#BFE6FF'; });
+    sfx('sparkle');
+  },
+  kcSave() { kColorSave().then(() => { if (!S.kg.saved) { S.kg.saved = true; S.kids = S.kids || { done: {} }; S.kids.games = S.kids.games || {}; S.kids.games.colour = (S.kids.games.colour || 0) + 1; save('kids'); } sfx('fanfare'); S.toast = t('ሥዕሉ ተቀመጠ!', 'Picture saved!'); render(); }); return false; }
 });

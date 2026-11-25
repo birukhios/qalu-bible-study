@@ -1103,3 +1103,15 @@ details.backup[open] summary::after { transform: rotate(90deg); }
   .kocap { font-size: 12px; }
   .kgem { font-size: 38px; width: 62px; height: 62px; }
 }
+/* Colouring */
+.kcolor { background: #fff; }
+.kcolor svg, .kcolor svg * { animation: none !important; }
+.kcolor [data-ci] { cursor: pointer; transition: fill .15s; }
+.k-painted { animation: k-paint .35s ease-out !important; transform-box: fill-box; transform-origin: center; }
+@keyframes k-paint { 40% { transform: scale(1.06); } }
+.kpalette { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.kswatch { width: 44px; height: 44px; border-radius: 50%; background: var(--sw); border: 3px solid rgba(0, 0, 0, .15); box-shadow: 0 3px 0 rgba(0, 0, 0, .2); transition: transform .12s; }
+.kswatch.on { transform: scale(1.2); box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--text); }
+@media (max-width: 760px) { .kswatch { width: 38px; height: 38px; } }
+.kctl { display: grid; grid-template-columns: auto 1fr 1fr auto; gap: 8px; }
+.kctl .kbtn { padding: 0 12px; font-size: 16px; min-height: 52px; }

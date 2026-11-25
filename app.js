@@ -2672,6 +2672,7 @@ function render() {
   const view = offBanner + (S.screen === 'offline' ? offlineView() : S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'plans' ? plansView() : S.screen === 'kids' ? kidsView() : S.screen === 'map' ? mapView() : browseView());
   root.innerHTML = sideMenu() + '<main>' + view + '</main>' + mapViewer() + picViewer() + studioView() + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : '');
   if (S.studio) drawStudio();
+  if (S.kg && S.kg.type === 'colour') kColorPrep();
   if (S.toast && !render.toastTimer) render.toastTimer = setTimeout(() => { S.toast = ''; render.toastTimer = null; render(); }, 2600);
   const newPanel = root.querySelector('.sidepanel');
   if (newPanel && panelTop) newPanel.scrollTop = panelTop;     // keep the side panel where the reader left it
