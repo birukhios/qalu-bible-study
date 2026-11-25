@@ -945,7 +945,7 @@ function mergeRecords(a, b) {
     updated: Math.max(a.updated || 0, b.updated || 0),
     plans: mergePlans(a.plans, b.plans, newer === a),
     memo: mergeMemo(a.memo, b.memo),
-    kids: (() => { const most = (x, y) => { const d = Object.assign({}, x); Object.entries(y || {}).forEach(([k, v]) => { d[k] = Math.max(d[k] || 0, v); }); return d; }; return { done: most((a.kids || {}).done, (b.kids || {}).done), games: most((a.kids || {}).games, (b.kids || {}).games) }; })()
+    kids: (() => { const most = (x, y) => { const d = Object.assign({}, x); Object.entries(y || {}).forEach(([k, v]) => { d[k] = Math.max(d[k] || 0, v); }); return d; }; return { done: most((a.kids || {}).done, (b.kids || {}).done), games: most((a.kids || {}).games, (b.kids || {}).games), obs: most((a.kids || {}).obs, (b.kids || {}).obs) }; })()
   };
 }
 

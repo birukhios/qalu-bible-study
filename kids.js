@@ -355,7 +355,8 @@ function kidsHome() {
   const done = (S.kids && S.kids.done) || {};
   const total = KIDS.reduce((n, k) => n + (done[k.id] || 0), 0);
   const tab = S.kidTab || 'stories';
-  const tabs = `<div class="seg ktabs" role="tablist">${[['stories', '📖', t('ታሪኮች', 'Stories')], ['games', '🎮', t('ጨዋታዎች', 'Games')]].map(([v, em, l]) => `<button role="tab" data-a="kidTab" data-v="${v}" data-k="kt-${v}" aria-pressed="${tab === v}">${em} ${l}</button>`).join('')}</div>`;
+  const tabs = `<div class="seg ktabs" role="tablist">${[['stories', '📖', t('ታሪኮች', 'Stories')], ['obs', '🖼️', t('50 ታሪኮች', '50 stories')], ['games', '🎮', t('ጨዋታዎች', 'Games')]].map(([v, em, l]) => `<button role="tab" data-a="kidTab" data-v="${v}" data-k="kt-${v}" aria-pressed="${tab === v}">${em} ${l}</button>`).join('')}</div>`;
+  if (tab === 'obs') return `<div class="kids-hero"><span class="khero-sound">${soundBtn()}</span><div class="kbubble">${t('ከፍጥረት እስከ ራእይ 50 የሥዕል ታሪኮች!', '50 picture stories, from Creation to Revelation!')}</div>${kQali({ anim: 'jump', cls: 'big' })}</div>${tabs}${obsHome()}`;
   if (tab === 'games') return `<div class="kids-hero"><span class="khero-sound">${soundBtn()}</span><div class="kbubble">${t('እንጫወት! አንድ ጨዋታ ምረጥ።', 'Let’s play! Pick a game.')}</div>${kQali({ anim: 'jump', cls: 'big' })}</div>${tabs}${gamesHome()}`;
   return `<div class="kids-hero"><span class="khero-sound">${soundBtn()}</span><div class="kbubble">${t('ሰላም! እኔ ቃሊ ነኝ። ከመጽሐፍ ቅዱስ ታሪክ አብረን እንማር!', 'Hi! I’m Qali. Let’s learn a Bible story together!')}</div>${kQali({ anim: 'jump', cls: 'big' })}</div>
 ${tabs}<div class="row between"><h1 class="ktitle">${t('የልጆች ታሪኮች', 'Stories for kids')}</h1><span class="kpill">${kStars(1, 1)} ${total} / ${KIDS.length * 3}</span></div>
@@ -401,7 +402,7 @@ ${kQali({ anim: 'jump', happy: true, cls: 'big' })}
 <button class="linkbtn" data-a="kidRead" data-k="kid-read">${t('ሙሉውን ታሪክ በመጽሐፍ ቅዱስ አንብብ', 'Read the whole story in the Bible')}</button></div></div>`;
 }
 function kidsView() {
-  return `<div class="wrap kids">${S.kg ? gameView() : S.kid ? kidsPlayer() : kidsHome()}</div>`;
+  return `<div class="wrap kids">${S.kg ? gameView() : S.obs ? obsReader() : S.kid ? kidsPlayer() : kidsHome()}</div>`;
 }
 
 const kidActions = {
@@ -606,7 +607,7 @@ function gamesHome() {
 
 Object.assign(kidActions, {
   kidSound() { ls.set('kidSound', !kSoundOn()); if (kSoundOn()) sfx('pop'); },
-  kidTab(v) { S.kidTab = v; sfx('tap'); },
+  kidTab(v) { S.kidTab = v; S.obs = null; sfx('tap'); },
   kgOpen(v) { startGame(v); },
   kgStart(v) { const [type, i] = v.split('.'); startGame(type, +i); },
   kgBack() { S.kg = S.kg && S.kg.type !== 'pick' && S.kg.type !== 'memory' && !S.kg.won && S.kg.from !== 'story' ? { type: 'pick', game: S.kg.type } : null; sfx('tap'); },
@@ -698,4 +699,60 @@ Object.assign(kidActions, {
     sfx('sparkle');
   },
   kcSave() { kColorSave().then(() => { if (!S.kg.saved) { S.kg.saved = true; S.kids = S.kids || { done: {} }; S.kids.games = S.kids.games || {}; S.kids.games.colour = (S.kids.games.colour || 0) + 1; save('kids'); } sfx('fanfare'); S.toast = t('ሥዕሉ ተቀመጠ!', 'Picture saved!'); render(); }); return false; }
+});
+
+// ---------- Open Bible Stories: 50 picture stories (unfoldingWord®, CC BY-SA 4.0; pictures © Sweet Publishing, CC BY-SA 3.0) ----------
+const OBS = { am: null, en: null, pending: {} };
+// The stories in the reader's language, falling back to the other language until it is available.
+function obsData() {
+  const want = S.en ? 'en' : 'am', other = S.en ? 'am' : 'en';
+  [want, other].forEach((l) => {
+    if (OBS[l] !== null || OBS.pending[l]) return;
+    OBS.pending[l] = true;
+    fetch(`data/obs/${l}.json`).then((r) => (r.ok ? r.json() : [])).catch(() => []).then((d) => { OBS[l] = d; OBS.pending[l] = false; render(); });
+  });
+  return (OBS[want] && OBS[want].length ? OBS[want] : OBS[other] && OBS[other].length ? OBS[other] : null);
+}
+const obsImg = (id) => `data/obs/img/${id}.jpg`;
+const OBS_CREDIT = () => `<p class="ksmall center">${t('ታሪኮቹ፦ unfoldingWord® Open Bible Stories (CC BY-SA 4.0)። ሥዕሎቹ፦ © Sweet Publishing (CC BY-SA 3.0)።', 'Stories: unfoldingWord® Open Bible Stories (CC BY-SA 4.0). Pictures: © Sweet Publishing (CC BY-SA 3.0).')}</p>`;
+function obsHome() {
+  const d = obsData(), read = (S.kids && S.kids.obs) || {};
+  if (!d) return `<p class="ktext"><span>${OBS.pending.am || OBS.pending.en ? t('እየተጫነ ነው…', 'Loading…') : t('የታሪኮቹ ጽሑፍ ገና አልገባም።', 'The story text has not been added yet.')}</span></p>`;
+  return `<div class="kgrid obsgrid">${d.map((st, i) => `<button class="kcard" style="--kc:${['#FF8A3D', '#3FA2D9', '#66BB6A', '#EF3340', '#7E57C2', '#F2994A'][i % 6]}" data-a="obsOpen" data-v="${i}" data-k="obs-${st.n}">
+<span class="kthumb"><img src="${obsImg(st.f[0][0])}" alt="" loading="lazy"></span><span class="obsnum">${st.n}</span><b>${esc(st.t)}</b><span class="row between" style="width:100%"><span class="ksmall">${st.f.length} ${t('ሥዕሎች', 'pictures')}</span>${read[st.n] ? '<span class="kpill">✓</span>' : ''}</span></button>`).join('')}</div>${OBS_CREDIT()}`;
+}
+function obsReader() {
+  const d = obsData();
+  if (!d) return `<p class="ktext"><span>${t('እየተጫነ ነው…', 'Loading…')}</span></p>`;
+  const st = d[S.obs.i], fi = S.obs.f, last = fi >= st.f.length;
+  const bar = `<div class="kbar"><button class="kround" data-a="obsClose" data-k="obs-close" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button><b class="kgtitle">${st.n}. ${esc(st.t)}</b><span class="row" style="gap:6px;flex-wrap:nowrap">${kVoice() && !last ? `<button class="kround" data-a="obsSay" data-k="obs-say" aria-label="${t('አንብብልኝ', 'Read it to me')}">${icon('speaker')}</button>` : ''}${soundBtn()}</span></div>`;
+  const prog = `<div class="obsprog"><i style="width:${Math.round(100 * Math.min(fi + 1, st.f.length) / st.f.length)}%"></i></div>`;
+  if (last) {
+    const next = d[S.obs.i + 1];
+    return `<div class="kplayer" style="--kc:#EF3340">${bar}${prog}<div class="kdone">${kQali({ anim: 'jump', happy: true, cls: 'big' })}<h2 class="ktitle">${t('ታሪኩ አለቀ!', 'The end!')}</h2>
+<p class="ksmall"><b>${esc(st.r)}</b></p>
+<div class="knav wrap"><button class="kbtn ghost" data-a="obsFrame" data-v="0" data-k="obs-again">${t('እንደገና', 'Again')}</button>${next ? `<button class="kbtn" data-a="obsOpen" data-v="${S.obs.i + 1}" data-k="obs-next-story">${t('ቀጣዩ ታሪክ', 'Next story')}: ${esc(next.t)}${icon('right', 24)}</button>` : ''}</div></div>${OBS_CREDIT()}</div>`;
+  }
+  const [img, text] = st.f[fi];
+  return `<div class="kplayer obsread" style="--kc:#EF3340">${bar}${prog}
+<div class="kstage obsstage" data-scene="obs-${st.n}-${fi}"><img src="${obsImg(img)}" alt=""></div>
+<div class="ktext obstext"><p>${esc(text)}</p></div>
+<div class="knav"><button class="kbtn ghost" data-a="obsFrame" data-v="${fi - 1}" data-k="obs-prev" ${fi === 0 ? 'disabled' : ''} aria-label="${t('ያለፈው', 'Back')}">${icon('left', 28)}</button>
+<span class="ksmall">${fi + 1} / ${st.f.length}</span>
+<button class="kbtn" data-a="obsFrame" data-v="${fi + 1}" data-k="obs-next">${t('ቀጥል', 'Next')}${icon('right', 26)}</button></div></div>`;
+}
+Object.assign(kidActions, {
+  obsOpen(v) { S.obs = { i: +v, f: 0 }; window.scrollTo(0, 0); sfx('whoosh'); },
+  obsClose() { S.obs = null; if ('speechSynthesis' in window) speechSynthesis.cancel(); },
+  obsFrame(v) {
+    const d = obsData(), st = d[S.obs.i];
+    S.obs.f = Math.max(0, +v);
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    if (S.obs.f >= st.f.length) {
+      S.kids = S.kids || { done: {} }; S.kids.obs = S.kids.obs || {};
+      if (!S.kids.obs[st.n]) { S.kids.obs[st.n] = 1; save('kids'); }
+      sfx('fanfare');
+    } else sfx('flip');
+  },
+  obsSay() { const st = obsData()[S.obs.i]; kSay(st.f[S.obs.f][1]); return false; }
 });
