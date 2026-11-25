@@ -814,3 +814,13 @@ mark { background: #F2C94C; color: #1F2023; border-radius: 3px; padding: 0 2px; 
 .scene img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: var(--line); }
 .scene span { font-size: 13px; padding: 0 4px 4px; line-height: 1.35; }
 .scene:hover { background: var(--line); }
+
+/* Reading plans */
+.pbar { height: 8px; border-radius: 999px; background: var(--ctl); overflow: hidden; }
+.pbar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+.planitem { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 8px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); text-align: left; font-size: 16px; }
+.planitem:hover { border-color: var(--muted); }
+.planitem .tick { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--muted); display: inline-flex; align-items: center; justify-content: center; }
+.planitem[aria-pressed="true"] .tick { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.planitem[aria-pressed="true"] > span:last-child { color: var(--muted); text-decoration: line-through; }
+.planbar { border-color: var(--accent); padding: 10px 14px; }

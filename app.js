@@ -71,7 +71,7 @@ const S = {
   recording: false,
   msg: '',
   game: { xp: 0, streak: 0, last: '', done: {} }, // done: story number -> stars earned (1 to 3)
-  gone: [], updated: 0, // see blankAccount()
+  gone: [], updated: 0, plans: { active: null, p: {} }, // see blankAccount()
   play: null, // the story lesson in progress on the Journey screen
   jump: true,
   openBook: ls.get('openBook', null), // the book whose chapter list is open on the Bible screen
@@ -177,9 +177,9 @@ function save(...keys) {
 }
 
 // ---------- accounts: each one keeps its own highlights, notes and Journey progress ----------
-const PERSONAL = ['highlights', 'notes', 'game', 'gone', 'updated'];
+const PERSONAL = ['highlights', 'notes', 'game', 'gone', 'updated', 'plans'];
 // gone: ids of deleted notes, so a deletion also reaches the account's other devices; updated: time of the last change.
-const blankAccount = () => ({ highlights: {}, notes: [], game: { xp: 0, streak: 0, last: '', done: {} }, gone: [], updated: 0 });
+const blankAccount = () => ({ highlights: {}, notes: [], game: { xp: 0, streak: 0, last: '', done: {} }, gone: [], updated: 0, plans: { active: null, p: {} } });
 const accountId = () => (S.user ? 'google:' + (S.user.sub || S.user.email) : S.guest ? 'guest' : '');
 let accountReady = '';    // the account whose data is in S
 
@@ -937,8 +937,22 @@ function mergeRecords(a, b) {
     notes: Object.values(notes).filter((n) => !gone.includes(n.id)).sort((x, y) => (y.date || 0) - (x.date || 0)),
     game: { xp: Math.max(ga.xp || 0, gb.xp || 0), streak: lastGame.streak || 0, last: lastGame.last || '', done },
     gone,
-    updated: Math.max(a.updated || 0, b.updated || 0)
+    updated: Math.max(a.updated || 0, b.updated || 0),
+    plans: mergePlans(a.plans, b.plans, newer === a)
   };
+}
+
+// Reading plans: the plan in use comes from the newer copy; days and chapters read are kept from both.
+function mergePlans(a, b, aNewer) {
+  a = a || { active: null, p: {} }; b = b || { active: null, p: {} };
+  const p = {};
+  new Set([...Object.keys(a.p || {}), ...Object.keys(b.p || {})]).forEach((id) => {
+    const x = (a.p || {})[id] || {}, y = (b.p || {})[id] || {};
+    const read = Object.assign({}, x.read);
+    Object.entries(y.read || {}).forEach(([d, list]) => { read[d] = [...new Set([...(read[d] || []), ...list])]; });
+    p[id] = { start: [x.start, y.start].filter(Boolean).sort()[0] || '', read };
+  });
+  return { active: aNewer ? a.active : b.active, p };
 }
 
 function syncSoon(delay = 1500) {
@@ -1687,6 +1701,7 @@ function browseView() {
     ? searchResults()
     : `<div class="card row between"><div class="stack" style="gap:4px"><span class="muted small"><b>${t('ካቆሙበት ይቀጥሉ', 'Continue where you left off')}</b></span><span style="font-size:21px;font-weight:700">${esc(passTitle(S.pass))}</span><span class="muted small">${esc(passRef(S.pass))}</span></div>
 <button class="btn fill" data-a="nav" data-v="study" data-k="continue">${t('ክፈት', 'Open')}</button></div>
+${planToday(true)}
 ${dailyCard()}
 <div class="seg" role="group" aria-label="${t('የማሰሻ መንገድ', 'Browse by')}">${modes.map((m) => `<button data-a="browse" data-v="${m[0]}" data-k="mode-${m[0]}" aria-pressed="${S.browse === m[0]}">${m[1]}</button>`).join('')}</div>
 <p class="muted">${notes[S.browse]}</p>
@@ -1892,7 +1907,7 @@ ${S.focus ? '' : tb('toStudy', 'to-study', icon('note'), t('ጥናት፦ ዳራ�
 ${p.pl ? tb('showPlace', 'show-place', icon('pin'), t('ካርታ ላይ አሳይ', 'Show on the map')) : ''}
 </div></div>
 ${S.picker ? picker : ''}
-<div class="cols"><article class="card stack reader${S.split || !S.focus ? '' : ' single'}">${selbar}${heads}<div class="verses" style="font-size:${[16, 19, 22, 25][S.size]}px">${verses}</div>${stepper('bottom')}</article>${S.focus ? '' : sidePanel()}</div>
+<div class="cols"><article class="card stack reader${S.split || !S.focus ? '' : ' single'}">${selbar}${heads}<div class="verses" style="font-size:${[16, 19, 22, 25][S.size]}px">${verses}</div>${planBar()}${stepper('bottom')}</article>${S.focus ? '' : sidePanel()}</div>
 ${credits ? `<p class="muted small" lang="en">${esc(credits)}</p>` : ''}
 </div>`;
 }
@@ -2082,6 +2097,88 @@ function mapView() {
 <div class="maps atlas"><div id="mapslot"><p class="muted prose" style="padding:16px">${t('ካርታውን መጫን አልተቻለም።', 'The map could not be loaded.')}</p></div>
 <div class="stack mapside">${atlasSide()}</div></div>
 <p class="muted small" lang="en">${MAP_CREDIT} ${GEO_CREDIT} Map tiles © Esri.</p></div>`;
+}
+
+// ---------- reading plans ----------
+// Each plan is a list of days; each day a list of readings ({ b, c } for a chapter, or a story passage).
+const PLAN_LIST = [
+  ['year', 'መጽሐፍ ቅዱስ በአንድ ዓመት', 'The Bible in a year', 'ከዘፍጥረት እስከ ራእይ፣ በቀን 3–4 ምዕራፍ።', 'Genesis to Revelation, 3–4 chapters a day.'],
+  ['chrono', 'በጊዜ ቅደም ተከተል በአንድ ዓመት', 'Chronological, in a year', 'መጻሕፍቱ በሚተርኩት ዘመን ቅደም ተከተል።', 'The books in the order of the times they describe.'],
+  ['stories', 'የታሪክ መስመሩ፣ 135 ቀን', 'The story timeline, 135 days', 'በቀን አንድ ታሪክ፣ ከፍጥረት እስከ ራእይ።', 'One story a day, from Creation to Revelation.'],
+  ['nt90', 'አዲስ ኪዳን በ90 ቀን', 'New Testament in 90 days', 'በቀን 3 ምዕራፍ ገደማ።', 'About 3 chapters a day.'],
+  ['gospels', 'አራቱ ወንጌላት በ30 ቀን', 'The four Gospels in 30 days', 'ማቴዎስ፣ ማርቆስ፣ ሉቃስ፣ ዮሐንስ።', 'Matthew, Mark, Luke and John.'],
+  ['wisdom', 'መዝሙርና ምሳሌ በ60 ቀን', 'Psalms and Proverbs in 60 days', 'በቀን 3 ምዕራፍ ገደማ።', 'About 3 chapters a day.']
+];
+const planCache = {};
+function planDays(id) {
+  if (planCache[id]) return planCache[id];
+  const chaps = (books) => books.flatMap((b) => Array.from({ length: C.books[b].ch }, (_, i) => ({ b, c: i + 1 })));
+  const split = (items, days) => Array.from({ length: days }, (_, d) => items.slice(Math.floor(d * items.length / days), Math.floor((d + 1) * items.length / days)));
+  const range = (a, z) => Array.from({ length: z - a + 1 }, (_, i) => a + i);
+  let days;
+  if (id === 'year') days = split(chaps(range(0, 65)), 365);
+  else if (id === 'chrono') days = split(chaps(C.chrono.flatMap((g) => g.books)), 365);
+  else if (id === 'nt90') days = split(chaps(range(39, 65)), 90);
+  else if (id === 'gospels') days = split(chaps(range(39, 42)), 30);
+  else if (id === 'wisdom') days = split(chaps([18, 19]), 60);
+  else days = C.timeline.flatMap((e) => e.items).map((it) => [Object.assign({ title: it.n }, it.p)]);
+  return (planCache[id] = days);
+}
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const planOf = () => S.plans.active && S.plans.p[S.plans.active];
+const dayDone = (id, d) => { const pl = S.plans.p[id]; return !!pl && (pl.read[d] || []).length >= planDays(id)[d].length; };
+// The day to read now: the first day not finished, so a missed day waits instead of being skipped.
+function planNow(id) {
+  const days = planDays(id);
+  for (let d = 0; d < days.length; d++) if (!dayDone(id, d)) return d;
+  return days.length;
+}
+function planBehind(id) {
+  const pl = S.plans.p[id];
+  if (!pl || !pl.start) return 0;
+  const passed = Math.floor((new Date(today()) - new Date(pl.start)) / 864e5) + 1;
+  return Math.max(0, Math.min(passed, planDays(id).length) - planDays(id).filter((_, d) => dayDone(id, d)).length - 1);
+}
+const readingLabel = (r) => r.title ? tp(r.title) + ' · ' + passRef(r) : bookName(r.b) + ' ' + r.c;
+function planToday(compact) {
+  const id = S.plans.active;
+  if (!id) return compact ? `<div class="card row between"><div class="stack" style="gap:4px"><span class="muted small"><b>${t('የንባብ ዕቅድ', 'Reading plan')}</b></span><span>${t('በየቀኑ ለማንበብ ዕቅድ ይምረጡ።', 'Choose a plan to read a little every day.')}</span></div><button class="btn fill" data-a="nav" data-v="plans" data-k="plan-start">${t('ዕቅድ ምረጥ', 'Choose a plan')}</button></div>` : '';
+  const days = planDays(id), d = planNow(id), info = PLAN_LIST.find((x) => x[0] === id);
+  const doneCount = days.filter((_, i) => dayDone(id, i)).length;
+  const bar = `<div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="${days.length}" aria-valuenow="${doneCount}"><i style="width:${(100 * doneCount / days.length).toFixed(1)}%"></i></div>`;
+  if (d >= days.length) return `<div class="card stack"><b>${esc(t(info[1], info[2]))}</b>${bar}<p class="prose">${t('ዕቅዱን ጨርሰዋል። እንኳን ደስ አለዎት!', 'You have finished the plan. Well done!')}</p><button class="btn" data-a="nav" data-v="plans" data-k="plan-new">${t('ሌላ ዕቅድ', 'Another plan')}</button></div>`;
+  const read = S.plans.p[id].read[d] || [];
+  const behind = planBehind(id);
+  const items = days[d].map((r, i) => `<button class="planitem" data-a="planOpen" data-v="${d}.${i}" data-k="pi-${d}-${i}" aria-pressed="${read.includes(i)}"><span class="tick">${read.includes(i) ? icon('check', 16) : ''}</span><span>${esc(readingLabel(r))}</span></button>`).join('');
+  return `<div class="card stack plantoday"><div class="row between"><span class="muted small"><b>${esc(t(info[1], info[2]))}</b></span>${compact ? `<button class="btn" data-a="nav" data-v="plans" data-k="plan-all">${t('ዕቅዶች', 'Plans')}</button>` : ''}</div>
+<b style="font-size:20px">${t('ቀን ' + (d + 1) + ' ከ' + days.length, 'Day ' + (d + 1) + ' of ' + days.length)}</b>${bar}
+${behind ? `<span class="muted small">${t(behind + ' ቀን ወደ ኋላ ቀርተዋል፤ ችግር የለም፣ ካቆሙበት ይቀጥሉ።', behind + (behind === 1 ? ' day' : ' days') + ' behind; no problem, carry on from where you are.')}</span>` : ''}
+<div class="stack" style="gap:6px">${items}</div></div>`;
+}
+function plansView() {
+  const list = PLAN_LIST.map(([id, am, en, dam, den]) => {
+    const pl = S.plans.p[id], days = planDays(id), n = pl ? days.filter((_, d) => dayDone(id, d)).length : 0;
+    const on = S.plans.active === id;
+    return `<div class="card stack" style="gap:6px"><div class="row between"><b style="font-size:17px">${esc(t(am, en))}</b><span class="muted small">${days.length} ${t('ቀን', 'days')}</span></div>
+<span class="muted small">${esc(t(dam, den))}</span>${pl ? `<span class="small">${t(n + ' ቀን ተነቧል', n + ' days read')}</span>` : ''}
+<div class="row">${on ? `<span class="pill">${t('አሁን እያነበቡት ያለው', 'Your current plan')}</span><button class="btn" data-a="planStop" data-k="pl-stop">${t('አቁም', 'Stop')}</button>` : `<button class="btn fill" data-a="planStart" data-v="${id}" data-k="pl-${id}">${pl ? t('ቀጥል', 'Continue') : t('ጀምር', 'Start')}</button>`}
+${pl ? `<button class="btn" data-a="planReset" data-v="${id}" data-k="pr-${id}">${t('እንደገና ጀምር', 'Start over')}</button>` : ''}</div></div>`;
+  }).join('');
+  return `<div class="wrap narrow"><h1>${t('የንባብ ዕቅዶች', 'Reading plans')}</h1>
+<p class="muted">${t('በየቀኑ ትንሽ ያንብቡ። የቀረ ቀን አይዘለልም፤ ካቆሙበት ይቀጥላሉ። ዕቅዱ ለመለያዎ ብቻ ይቀመጣል።', 'Read a little every day. A missed day is not skipped; you carry on from where you stopped. Plans are kept for your account only.')}</p>
+${planToday(false)}${list}</div>`;
+}
+// The bar under the text while reading a plan's passage: mark it read and go to the next one.
+function planBar() {
+  const x = S.planCtx;
+  if (!x || S.plans.active !== x.id) return '';
+  const day = planDays(x.id)[x.d];
+  if (!day || !day[x.i]) return '';
+  const r = day[x.i];
+  if (r.b !== S.pass.b || r.c !== S.pass.c) return '';
+  const last = x.i === day.length - 1;
+  return `<div class="card row between planbar"><span class="small"><b>${t('ቀን ' + (x.d + 1), 'Day ' + (x.d + 1))}</b> · ${x.i + 1} / ${day.length}</span>
+<button class="btn fill" data-a="planNext" data-k="plan-next">${icon('check', 18)}${last ? t('የዛሬው ተፈጽሟል', 'Done for today') : t('ተነቧል፤ ቀጣዩ', 'Read; next')}</button></div>`;
 }
 
 function notesView() {
@@ -2351,7 +2448,7 @@ function render() {
     return;
   }
   const offBanner = navigator.onLine === false && S.screen !== 'offline' ? `<button class="offbanner" data-a="nav" data-v="offline" data-k="offbanner">${icon('wifiOff', 16)}${t('ኢንተርኔት የለም፤ የተቀመጡት ይሠራሉ', 'Offline: saved content still works')}</button>` : '';
-  const view = offBanner + (S.screen === 'offline' ? offlineView() : S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'map' ? mapView() : browseView());
+  const view = offBanner + (S.screen === 'offline' ? offlineView() : S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'plans' ? plansView() : S.screen === 'map' ? mapView() : browseView());
   root.innerHTML = sideMenu() + '<main>' + view + '</main>' + mapViewer() + picViewer();
   const newPanel = root.querySelector('.sidepanel');
   if (newPanel && panelTop) newPanel.scrollTop = panelTop;     // keep the side panel where the reader left it
@@ -2512,6 +2609,25 @@ const actions = {
   book(v) { S.openBook = S.openBook === +v ? null : +v; save('openBook'); },
   chapter(v) { const [b, c] = v.split('.').map(Number); S.pass = { b, c, f: 1, to: 0 }; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen', 'sel'); window.scrollTo(0, 0); },
   jumpTo(v) { const el = document.getElementById(v); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return false; },
+  planStart(v) {
+    if (!S.plans.p[v]) S.plans.p[v] = { start: today(), read: {} };
+    S.plans.active = v; save('plans');
+  },
+  planStop() { S.plans.active = null; save('plans'); },
+  planReset(v) { S.plans.p[v] = { start: today(), read: {} }; S.plans.active = v; save('plans'); },
+  planOpen(v) {
+    const [d, i] = v.split('.').map(Number), r = planDays(S.plans.active)[d][i];
+    S.planCtx = { id: S.plans.active, d, i };
+    setPass({ b: r.b, c: r.c, f: r.f || 1, to: r.to || 0, title: r.title, pl: r.pl }); S.sel = null; S.screen = 'study'; save('screen', 'sel'); window.scrollTo(0, 0);
+  },
+  planNext() {
+    const x = S.planCtx, pl = S.plans.p[x.id];
+    pl.read[x.d] = [...new Set([...(pl.read[x.d] || []), x.i])];
+    save('plans');
+    const day = planDays(x.id)[x.d], next = day.findIndex((_, i) => !pl.read[x.d].includes(i));
+    if (next < 0) { S.planCtx = null; S.screen = 'plans'; save('screen'); window.scrollTo(0, 0); return; }
+    actions.planOpen(x.d + '.' + next);
+  },
   topicGo(v) { S.q = topicName(v); S.topic = v; S.topicOpen = {}; S.searchOn = true; runSearch().then(() => { S.topic = v; render(); }); return false; },
   topicMore(v) { S.topicOpen = Object.assign({}, S.topicOpen, { [v]: true }); },
   clearSearch() { S.q = ''; S.searchOn = false; S.results = null; S.topic = null; save('q', 'searchOn'); },
