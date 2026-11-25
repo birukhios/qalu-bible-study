@@ -28,11 +28,11 @@ def parse(md, n):
             cur = [f'{m.group(1)}-{m.group(2)}', '']
             frames.append(cur)
             continue
-        if re.fullmatch(r'_.+_', s) or (frames and s.startswith('_') and s.endswith('_')):
-            ref = s.strip('_').strip()
+        if re.fullmatch(r'[_*]+.+[_*]+', s):
+            ref = s.strip('_*').strip()
             continue
         if cur is not None:
-            cur[1] = (cur[1] + ' ' + s).strip()
+            cur[1] = (cur[1] + ' ' + re.sub(r'\*\*|__', '', s)).strip()
     return {'n': n, 't': title, 'r': ref, 'f': [f for f in frames if f[1]]}
 
 def main(src, dst):
