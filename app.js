@@ -593,6 +593,62 @@ function chapter(id) {
   return { state: 'ok', verses: (v.books[b] || [])[S.pass.c - 1] || [] };
 }
 
+// ---------- cross-references (OpenBible.info, CC BY): related verses for the verse chosen ----------
+const XR = { cache: {}, pending: {} };
+function xrefs(b) {
+  if (XR.cache[b]) return XR.cache[b];
+  if (!XR.pending[b]) {
+    XR.pending[b] = true;
+    fetch('data/xref/' + b + '.json').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then((d) => { XR.cache[b] = d; }).catch(() => { XR.cache[b] = {}; })
+      .then(() => { XR.pending[b] = false; render(); });
+  }
+  return null;
+}
+// The text of one verse (or a short range) in the main version, loading its book when needed.
+function xrefText(b, c, v, ec, ev) {
+  const ver = versions[S.primary];
+  if (!ver) return '';
+  if (ver.dir && !ver.books[b]) { loadBook(S.primary, b); return null; }
+  const out = [];
+  for (let ch = c; ch <= (ec || c); ch++) {
+    const verses = (ver.books[b] || [])[ch - 1] || [];
+    const from = ch === c ? v : 1, to = ec ? (ch === ec ? ev : verses.length) : v;
+    for (let n = from; n <= to && out.length < 4; n++) if (verses[n - 1]) out.push((to > from || ec ? '<sup>' + n + '</sup> ' : '') + esc(verses[n - 1]));
+  }
+  // Some Bibles (the 1954 Amharic) print two verses as one; then the empty number's text is in the verse before it.
+  if (!out.length && !ec) {
+    const verses = (ver.books[b] || [])[c - 1] || [];
+    const n = [v - 1, v + 1, v - 2].find((x) => verses[x - 1]);
+    if (n) out.push('<sup>' + Math.min(n, v) + '–' + Math.max(n, v) + '</sup> ' + esc(verses[n - 1]));
+  }
+  return out.join(' ');
+}
+function xrefTab() {
+  const back = S.xrefBack ? `<button class="btn" data-a="xrefBack" data-k="xr-back">${icon('left')}${t('ወደ ', 'Back to ')}${esc(bookName(S.xrefBack.b))} ${S.xrefBack.c}${t('፥', ':')}${S.xrefBack.v} ${t('ተመለስ', '')}</button>` : '';
+  const head = (v) => `${esc(bookName(S.pass.b))} ${S.pass.c}${t('፥', ':')}${v}`;
+  const d = xrefs(S.pass.b);
+  if (!d) return back + `<p class="muted prose" role="status">${t('እየተጫነ ነው…', 'Loading…')}</p>`;
+  const credit = `<p class="muted small">${t('ተዛማጅ ጥቅሶቹ ከ OpenBible.info (CC BY) የተወሰዱ ናቸው፤ በአንባቢዎች ድምፅ ቅደም ተከተል።', 'Related verses from OpenBible.info (CC BY), ordered by readers’ votes.')}</p>`;
+  if (!S.sel) {
+    // No verse chosen: list the verses of the chapter that have links, to choose from.
+    const has = Object.keys(d).filter((k) => +k.split('.')[0] === S.pass.c).map((k) => +k.split('.')[1]).sort((a, b) => a - b);
+    return back + `<div class="card stack"><p class="prose">${t('ተዛማጅ ጥቅሶችን ለማየት በንባቡ ውስጥ አንድ ቁጥር ይንኩ፤ ወይም ከዚህ ይምረጡ፦', 'Tap a verse in the reading to see related verses elsewhere in the Bible, or choose one here:')}</p>
+<div class="row" style="gap:6px">${has.map((n) => `<button class="chap" data-a="verse" data-v="${n}" data-k="xs-${n}">${n}</button>`).join('')}</div></div>` + credit;
+  }
+  const list = d[S.pass.c + '.' + S.sel] || [];
+  if (!list.length) return back + `<div class="card"><p class="muted prose">${t('ለ' + head(S.sel) + ' ተዛማጅ ጥቅስ አልተገኘም።', 'No related verses were found for ' + head(S.sel) + '.')}</p></div>` + credit;
+  const items = list.map((r) => {
+    const [a, z] = r.split('-');
+    const [b, c, v] = a.split('.').map(Number);
+    const [ec, ev] = z ? z.split('.').map(Number) : [0, 0];
+    const label = `${esc(bookName(b))} ${c}${t('፥', ':')}${v}${z ? '–' + (ec !== c ? ec + t('፥', ':') : '') + ev : ''}`;
+    const tx = xrefText(b, c, v, ec, ev);
+    return `<button class="result" data-a="xrefOpen" data-v="${b}.${c}.${v}" data-k="xr-${r}"><b>${label}</b><span ${langOf(S.primary, b)}>${tx === null ? '…' : tx}</span></button>`;
+  }).join('');
+  return back + `<h2>${t('ከ' + head(S.sel) + ' ጋር የሚዛመዱ', 'Related to ' + head(S.sel))}</h2><div class="stack" style="gap:8px">${items}</div>` + credit;
+}
+
 // Returns { state, list } with the fathers' comments on the current chapter.
 function fathers() {
   const b = S.pass.b, c = S.pass.c, key = b + '/' + c;
@@ -809,6 +865,7 @@ const ICONS = {
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   bolt: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   download: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>',
   wifiOff: '<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 12.5a10 10 0 0 1 5.5-2.8M19 12.5a10 10 0 0 0-2.3-1.6M2 8.8a15 15 0 0 1 4.7-2.8M22 8.8A15 15 0 0 0 11 5"/><circle cx="12" cy="20" r="1"/>',
   cloud: '<path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/>',
@@ -951,7 +1008,8 @@ const OFF = { packs: null, have: {}, busy: '', done: 0, total: 0, stop: false, u
 const PACK_NAMES = {
   fathers: ['የአባቶች ትርጓሜ', 'Church fathers’ commentary'],
   context: ['የመጻሕፍቱ ዳራና የምዕራፍ ማብራሪያ', 'Book backgrounds and chapter notes'],
-  interlinear: ['የዕብራይስጥና የግሪክ ቃላት (ቃል በቃል)', 'Hebrew and Greek words (word by word)']
+  interlinear: ['የዕብራይስጥና የግሪክ ቃላት (ቃል በቃል)', 'Hebrew and Greek words (word by word)'],
+  xref: ['ተዛማጅ ጥቅሶች', 'Related verses (cross-references)']
 };
 const mb = (bytes) => (bytes / 1e6 < 10 ? (bytes / 1e6).toFixed(1) : Math.round(bytes / 1e6)) + ' MB';
 
@@ -1025,7 +1083,7 @@ ${full ? `<span class="pill ok">${icon('check', 14)}${t('ተቀምጧል', 'Save
   const versionRows = VERSION_GROUPS.flatMap((g) => g[1]).filter((id) => versions[id] && packs[id])
     .sort((a, b) => { const r = (id) => (inUse.indexOf(id) < 0 ? 9 : inUse.indexOf(id)); return r(a) - r(b); })   // the versions in use first
     .map((id) => row(id, versions[id].name, inUse.includes(id) ? t('እያነበቡት ያለ', 'in use') : '')).join('');
-  const essentials = [...new Set([S.primary, S.secondary])].filter((id) => packs[id]).concat(['fathers', 'context']);
+  const essentials = [...new Set([S.primary, S.secondary])].filter((id) => packs[id]).concat(['fathers', 'context', 'xref']);
   const missing = essentials.filter((n) => packs[n] && (OFF.have[n] || 0) < packs[n].files.length);
   const needBytes = missing.reduce((sum, n) => sum + packs[n].bytes, 0);
   return `<div class="wrap narrow">
@@ -1036,7 +1094,7 @@ ${OFF.busy ? `<div class="card stack" role="status"><b>${t('በማውረድ ላ�
     : missing.length ? `<div class="card stack"><b>${t('የሚያጠኑትን ሁሉ አስቀምጡ', 'Save what you study with')}</b><p class="muted small" style="margin:0">${t('የሚያነቧቸው ሁለቱ ትርጉሞች፣ የአባቶች ትርጓሜና የመጻሕፍቱ ዳራ', 'Your two versions, the fathers’ commentary and the book backgrounds')} · ${mb(needBytes)}</p><button class="btn fill go" data-a="offEssentials" data-k="off-essentials" ${online ? '' : 'disabled'}>${icon('download')}${t('አሁን አውርድ', 'Save now')}</button></div>` : ''}
 ${S.msg && !OFF.busy ? `<p class="prose" role="status">${esc(S.msg)}</p>` : ''}
 <h2>${t('የመጽሐፍ ቅዱስ ትርጉሞች', 'Bible versions')}</h2><div class="card offlist">${versionRows || `<p class="muted">${t('እየተጫነ ነው…', 'Loading…')}</p>`}</div>
-<h2>${t('የጥናት ጽሑፎች', 'Study material')}</h2><div class="card offlist">${['fathers', 'context', 'interlinear'].map((n) => row(n, tp(PACK_NAMES[n]))).join('')}</div>
+<h2>${t('የጥናት ጽሑፎች', 'Study material')}</h2><div class="card offlist">${['fathers', 'context', 'xref', 'interlinear'].map((n) => row(n, tp(PACK_NAMES[n]))).join('')}</div>
 ${OFF.quota ? `<p class="muted small">${t('በዚህ መሣሪያ ላይ የተያዘ ቦታ', 'Space used on this device')}: ${mb(OFF.used)} / ${mb(OFF.quota)}</p>` : ''}
 <div class="card stack"><b>${t('ኢንተርኔት የሚያስፈልጋቸው', 'Still needs internet')}</b><p class="muted small" style="margin:0">${t('የBibleProject ቪዲዮዎችና ሥዕሎቻቸው፣ በGoogle መግባትና ማመሳሰል፣ እና “የዛሬ ካርታ”። የተሳለው ካርታ፣ ጉዞው፣ ፍለጋውና ማስታወሻዎችዎ ያለ ኢንተርኔት ይሠራሉ።', 'BibleProject videos and their pictures, Google sign-in and sync, and the “Present-day map”. The illustrated map, the Journey, search and your notes all work offline.')}</p></div>
 </div>`;
@@ -1556,13 +1614,15 @@ function noteCard(n) {
 }
 
 function sidePanel() {
-  const tabs = [['context', t('ዳራ', 'Context'), icon('book', 18)], ['maps', t('ካርታ', 'Maps'), icon('pin', 18)], ['fathers', t('አባቶች', 'Fathers'), icon('user', 18)], ['words', t('ዋና ቃላት', 'Original'), `<b lang="${isHebrew(S.pass.b) ? 'he' : 'grc'}">${isHebrew(S.pass.b) ? 'א' : 'α'}</b>`], ['notes', t('ማስታወሻ', 'Notes'), icon('pen', 18)]];
+  const tabs = [['context', t('ዳራ', 'Context'), icon('book', 18)], ['maps', t('ካርታ', 'Maps'), icon('pin', 18)], ['fathers', t('አባቶች', 'Fathers'), icon('user', 18)], ['xref', t('ተዛማጅ', 'Related'), icon('link', 18)], ['words', t('ዋና ቃላት', 'Original'), `<b lang="${isHebrew(S.pass.b) ? 'he' : 'grc'}">${isHebrew(S.pass.b) ? 'א' : 'α'}</b>`], ['notes', t('ማስታወሻ', 'Notes'), icon('pen', 18)]];
   const st = study();
   let body = '';
   if (S.tab === 'maps') {
     body = mapsTab();
   } else if (S.tab === 'words') {
     body = wordsTab();
+  } else if (S.tab === 'xref') {
+    body = xrefTab();
   } else if (S.tab === 'fathers') {
     const fa = fathers();
     const lo = S.sel || S.pass.f || 1, hi = S.sel || S.pass.to || 999;
@@ -2383,6 +2443,15 @@ const actions = {
   unsel() { S.sel = null; save('sel'); },
   clearHl() { S.highlights[hlKey(S.sel)] = ''; save('highlights'); },   // '' rather than delete, so the clearing syncs
   tab(v) { S.tab = v; save('tab'); },
+  xrefOpen(v) {
+    const [b, c, n] = v.split('.').map(Number);
+    S.xrefBack = { b: S.pass.b, c: S.pass.c, v: S.sel, f: S.pass.f, to: S.pass.to };
+    setPass({ b, c, f: 1, to: 0 }); S.sel = n; S.goVerse = n; S.tab = 'xref'; save('sel', 'tab');
+  },
+  xrefBack() {
+    const p = S.xrefBack; S.xrefBack = null;
+    setPass({ b: p.b, c: p.c, f: p.f || 1, to: p.to || 0 }); S.sel = p.v; S.goVerse = p.v; save('sel');
+  },
   openMap(v) { if (calib()[+v]) S.mapLayer = 'overlay'; S.mapList = [...root.querySelectorAll('.mapcard')].map((e) => +e.dataset.v).filter((x, i, a) => a.indexOf(x) === i); S.bigMap = +v; S.mapZoom = 1; S.mvFit = true; document.body.style.overflow = 'hidden'; },
   mapStep(v) { const i = S.mapList.indexOf(S.bigMap) + +v; if (S.mapList[i] != null) { S.bigMap = S.mapList[i]; if (calib()[S.bigMap]) S.mapLayer = 'overlay'; S.mapZoom = 1; S.mvFit = true; } },
   mapLayer(v) { S.mapLayer = v; S.mvFit = true; ls.set('mapLayer', v); },
