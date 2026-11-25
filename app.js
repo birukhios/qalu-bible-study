@@ -1209,6 +1209,7 @@ ${S.user
 ${syncLabel()}
 <button class="nav extra" data-a="signOut" data-k="signout" aria-label="${t('ውጣ', 'Sign out')}">${icon('exit', 20)}<span class="lbl">${t('ውጣ', 'Sign out')}</span></button>`
     : `<button class="nav extra" data-a="signIn" data-k="signin" aria-label="${t('ግባ', 'Sign in')}">${icon('user', 20)}<span class="lbl">${t('ግባ', 'Sign in')}</span></button>`}
+<button class="nav extra${S.screen === 'plans' ? ' on' : ''}" data-a="nav" data-v="plans" data-k="nav-plans" aria-label="${t('የንባብ ዕቅዶች', 'Reading plans')}" title="${t('የንባብ ዕቅዶች', 'Reading plans')}">${icon('check', 20)}<span class="lbl">${t('የንባብ ዕቅድ', 'Reading plan')}</span></button>
 <button class="nav extra${S.screen === 'offline' ? ' on' : ''}" data-a="nav" data-v="offline" data-k="nav-offline" aria-label="${t('ከመስመር ውጭ ለመጠቀም', 'Use offline')}" title="${t('ከመስመር ውጭ ለመጠቀም', 'Use offline')}">${icon(navigator.onLine === false ? 'wifiOff' : 'download', 20)}<span class="lbl">${t('ከመስመር ውጭ', 'Offline')}</span></button>
 <button class="nav extra" data-a="lang" data-k="lang" aria-label="${t('English', 'አማርኛ')}">${icon('globe', 20)}<span>${t('English', 'አማርኛ')}</span></button>
 <button class="nav extra" data-a="theme" data-k="theme" aria-label="${S.dark ? t('ብሩህ ገጽታ', 'Light mode') : t('ጨለማ ገጽታ', 'Dark mode')}">${icon('moon', 20)}<span class="lbl">${S.dark ? t('ብሩህ ገጽታ', 'Light mode') : t('ጨለማ ገጽታ', 'Dark mode')}</span></button>
@@ -1566,14 +1567,14 @@ function markTerms(text, terms) {
   return out + esc(text.slice(at));
 }
 
+// One line, like a phone's search field: the words, the version (chosen by the language typed when left alone),
+// and the search button; the help sits behind a small question mark.
 function searchBar() {
-  return `<form class="card searchbar" role="search" data-search>
-<div class="field wide" style="flex:3 1 260px"><label for="q">${t('በመጽሐፍ ቅዱስ ውስጥ ፈልግ', 'Search the Bible')}</label>
-<input id="q" data-k="q" type="search" value="${esc(S.q)}" placeholder="${t('ቃል ወይም ጥያቄ ይጻፉ', 'A word or a question')}" autocomplete="off"></div>
-<div class="field" style="flex:1 1 180px"><label for="qv">${t('ትርጉም', 'Version')}</label><select id="qv" data-c="qv" data-k="qv">${versionOptions(versions[S.qv] ? S.qv : S.primary)}</select></div>
-<button class="btn fill" type="submit" data-k="q-go">${icon('search')}${t('ፈልግ', 'Search')}</button>
-${S.searchOn ? `<button class="btn" type="button" data-a="clearSearch" data-k="q-clear">${t('አጽዳ', 'Clear')}</button>` : ''}
-<details class="muted small searchhelp" style="flex:1 1 100%"><summary>${t('እንዴት መፈለግ ይቻላል?', 'How to search')}</summary><p style="margin:6px 0 0">${t('ቃል ወይም ሙሉ ጥያቄ መጻፍ ይችላሉ፤ ፍለጋው ዋና ዋና ቃላቱን ወስዶ ብዙዎቹን የያዙትን ቁጥሮች ቀድሞ ያሳያል። በነጠላ ሰረዝ (,) የተለዩ ቃላት ከአንዳቸው አንዱ ያለባቸውን ያመጣሉ።', 'Type a word or a whole question. The search takes its key words and shows the verses with most of them first. Words separated by commas find verses with any of them.')}</p></details>
+  return `<form class="searchbar2" role="search" data-search>
+<div class="sfield">${icon('search', 18)}<input id="q" data-k="q" type="search" value="${esc(S.q)}" placeholder="${t('ቃል ወይም ርእስ ፈልግ', 'Search a word or topic')}" aria-label="${t('በመጽሐፍ ቅዱስ ውስጥ ፈልግ', 'Search the Bible')}" autocomplete="off" enterkeyhint="search">
+${S.searchOn ? `<button class="sclear" type="button" data-a="clearSearch" data-k="q-clear" aria-label="${t('አጽዳ', 'Clear')}" title="${t('አጽዳ', 'Clear')}">${icon('close', 16)}</button>` : ''}</div>
+<select id="qv" class="vchip" data-c="qv" data-k="qv" aria-label="${t('ትርጉም', 'Version')}" title="${t('የሚፈለግበት ትርጉም', 'Version to search')}">${versionOptions(versions[S.qv] ? S.qv : S.primary)}</select>
+<button class="btn fill sgo" type="submit" data-k="q-go" aria-label="${t('ፈልግ', 'Search')}">${icon('search', 18)}<span class="lbl">${t('ፈልግ', 'Search')}</span></button>
 </form>`;
 }
 
@@ -1710,6 +1711,7 @@ function browseView() {
     : `<div class="card row between"><div class="stack" style="gap:4px"><span class="muted small"><b>${t('ካቆሙበት ይቀጥሉ', 'Continue where you left off')}</b></span><span style="font-size:21px;font-weight:700">${esc(passTitle(S.pass))}</span><span class="muted small">${esc(passRef(S.pass))}</span></div>
 <button class="btn fill" data-a="nav" data-v="study" data-k="continue">${t('ክፈት', 'Open')}</button></div>
 ${planToday(true)}
+${topicChips()}
 ${dailyCard()}
 <div class="seg" role="group" aria-label="${t('የማሰሻ መንገድ', 'Browse by')}">${modes.map((m) => `<button data-a="browse" data-v="${m[0]}" data-k="mode-${m[0]}" aria-pressed="${S.browse === m[0]}">${m[1]}</button>`).join('')}</div>
 <p class="muted">${notes[S.browse]}</p>
@@ -1718,7 +1720,6 @@ ${groups.join('')}`;
   return `<div class="wrap" style="max-width:980px">
 <h1>${t('ፈልግ', 'Explore')}</h1>
 ${searchBar()}
-${S.searchOn ? '' : topicChips()}
 ${main}
 </div>`;
 }
@@ -2208,17 +2209,18 @@ ${behind ? `<span class="muted small">${t(behind + ' ቀን ወደ ኋላ ቀር
 <div class="stack" style="gap:6px">${items}</div></div>`;
 }
 function plansView() {
-  const list = PLAN_LIST.map(([id, am, en, dam, den]) => {
+  const list = `<div class="card planlist">` + PLAN_LIST.map(([id, am, en, dam, den]) => {
     const pl = S.plans.p[id], days = planDays(id), n = pl ? days.filter((_, d) => dayDone(id, d)).length : 0;
     const on = S.plans.active === id;
-    return `<div class="card stack" style="gap:6px"><div class="row between"><b style="font-size:17px">${esc(t(am, en))}</b><span class="muted small">${days.length} ${t('ቀን', 'days')}</span></div>
-<span class="muted small">${esc(t(dam, den))}</span>${pl ? `<span class="small">${t(n + ' ቀን ተነቧል', n + ' days read')}</span>` : ''}
-<div class="row">${on ? `<span class="pill">${t('አሁን እያነበቡት ያለው', 'Your current plan')}</span><button class="btn" data-a="planStop" data-k="pl-stop">${t('አቁም', 'Stop')}</button>` : `<button class="btn fill" data-a="planStart" data-v="${id}" data-k="pl-${id}">${pl ? t('ቀጥል', 'Continue') : t('ጀምር', 'Start')}</button>`}
-${pl ? `<button class="btn" data-a="planReset" data-v="${id}" data-k="pr-${id}">${t('እንደገና ጀምር', 'Start over')}</button>` : ''}</div></div>`;
-  }).join('');
+    const meta = days.length + ' ' + t('ቀን', 'days') + ' · ' + t(dam, den) + (pl ? ' · ' + t(n + ' ቀን ተነቧል', n + ' read') : '');
+    const action = on ? `<button class="btn" data-a="planStop" data-k="pl-stop">${t('አቁም', 'Stop')}</button>`
+      : `<button class="btn fill" data-a="planStart" data-v="${id}" data-k="pl-${id}">${pl ? t('ቀጥል', 'Continue') : t('ጀምር', 'Start')}</button>`;
+    return `<div class="planrow${on ? ' on' : ''}"><div class="stack" style="gap:2px;min-width:0"><b>${esc(t(am, en))}${on ? ` <span class="pill">${t('አሁን', 'Current')}</span>` : ''}</b><span class="muted small">${esc(meta)}</span>
+${pl ? `<button class="linkbtn small" data-a="planReset" data-v="${id}" data-k="pr-${id}">${t('እንደገና ጀምር', 'Start over')}</button>` : ''}</div>${action}</div>`;
+  }).join('') + `</div>`;
   return `<div class="wrap narrow"><h1>${t('የንባብ ዕቅዶች', 'Reading plans')}</h1>
 <p class="muted">${t('በየቀኑ ትንሽ ያንብቡ። የቀረ ቀን አይዘለልም፤ ካቆሙበት ይቀጥላሉ። ዕቅዱ ለመለያዎ ብቻ ይቀመጣል።', 'Read a little every day. A missed day is not skipped; you carry on from where you stopped. Plans are kept for your account only.')}</p>
-${planToday(false)}${list}</div>`;
+${planToday(false)}<h2>${t('ሁሉም ዕቅዶች', 'All plans')}</h2>${list}</div>`;
 }
 // The bar under the text while reading a plan's passage: mark it read and go to the next one.
 function planBar() {
@@ -2243,16 +2245,16 @@ function notesView() {
   else body = S.notes.length
     ? S.notes.map(noteCard).join('')
     : `<div class="card stack" style="align-items:flex-start"><p class="prose">${t('እስካሁን ማስታወሻ የለም። በጥናት ገጽ አንድ ቁጥር ይንኩና ማስታወሻ ይያዙ።', 'No notes yet. Click a verse on the Study screen and add one.')}</p><button class="btn fill" data-a="nav" data-v="study" data-k="to-study">${t('ጥናት', 'Study')}</button></div>`;
-  return `<div class="wrap narrow"><h1>${t('ማስታወሻዎችና ቀለሞች', 'Notes and highlights')}</h1><p class="muted">${t('በጥናት ጊዜ የያዟቸው ማስታወሻዎችና የቀለሟቸው ቁጥሮች በአንድ ቦታ።', 'Every note you take and every verse you highlight, in one place.')}</p>${seg}${body}${backupCard()}</div>`;
+  return `<div class="wrap narrow"><h1>${t('ማስታወሻዎችና ቀለሞች', 'Notes and highlights')}</h1><p class="muted">${t('በጥናት ጊዜ የያዟቸው ማስታወሻዎችና የቀለሟቸው ቁጥሮች በአንድ ቦታ።', 'Every note you take and every verse you highlight, in one place.')}</p>${seg}${body}${tab === 'notes' ? backupCard() : ''}</div>`;
 }
 
 // ---------- backup: one file with this account's notes, highlights, Journey progress and voice notes ----------
 function backupCard() {
-  return `<div class="card stack" style="margin-top:12px"><b>${t('ምትኬ', 'Backup')}</b>
+  return `<details class="card stack backup" style="margin-top:12px"${S.backupMsg ? ' open' : ''}><summary><b>${t('ምትኬ', 'Backup')}</b><span class="muted small">${t('ማስታወሻዎችዎን በፋይል ያስቀምጡ ወይም ይመልሱ', 'Save your study to a file, or restore it')}</span></summary>
 <p class="muted small">${t('ማስታወሻዎችዎን፣ ቀለሞችዎን፣ የድምፅ ማስታወሻዎችዎንና የጉዞ ውጤትዎን በአንድ ፋይል ያስቀምጡ። በሌላ መሣሪያ ወይም አሳሹ ከተጸዳ በኋላ መልሰው ያስገቡት፤ ያሉት አይጠፉም፣ አዲሶቹ ይጨመራሉ።', 'Save your notes, highlights, voice notes and Journey progress in one file. Load it back on another device or after the browser is cleared; nothing already here is lost, the file’s items are added.')}</p>
 <div class="row"><button class="btn fill" data-a="backupSave" data-k="bk-save">${icon('download')}${t('ምትኬ አውርድ', 'Download backup')}</button>
 <button class="btn" data-a="backupLoad" data-k="bk-load">${t('ምትኬ አስገባ…', 'Restore from a file…')}</button></div>
-${S.backupMsg ? `<p class="prose" role="status">${esc(S.backupMsg)}</p>` : ''}</div>`;
+${S.backupMsg ? `<p class="prose" role="status">${esc(S.backupMsg)}</p>` : ''}</details>`;
 }
 const blobToData = (blob) => new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
 async function makeBackup() {
