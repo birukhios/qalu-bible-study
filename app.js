@@ -865,6 +865,8 @@ const ICONS = {
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   bolt: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  dots: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+  copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
   memo: '<path d="M12 4C8 4 5 6.5 5 10c0 2 1 3.4 2 4.4V19h4v-2h2v2h4v-4.6c1-1 2-2.4 2-4.4 0-3.5-3-6-7-6z"/><path d="M12 8v5M9.5 10.5h5"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   download: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>',
@@ -1179,7 +1181,7 @@ function loginView() {
   else if (gsiState === 'failed') google = `<p class="small" role="alert">${t('የGoogle መግቢያን መጫን አልተቻለም። ግንኙነትዎን ይመልከቱ።', 'Google sign-in could not be loaded. Check your connection.')}</p>`;
   else google = `<div id="gbtn" class="gbtn" aria-label="${t('በGoogle ይግቡ', 'Sign in with Google')}"></div>`;
   return `<main class="login"><div class="card stack logincard">
-<div class="brand" style="padding:0;font-size:26px">${icon('logo', 38)}<span>ቃሉ</span></div>
+<div class="brand" style="padding:0;font-size:26px"><img class="brandmark" src="icon.svg" alt="" width="38" height="38"><span>ቃሉ</span></div>
 <h1>${t('እንኳን ደህና መጡ', 'Welcome')}</h1>
 <p class="muted">${t('መጽሐፍ ቅዱስን ከቀደሙት አባቶች ጋር ያጥኑ። ለመጀመር ይግቡ ወይም አዲስ መለያ ይፍጠሩ፤ ሁለቱም በGoogle መለያዎ ነው።', 'Study the Bible alongside the early church fathers. Sign in or sign up to begin; both use your Google account.')}</p>
 ${google}
@@ -1193,7 +1195,7 @@ ${S.msg ? `<p class="small" role="alert">${esc(S.msg)}</p>` : ''}
 function sideMenu() {
   const nav = (screen, ic, label) => `<button class="nav" data-a="nav" data-v="${screen}" data-k="nav-${screen}" ${S.screen === screen ? 'aria-current="page"' : ''}>${icon(ic, 20)}${esc(label)}</button>`;
   return `<nav class="side" aria-label="${t('ዋና ማውጫ', 'Main')}">
-<div class="brand">${icon('logo', 26)}<span>ቃሉ</span></div>
+<div class="brand"><img class="brandmark" src="icon.svg" alt="" width="28" height="28"><span>ቃሉ</span></div>
 <div class="navmain">
 ${nav('study', 'book', t('አንብብ', 'Read'))}
 ${nav('browse', 'grid', t('ፈልግ', 'Explore'))}
@@ -1883,11 +1885,18 @@ function studyView() {
   const selbar = S.sel
     ? `<div class="row selbar" role="toolbar" aria-label="${t('የቁጥር መሣሪያዎች', 'Verse tools')}"><b class="small">${t('ቁ. ' + S.sel, 'v. ' + S.sel)}</b>
 ${colors.map((c) => `<button class="dot" data-a="hl" data-v="${c[0]}" data-k="hl-${c[0]}" aria-pressed="${S.highlights[hlKey(S.sel)] === c[0]}" aria-label="${c[1]}" title="${S.highlights[hlKey(S.sel)] === c[0] ? t('ቀለሙን አንሳ', 'Remove highlight') : c[1]}"><span style="background:var(--hl-${c[0]})"></span></button>`).join('')}
-<button class="btn" data-a="noteTab" data-k="note-open" aria-label="${t('ማስታወሻ', 'Note')}" title="${t('ማስታወሻ', 'Note')}">${icon('pen')}<span class="lbl">${t('ማስታወሻ', 'Note')}</span></button>${voiceButton('rec-bar')}
-<button class="btn" data-a="memoAdd" data-k="memo-add" aria-pressed="${!!(S.memo[hlKey(S.sel)] && !S.memo[hlKey(S.sel)].off)}" aria-label="${t('ለማጥናት (በቃል ለመያዝ) ጨምር', 'Add to memory verses')}" title="${t('ለማጥናት (በቃል ለመያዝ) ጨምር', 'Add to memory verses')}">${icon('memo')}<span class="lbl">${t('በቃል', 'Memorise')}</span></button>
-<button class="btn" data-a="shareVerse" data-k="share-verse" aria-label="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}" title="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}">${icon('share')}<span class="lbl">${t('አጋራ', 'Share')}</span></button>
+<button class="btn" data-a="noteTab" data-k="note-open" aria-label="${t('ማስታወሻ', 'Note')}" title="${t('ማስታወሻ', 'Note')}">${icon('pen')}<span class="lbl">${t('ማስታወሻ', 'Note')}</span></button>
+${S.recording ? voiceButton('rec-bar') : ''}
+<button class="btn" data-a="verseMore" data-k="verse-more" aria-expanded="${!!S.verseMore}" aria-label="${t('ተጨማሪ', 'More')}" title="${t('ተጨማሪ', 'More')}">${icon('dots')}<span class="lbl">${t('ተጨማሪ', 'More')}</span></button>
 <button class="btn done" data-a="unsel" data-k="unsel" aria-label="${t('ጨርስ', 'Done')}" title="${t('ጨርስ', 'Done')}">${icon('check')}</button>
-<button class="btn" data-a="wordsTab" data-k="words-open" aria-label="${t('ዋና ቃላት', 'Original words')}" title="${t('ዋና ቃላት', 'Original words')}"><b lang="${isHebrew(p.b) ? 'he' : 'grc'}">${isHebrew(p.b) ? 'אב' : 'αβ'}</b><span class="lbl">${t('ዋና ቃላት', 'Original words')}</span></button></div>`
+${S.verseMore ? `<div class="vmenu" role="menu">
+${S.recording ? '' : `<button role="menuitem" data-a="rec" data-k="vm-rec">${icon('mic')}<span>${t('የድምፅ ማስታወሻ', 'Voice note')}</span></button>`}
+<button role="menuitem" data-a="memoAdd" data-k="memo-add" aria-pressed="${!!(S.memo[hlKey(S.sel)] && !S.memo[hlKey(S.sel)].off)}">${icon('memo')}<span>${!!(S.memo[hlKey(S.sel)] && !S.memo[hlKey(S.sel)].off) ? t('ከበቃል ጥቅሶች አስወግድ', 'Remove from memory verses') : t('በቃል ለመያዝ ጨምር', 'Add to memory verses')}</span></button>
+<button role="menuitem" data-a="shareVerse" data-k="share-verse">${icon('share')}<span>${t('እንደ ሥዕል አጋራ', 'Share as a picture')}</span></button>
+<button role="menuitem" data-a="copyVerse" data-k="vm-copy">${icon('copy')}<span>${t('ጽሑፉን ቅዳ', 'Copy the text')}</span></button>
+<button role="menuitem" data-a="xrefTab" data-k="vm-xref">${icon('link')}<span>${t('ተዛማጅ ጥቅሶች', 'Related verses')}</span></button>
+<button role="menuitem" data-a="wordsTab" data-k="words-open"><b class="vm-glyph" lang="${isHebrew(p.b) ? 'he' : 'grc'}">${isHebrew(p.b) ? 'אב' : 'αβ'}</b><span>${t('ዋና ቃላት (ዕብራይስጥ/ግሪክ)', 'Original words (Hebrew/Greek)')}</span></button>
+</div>` : ''}</div>`
     : ls.get('hintSeen', false) ? '' : `<p class="muted small" style="padding:6px 12px">${t('ለማቅለም፣ ማስታወሻ ለመያዝ ወይም በዋናው ቋንቋ ለማየት አንድ ቁጥር ይንኩ።', 'Tap a verse to highlight it, add a note or see it in the original language.')}</p>`;
   const heads = S.split && S.layout === 'side' ? `<div class="row muted small" style="padding:0 12px;gap:16px"><b style="flex:1 1 220px">${esc(versions[S.primary].name)}</b><b style="flex:1 1 220px">${esc(versions[S.secondary].name)}</b></div>` : '';
 
@@ -2720,11 +2729,22 @@ const actions = {
   },
   concept(v) { S.theme = S.theme === +v ? null : +v; },
   open(v) { S.pass = opens[+v]; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen'); window.scrollTo(0, 0); },
-  verse(v) { S.sel = S.sel === +v ? null : +v; S.more = 8; save('sel'); ls.set('hintSeen', true); },
+  verseMore() { S.verseMore = !S.verseMore; },
+  copyVerse() {
+    const tx = verseText(S.primary, S.pass.b, S.pass.c, S.sel) || '';
+    const text = tx + ' — ' + verseRef(S.pass.b, S.pass.c, S.sel);
+    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => { S.toast = t('ተቀድቷል', 'Copied'); render(); }, () => { S.toast = t('መቅዳት አልተቻለም', 'Could not copy'); render(); });
+    S.verseMore = false;
+  },
+  verse(v) { S.verseMore = false; S.sel = S.sel === +v ? null : +v; S.more = 8; save('sel'); ls.set('hintSeen', true); },
   inter() { S.inter = !S.inter; save('inter'); },
   shareVerse() { if (S.sel) shareVersePicture(S.primary, S.pass.b, S.pass.c, S.sel); return false; },
   shareDaily() { const [b, c, v] = dailyRef(); shareVersePicture(S.primary, b, c, v); return false; },
   openDaily() { const [b, c, v] = dailyRef(); S.pass = { b, c, f: 1, to: 0 }; S.sel = v; S.goVerse = v; S.screen = 'study'; save('pass', 'screen', 'sel'); window.scrollTo(0, 0); },
+  xrefTab() {
+    S.tab = 'xref'; S.focus = false; save('tab');
+    if (window.innerWidth < 1000) requestAnimationFrame(() => { const el = document.querySelector('.sidepanel .seg, .sidepanel .studytabs'); if (el) { el.scrollIntoView({ block: 'start' }); window.scrollBy(0, -70); } });
+  },
   wordsTab() {
     S.tab = 'words'; S.focus = false; save('tab');
     // On narrow screens the side panel sits under the reading, so bring it into view.
@@ -2862,6 +2882,7 @@ root.addEventListener('click', (e) => {
   const el = e.target.closest('[data-a]');
   if (!el || !actions[el.dataset.a]) return;
   if (el.tagName === 'A') e.preventDefault(); // links that open in the app, such as videos, stay links only as a fallback
+  if (el.getAttribute('role') === 'menuitem') S.verseMore = false;     // a choice in the verse menu closes it
   if (actions[el.dataset.a](el.dataset.v) !== false) render();
 });
 // On phones a sideways swipe over the text turns the chapter, as in most Bible apps.

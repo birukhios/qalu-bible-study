@@ -5,7 +5,7 @@ body { background: #27292C; }
 
 .app {
   --bg: #34363B; --side: #1F2023; --surface: #27292C; --line: #4D5056;
-  --text: #F2F2F3; --muted: #B9BBC1; --accent: #ECECEE; --on-accent: #1F2023;
+  --text: #F2F2F3; --muted: #B9BBC1; --accent: #EF3340; --on-accent: #FFFFFF; --ink: #ECECEE;
   --ctl: #43464C; --danger: #FF8A80;
   --hl-yellow: #5C4A00; --hl-green: #1F4D2A; --hl-blue: #173E6B; --hl-pink: #5E2238;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Kefa", "Noto Sans Ethiopic", system-ui, sans-serif;
@@ -14,7 +14,7 @@ body { background: #27292C; }
 }
 .app[data-theme="light"] {
   --bg: #FFFFFF; --side: #EDEDEF; --surface: #F5F5F6; --line: #D2D3D7;
-  --text: #1F2023; --muted: #56585E; --accent: #2B2D31; --on-accent: #FFFFFF;
+  --text: #1F2023; --muted: #56585E; --accent: #EF3340; --on-accent: #FFFFFF; --ink: #2B2D31;
   --ctl: #E5E6E9; --danger: #B3261E;
   --hl-yellow: #FFE99A; --hl-green: #CDEFC4; --hl-blue: #CFE4FF; --hl-pink: #FFD3E0;
 }
@@ -245,7 +245,7 @@ textarea { padding: 10px; min-height: 96px; resize: vertical; font-size: 16px; }
 .player .thumb { width: 100%; height: 100%; border-radius: 0; }
 .player-note { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 10px 14px; background: rgba(0, 0, 0, .7); color: #FFFFFF; font-size: 14px; }
 .modal-btn { min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 10px; border: 0; background: #43464C; color: #F2F2F3; font: 500 14px inherit; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; cursor: pointer; }
-.modal-btn.main { background: #ECECEE; color: #1F2023; font-weight: 700; }
+.modal-btn.main { background: #EF3340; color: #FFFFFF; font-weight: 700; }
 .modal-btn:focus-visible { outline: 3px solid #ECECEE; outline-offset: 2px; }
 .tile.theme > a.pic { display: block; }
 
@@ -865,3 +865,16 @@ details.backup[open] summary::after { transform: rotate(90deg); }
 .planrow:last-child { border-bottom: 0; }
 .planrow b { font-size: 16px; }
 .linkbtn { align-self: flex-start; padding: 4px 0; color: var(--muted); text-decoration: underline; min-height: 32px; }
+
+.brandmark { display: block; flex: none; border-radius: 24%; }
+
+/* Verse menu: the less-used verse tools, with words, under the toolbar. */
+.vmenu { flex: 1 1 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 4px; padding-top: 6px; margin-top: 4px; border-top: 1px solid var(--line); }
+.vmenu button { display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 0 12px; border-radius: 10px; text-align: left; font-size: 15px; color: var(--text); }
+.vmenu button:hover { background: var(--ctl); }
+.vmenu button[aria-pressed="true"] svg { color: var(--accent); }
+.vm-glyph { width: 20px; text-align: center; font-size: 15px; }
+@media (max-width: 760px) { .vmenu { grid-template-columns: minmax(0, 1fr); } }
+/* With the verse menu open, the round toolbar becomes a panel that holds the menu under the buttons. */
+.selbar:has(.vmenu) { flex-wrap: wrap; overflow: visible; border-radius: 20px; width: min(100%, 460px); padding: 8px; }
+.selbar:has(.vmenu) .vmenu { flex: 1 1 100%; }
