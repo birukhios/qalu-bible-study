@@ -71,7 +71,7 @@ const S = {
   recording: false,
   msg: '',
   game: { xp: 0, streak: 0, last: '', done: {} }, // done: story number -> stars earned (1 to 3)
-  gone: [], updated: 0, plans: { active: null, p: {} }, memo: {}, // see blankAccount()
+  gone: [], updated: 0, plans: { active: null, p: {} }, memo: {}, kids: { done: {} }, // see blankAccount()
   play: null, // the story lesson in progress on the Journey screen
   jump: true,
   openBook: ls.get('openBook', null), // the book whose chapter list is open on the Bible screen
@@ -177,9 +177,9 @@ function save(...keys) {
 }
 
 // ---------- accounts: each one keeps its own highlights, notes and Journey progress ----------
-const PERSONAL = ['highlights', 'notes', 'game', 'gone', 'updated', 'plans', 'memo'];
+const PERSONAL = ['highlights', 'notes', 'game', 'gone', 'updated', 'plans', 'memo', 'kids'];
 // gone: ids of deleted notes, so a deletion also reaches the account's other devices; updated: time of the last change.
-const blankAccount = () => ({ highlights: {}, notes: [], game: { xp: 0, streak: 0, last: '', done: {} }, gone: [], updated: 0, plans: { active: null, p: {} }, memo: {} });
+const blankAccount = () => ({ highlights: {}, notes: [], game: { xp: 0, streak: 0, last: '', done: {} }, gone: [], updated: 0, plans: { active: null, p: {} }, memo: {}, kids: { done: {} } });
 const accountId = () => (S.user ? 'google:' + (S.user.sub || S.user.email) : S.guest ? 'guest' : '');
 let accountReady = '';    // the account whose data is in S
 
@@ -865,6 +865,8 @@ const ICONS = {
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   bolt: '<path d="M13 3L5 13h6l-1 8 8-10h-6z"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  smile: '<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5q3.5 3 7 0"/><circle cx="9" cy="10" r=".6" fill="currentColor"/><circle cx="15" cy="10" r=".6" fill="currentColor"/>',
+  speaker: '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>',
   dots: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
   copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
   memo: '<path d="M12 4C8 4 5 6.5 5 10c0 2 1 3.4 2 4.4V19h4v-2h2v2h4v-4.6c1-1 2-2.4 2-4.4 0-3.5-3-6-7-6z"/><path d="M12 8v5M9.5 10.5h5"/>',
@@ -942,7 +944,8 @@ function mergeRecords(a, b) {
     gone,
     updated: Math.max(a.updated || 0, b.updated || 0),
     plans: mergePlans(a.plans, b.plans, newer === a),
-    memo: mergeMemo(a.memo, b.memo)
+    memo: mergeMemo(a.memo, b.memo),
+    kids: { done: (() => { const d = Object.assign({}, (a.kids || {}).done); Object.entries((b.kids || {}).done || {}).forEach(([k, v]) => { d[k] = Math.max(d[k] || 0, v); }); return d; })() }
   };
 }
 
@@ -1200,6 +1203,7 @@ function sideMenu() {
 ${nav('study', 'book', t('አንብብ', 'Read'))}
 ${nav('browse', 'grid', t('ፈልግ', 'Explore'))}
 ${nav('journey', 'flag', t('ጉዞ', 'Journey'))}
+${nav('kids', 'smile', t('ልጆች', 'Kids'))}
 ${nav('map', 'pin', t('ካርታ', 'Map'))}
 ${nav('notes', 'note', t('ማስታወሻ', 'Notes'))}
 </div>
@@ -2658,7 +2662,7 @@ function render() {
     return;
   }
   const offBanner = navigator.onLine === false && S.screen !== 'offline' ? `<button class="offbanner" data-a="nav" data-v="offline" data-k="offbanner">${icon('wifiOff', 16)}${t('ኢንተርኔት የለም፤ የተቀመጡት ይሠራሉ', 'Offline: saved content still works')}</button>` : '';
-  const view = offBanner + (S.screen === 'offline' ? offlineView() : S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'plans' ? plansView() : S.screen === 'map' ? mapView() : browseView());
+  const view = offBanner + (S.screen === 'offline' ? offlineView() : S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'plans' ? plansView() : S.screen === 'kids' ? kidsView() : S.screen === 'map' ? mapView() : browseView());
   root.innerHTML = sideMenu() + '<main>' + view + '</main>' + mapViewer() + picViewer() + studioView() + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : '');
   if (S.studio) drawStudio();
   if (S.toast && !render.toastTimer) render.toastTimer = setTimeout(() => { S.toast = ''; render.toastTimer = null; render(); }, 2600);
@@ -2821,6 +2825,7 @@ const actions = {
   book(v) { S.openBook = S.openBook === +v ? null : +v; save('openBook'); },
   chapter(v) { const [b, c] = v.split('.').map(Number); S.pass = { b, c, f: 1, to: 0 }; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen', 'sel'); window.scrollTo(0, 0); },
   jumpTo(v) { const el = document.getElementById(v); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return false; },
+  ...kidActions,
   memoAdd() {
     const k = hlKey(S.sel), m = S.memo[k];
     if (m && !m.off) { S.memo[k] = { off: true, seen: Date.now() }; S.toast = t('ከበቃል ጥቅሶች ተወግዷል', 'Removed from memory verses'); }
