@@ -1128,3 +1128,10 @@ details.backup[open] summary::after { transform: rotate(90deg); }
 .ktabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .ktabs button { padding: 0 4px; font-size: 15px; }
 @media (max-width: 760px) { .obstext p { font-size: 18px; } }
+/* One list of stories */
+.kcard.story { padding: 0; gap: 0; overflow: hidden; }
+.kcard-main { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 10px 10px 12px; width: 100%; text-align: left; position: relative; font-family: var(--kfont); }
+.kcard-main b { font-size: 17px; font-weight: 800; line-height: 1.35; }
+.kanim { width: 100%; min-height: 44px; background: var(--kc); color: #fff; font: 800 14px var(--kfont); border-top: 2px solid color-mix(in srgb, var(--kc) 60%, #000); }
+.obsnum.anim { background: #FFD54A; color: #1F2023; }
+@media (max-width: 760px) { .kcard-main b { font-size: 15px; } .kanim { font-size: 13px; } }

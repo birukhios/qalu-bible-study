@@ -355,14 +355,11 @@ function kidsHome() {
   const done = (S.kids && S.kids.done) || {};
   const total = KIDS.reduce((n, k) => n + (done[k.id] || 0), 0);
   const tab = S.kidTab || 'stories';
-  const tabs = `<div class="seg ktabs" role="tablist">${[['stories', '📖', t('ታሪኮች', 'Stories')], ['obs', '🖼️', t('50 ታሪኮች', '50 stories')], ['games', '🎮', t('ጨዋታዎች', 'Games')]].map(([v, em, l]) => `<button role="tab" data-a="kidTab" data-v="${v}" data-k="kt-${v}" aria-pressed="${tab === v}">${em} ${l}</button>`).join('')}</div>`;
-  if (tab === 'obs') return `<div class="kids-hero"><span class="khero-sound">${soundBtn()}</span><div class="kbubble">${t('ከፍጥረት እስከ ራእይ 50 የሥዕል ታሪኮች!', '50 picture stories, from Creation to Revelation!')}</div>${kQali({ anim: 'jump', cls: 'big' })}</div>${tabs}${obsHome()}`;
+  const tabs = `<div class="seg ktabs" role="tablist">${[['stories', '📖', t('ታሪኮች', 'Stories')], ['games', '🎮', t('ጨዋታዎች', 'Games')]].map(([v, em, l]) => `<button role="tab" data-a="kidTab" data-v="${v}" data-k="kt-${v}" aria-pressed="${tab === v}">${em} ${l}</button>`).join('')}</div>`;
   if (tab === 'games') return `<div class="kids-hero"><span class="khero-sound">${soundBtn()}</span><div class="kbubble">${t('እንጫወት! አንድ ጨዋታ ምረጥ።', 'Let’s play! Pick a game.')}</div>${kQali({ anim: 'jump', cls: 'big' })}</div>${tabs}${gamesHome()}`;
   return `<div class="kids-hero"><span class="khero-sound">${soundBtn()}</span><div class="kbubble">${t('ሰላም! እኔ ቃሊ ነኝ። ከመጽሐፍ ቅዱስ ታሪክ አብረን እንማር!', 'Hi! I’m Qali. Let’s learn a Bible story together!')}</div>${kQali({ anim: 'jump', cls: 'big' })}</div>
-${tabs}<div class="row between"><h1 class="ktitle">${t('የልጆች ታሪኮች', 'Stories for kids')}</h1><span class="kpill">${kStars(1, 1)} ${total} / ${KIDS.length * 3}</span></div>
-<div class="kgrid">${KIDS.map((k, i) => `<button class="kcard" style="--kc:${k.c}" data-a="kidOpen" data-v="${i}" data-k="kid-${k.id}">
-<span class="kthumb">${kScene(k.scenes[0], true)}</span><b>${esc(tp(k.n))}</b><span class="row between" style="width:100%"><span class="ksmall">${esc(k.from.split(' · ')[S.en ? 1 : 0])}</span>${kStars(done[k.id] || 0)}</span></button>`).join('')}</div>
-<p class="muted small" style="margin-top:12px">${t('ታሪኮቹ ለልጆች በቀላል ቋንቋ እንደገና የተጻፉ ናቸው፤ ሙሉውን ታሪክ ከወላጆችዎ ጋር በመጽሐፍ ቅዱስ ያንብቡ።', 'The stories are retold simply for children; read the full story in the Bible together with a grown-up.')}</p>`;
+${tabs}<div class="row between"><h1 class="ktitle">${t('የመጽሐፍ ቅዱስ ታሪኮች', 'Bible stories')}</h1><span class="kpill">${kStars(1, 1)} ${total}</span></div>
+${storyGrid()}`;
 }
 
 function kidsPlayer() {
@@ -372,7 +369,7 @@ function kidsPlayer() {
 ${label}</div>`;
   if (typeof st.step === 'number') {
     const sc = k.scenes[st.step], text = tp(sc.t), last = st.step === k.scenes.length - 1;
-    return `<div class="kplayer" style="--kc:${k.c}">${head(`<span class="row" style="gap:6px;flex-wrap:nowrap">${kVoice() ? `<button class="kround" data-a="kidSay" data-k="kid-say" aria-label="${t('አንብብልኝ', 'Read it to me')}" title="${t('አንብብልኝ', 'Read it to me')}">${icon('speaker')}</button>` : ''}${soundBtn()}</span>`)}
+    return `<div class="kplayer" style="--kc:${k.c}">${head(`<span class="row" style="gap:6px;flex-wrap:nowrap">${hasNarration('kids-' + k.id + '-' + st.step) ? `<button class="kround" data-a="kidSay" data-k="kid-say" aria-label="${t('አንብብልኝ', 'Read it to me')}" title="${t('አንብብልኝ', 'Read it to me')}">${icon('speaker')}</button>${autoBtn()}` : ''}${soundBtn()}</span>`)}
 <div class="kstage" data-scene="${st.i}-${st.step}">${kScene(sc)}</div>
 <p class="khint">${t('👆 ገጸ ባሕርያቱን ንካቸው!', '👆 Tap the characters!')}</p>
 <div class="ktext">${kQali({ anim: 'nod', nod: true })}<p>${esc(text)}</p></div>
@@ -406,16 +403,17 @@ function kidsView() {
 }
 
 const kidActions = {
-  kidOpen(v) { S.kid = { i: +v, step: 0, q: 0, picked: null, right: 0 }; window.scrollTo(0, 0); sfx(SCENE_SOUND[KIDS[+v].scenes[0].bg] || 'whoosh'); },
-  kidClose() { S.kid = null; S.kg = null; if ('speechSynthesis' in window) speechSynthesis.cancel(); },
+  kidOpen(v) { S.obs = null; S.kid = { i: +v, step: 0, q: 0, picked: null, right: 0 }; window.scrollTo(0, 0); sfx(SCENE_SOUND[KIDS[+v].scenes[0].bg] || 'whoosh'); if (kAuto()) setTimeout(() => actions.kidSay(), 700); },
+  kidClose() { S.kid = null; S.kg = null; stopNarration(); },
   kidStep(v) {
     const k = KIDS[S.kid.i], n = S.kid.step + +v;
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    stopNarration();
     if (n >= k.scenes.length) { S.kid.step = 'quiz'; S.kid.q = 0; S.kid.picked = null; sfx('pop'); return; }
     S.kid.step = Math.max(0, n);
     sfx('whoosh'); setTimeout(() => sfx(SCENE_SOUND[k.scenes[S.kid.step].bg] || 'tap'), 280);
+    if (kAuto()) setTimeout(() => actions.kidSay(), 900);
   },
-  kidSay() { const k = KIDS[S.kid.i]; kSay(tp(k.scenes[S.kid.step].t)); return false; },
+  kidSay() { const k = KIDS[S.kid.i]; narrate('kids-' + k.id + '-' + S.kid.step, tp(k.scenes[S.kid.step].t)); return false; },
   kidPick(v) {
     const k = KIDS[S.kid.i];
     S.kid.picked = +v;
@@ -725,12 +723,13 @@ function obsReader() {
   const d = obsData();
   if (!d) return `<p class="ktext"><span>${t('እየተጫነ ነው…', 'Loading…')}</span></p>`;
   const st = d[S.obs.i], fi = S.obs.f, last = fi >= st.f.length;
-  const bar = `<div class="kbar"><button class="kround" data-a="obsClose" data-k="obs-close" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button><b class="kgtitle">${st.n}. ${esc(st.t)}</b><span class="row" style="gap:6px;flex-wrap:nowrap">${kVoice() && !last ? `<button class="kround" data-a="obsSay" data-k="obs-say" aria-label="${t('አንብብልኝ', 'Read it to me')}">${icon('speaker')}</button>` : ''}${soundBtn()}</span></div>`;
+  const bar = `<div class="kbar"><button class="kround" data-a="obsClose" data-k="obs-close" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button><b class="kgtitle">${st.n}. ${esc(st.t)}</b><span class="row" style="gap:6px;flex-wrap:nowrap">${!last && hasNarration('obs-' + st.f[fi][0]) ? `<button class="kround" data-a="obsSay" data-k="obs-say" aria-label="${t('አንብብልኝ', 'Read it to me')}">${icon('speaker')}</button>${autoBtn()}` : ''}${soundBtn()}</span></div>`;
   const prog = `<div class="obsprog"><i style="width:${Math.round(100 * Math.min(fi + 1, st.f.length) / st.f.length)}%"></i></div>`;
   if (last) {
     const next = d[S.obs.i + 1];
     return `<div class="kplayer" style="--kc:#EF3340">${bar}${prog}<div class="kdone">${kQali({ anim: 'jump', happy: true, cls: 'big' })}<h2 class="ktitle">${t('ታሪኩ አለቀ!', 'The end!')}</h2>
 <p class="ksmall"><b>${esc(st.r)}</b></p>
+${(() => { const id = Object.keys(KID_ON_OBS).find((x) => KID_ON_OBS[x] === st.n); const ki = KIDS.findIndex((x) => x.id === id); return ki >= 0 ? `<button class="kbtn" data-a="kidOpen" data-v="${ki}" data-k="obs-to-anim">✨ ${t('ተንቀሳቃሹን ታሪክና ጥያቄውን ተጫወት', 'Play the animated story and quiz')}</button>` : ''; })()}
 <div class="knav wrap"><button class="kbtn ghost" data-a="obsFrame" data-v="0" data-k="obs-again">${t('እንደገና', 'Again')}</button>${next ? `<button class="kbtn" data-a="obsOpen" data-v="${S.obs.i + 1}" data-k="obs-next-story">${t('ቀጣዩ ታሪክ', 'Next story')}: ${esc(next.t)}${icon('right', 24)}</button>` : ''}</div></div>${OBS_CREDIT()}</div>`;
   }
   const [img, text] = st.f[fi];
@@ -742,17 +741,67 @@ function obsReader() {
 <button class="kbtn" data-a="obsFrame" data-v="${fi + 1}" data-k="obs-next">${t('ቀጥል', 'Next')}${icon('right', 26)}</button></div></div>`;
 }
 Object.assign(kidActions, {
-  obsOpen(v) { S.obs = { i: +v, f: 0 }; window.scrollTo(0, 0); sfx('whoosh'); },
-  obsClose() { S.obs = null; if ('speechSynthesis' in window) speechSynthesis.cancel(); },
+  obsOpen(v) { S.kid = null; S.obs = { i: +v, f: 0 }; window.scrollTo(0, 0); sfx('whoosh'); if (kAuto()) setTimeout(() => actions.obsSay(), 600); },
+  obsClose() { S.obs = null; stopNarration(); },
   obsFrame(v) {
     const d = obsData(), st = d[S.obs.i];
     S.obs.f = Math.max(0, +v);
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    stopNarration();
+    if (S.obs.f < st.f.length && kAuto()) setTimeout(() => actions.obsSay(), 450);
     if (S.obs.f >= st.f.length) {
       S.kids = S.kids || { done: {} }; S.kids.obs = S.kids.obs || {};
       if (!S.kids.obs[st.n]) { S.kids.obs[st.n] = 1; save('kids'); }
       sfx('fanfare');
     } else sfx('flip');
   },
-  obsSay() { const st = obsData()[S.obs.i]; kSay(st.f[S.obs.f][1]); return false; }
+  obsSay() { const st = obsData()[S.obs.i]; narrate('obs-' + st.f[S.obs.f][0], st.f[S.obs.f][1]); return false; }
 });
+
+// ---------- one list of stories: the 50 picture stories in Bible order, with the animated stories joined in ----------
+// Animated stories that tell the same story as a picture story are offered on its card; the others take their place in Bible order.
+const KID_ON_OBS = { creation: 1, noah: 3, moses: 9, redsea: 12, david: 17, birth: 23, loaves: 30, easter: 41 };
+const KID_AFTER_OBS = { jonah: 19, daniel: 20, storm: 31, sheep: 34 };
+function kidStoryList() {
+  const d = obsData() || [];
+  const kidIdx = (id) => KIDS.findIndex((k) => k.id === id);
+  const items = d.map((st, i) => ({ obs: i, n: st.n, kid: kidIdx(Object.keys(KID_ON_OBS).find((id) => KID_ON_OBS[id] === st.n) || '') }));
+  Object.entries(KID_AFTER_OBS).sort((a, b) => b[1] - a[1]).forEach(([id, after]) => {
+    const at = items.findIndex((x) => x.n === after);
+    items.splice(at < 0 ? items.length : at + 1, 0, { obs: -1, kid: kidIdx(id) });
+  });
+  if (!d.length) return KIDS.map((k, i) => ({ obs: -1, kid: i }));
+  return items;
+}
+function storyGrid() {
+  const d = obsData() || [], done = (S.kids && S.kids.done) || {}, read = (S.kids && S.kids.obs) || {};
+  const colors = ['#FF8A3D', '#3FA2D9', '#66BB6A', '#EF3340', '#7E57C2', '#F2994A'];
+  return `<div class="kgrid obsgrid">${kidStoryList().map((it, j) => {
+    const st = it.obs >= 0 ? d[it.obs] : null, k = it.kid >= 0 ? KIDS[it.kid] : null;
+    const c = k ? k.c : colors[j % 6];
+    const pic = st ? `<img src="${obsImg(st.f[0][0])}" alt="" loading="lazy">` : kScene(k.scenes[0], true);
+    const title = st ? st.t : tp(k.n);
+    const open = st ? `data-a="obsOpen" data-v="${it.obs}" data-k="obs-${st.n}"` : `data-a="kidOpen" data-v="${it.kid}" data-k="kid-${k.id}"`;
+    const marks = (st && read[st.n] ? '<span class="kpill">✓</span>' : '') + (k && done[k.id] ? kStars(done[k.id]) : '');
+    return `<div class="kcard story" style="--kc:${c}"><button class="kcard-main" ${open}><span class="kthumb">${pic}</span>${st ? `<span class="obsnum">${st.n}</span>` : '<span class="obsnum anim">✨</span>'}<b>${esc(title)}</b>
+<span class="row between" style="width:100%"><span class="ksmall">${st ? st.f.length + ' ' + t('ሥዕሎች', 'pictures') : t('ተንቀሳቃሽ ታሪክና ጥያቄ', 'Animated story and quiz')}</span><span>${marks}</span></span></button>
+${st && k ? `<button class="kanim" data-a="kidOpen" data-v="${it.kid}" data-k="kid-${k.id}">✨ ${t('ተንቀሳቃሽና ጥያቄ', 'Animated + quiz')}</button>` : ''}</div>`;
+  }).join('')}</div>${d.length ? OBS_CREDIT() : ''}`;
+}
+
+// ---------- narration: recorded voices where they exist (data/audio/<lang>/<key>.m4a), the device's voice otherwise ----------
+const NARR = { have: null, audio: null };
+fetch('data/audio/index.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((d) => { NARR.have = { am: new Set(d.am || []), en: new Set(d.en || []) }; if (S.screen === 'kids') render(); });
+const narrLang = () => (S.en ? 'en' : 'am');
+const hasNarration = (key) => !!(NARR.have && NARR.have[narrLang()].has(key)) || !!kVoice();
+const kAuto = () => ls.get('kidAuto', true);
+function narrate(key, text) {
+  if (NARR.audio) { NARR.audio.pause(); NARR.audio = null; }
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  if (NARR.have && NARR.have[narrLang()].has(key)) {
+    NARR.audio = new Audio(`data/audio/${narrLang()}/${key}.m4a`);
+    NARR.audio.play().catch(() => kSay(text));
+  } else kSay(text);
+}
+function stopNarration() { if (NARR.audio) { NARR.audio.pause(); NARR.audio = null; } if ('speechSynthesis' in window) speechSynthesis.cancel(); }
+const autoBtn = () => `<button class="kround" data-a="kidAuto" data-k="kid-auto" aria-pressed="${kAuto()}" title="${kAuto() ? t('ራሱ ያንብብ፦ በርቷል', 'Read to me: on') : t('ራሱ ያንብብ፦ ጠፍቷል', 'Read to me: off')}" aria-label="${t('ራሱ ያንብብልኝ', 'Read to me')}">${kAuto() ? '🎧' : '🔇'}</button>`;
+Object.assign(kidActions, { kidAuto() { ls.set('kidAuto', !kAuto()); if (!kAuto()) stopNarration(); } });
