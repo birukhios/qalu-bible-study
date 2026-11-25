@@ -348,7 +348,7 @@ function applyGeo(refs, fit) {
   data.routes.forEach((rt) => {
     const line = rt.pts.map((p) => [p[0], p[1]]);
     L.polyline(line, { color: '#1F2023', weight: 7, opacity: 0.35, lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(lgeo);
-    L.polyline(line, { color: '#C0392B', weight: 3.5, dashArray: '10 8', lineCap: 'round', lineJoin: 'round', className: 'georoute' }).bindTooltip(rt.n[1], { sticky: true }).addTo(lgeo);
+    L.polyline(line, { color: '#EF3340', weight: 3.5, dashArray: '10 8', lineCap: 'round', lineJoin: 'round', className: 'georoute' }).bindTooltip(rt.n[1], { sticky: true }).addTo(lgeo);
     for (let k = 1; k < line.length; k++) {   // a small arrow half way along each leg shows the direction of travel
       const [a, b] = [line[k - 1], line[k]];
       if (a[0] === b[0] && a[1] === b[1]) continue;
@@ -356,7 +356,7 @@ function applyGeo(refs, fit) {
       const ang = Math.atan2(-(b[0] - a[0]), (b[1] - a[1]) * Math.cos(mid[0] * Math.PI / 180)) * 180 / Math.PI;
       L.marker(mid, { interactive: false, keyboard: false, icon: L.divIcon({ className: '', html: `<span class="geoarrow" style="transform:rotate(${ang}deg)">➤</span>`, iconSize: [16, 16], iconAnchor: [8, 8] }) }).addTo(lgeo);
     }
-    rt.pts.forEach((p) => { if (!data.places.some((x) => x.p[0] === p[2])) L.circleMarker([p[0], p[1]], { radius: 5, color: '#C0392B', weight: 2.5, fillColor: '#fff', fillOpacity: 1 }).bindTooltip(p[2], { permanent: true, direction: 'right', offset: [6, 0], className: 'geostop' }).addTo(lgeo); });
+    rt.pts.forEach((p) => { if (!data.places.some((x) => x.p[0] === p[2])) L.circleMarker([p[0], p[1]], { radius: 5, color: '#EF3340', weight: 2.5, fillColor: '#fff', fillOpacity: 1 }).bindTooltip(p[2], { permanent: true, direction: 'right', offset: [6, 0], className: 'geostop' }).addTo(lgeo); });
   });
   data.places.forEach((x, n) => {
     const [name, lat, lon, kind, conf] = x.p;
@@ -1269,7 +1269,7 @@ function closeVideo() {
 }
 modal.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) closeVideo(); });
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { closeVideo(); if (S.bigMap || S.picker || S.bigPic) { if (S.bigMap) actions.closeMap(); if (S.bigPic) actions.closePic(); S.picker = false; render(); } }
+  if (e.key === 'Escape') { closeVideo(); if (S.studio) { S.studio = null; render(); } if (S.bigMap || S.picker || S.bigPic) { if (S.bigMap) actions.closeMap(); if (S.bigPic) actions.closePic(); S.picker = false; render(); } }
   if (S.bigMap && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { actions.mapStep(e.key === 'ArrowLeft' ? -1 : 1); render(); return; }
   // On the Study screen the arrow keys turn the chapter, unless the reader is typing or choosing.
   if (S.screen !== 'study' || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
@@ -1633,54 +1633,200 @@ function dailyCard() {
 }
 
 // Draws a verse onto a square picture and offers it to the phone's share sheet, or downloads it on a computer.
-async function shareVersePicture(id, b, c, v) {
-  const text = verseText(id, b, c, v);
-  if (!text) return;
-  const size = 1080, pad = 96;
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = size;
-  const g = canvas.getContext('2d');
-  const bg = g.createLinearGradient(0, 0, size, size);
-  bg.addColorStop(0, '#1F2A44'); bg.addColorStop(1, '#5B3A6E');
-  g.fillStyle = bg; g.fillRect(0, 0, size, size);
-  g.fillStyle = 'rgba(255,255,255,0.08)'; g.beginPath(); g.arc(size - 140, 160, 260, 0, Math.PI * 2); g.fill();
-  const rtl = versions[id].language === 'orig' && b < 39;
-  const family = '"Noto Sans Ethiopic", "Kefa", "Nyala", "Abyssinica SIL", "SBL Hebrew", "Noto Serif", system-ui, sans-serif';
-  // Find the largest text size at which the verse fits in the picture.
-  const words = text.split(/\s+/);
-  let fontSize = 64, lines = [];
-  for (; fontSize >= 28; fontSize -= 2) {
-    g.font = `600 ${fontSize}px ${family}`;
-    lines = [];
-    let line = '';
-    for (const w of words) {
-      const next = line ? line + ' ' + w : w;
-      if (g.measureText(next).width > size - pad * 2 && line) { lines.push(line); line = w; } else line = next;
-    }
-    if (line) lines.push(line);
-    if (lines.length * fontSize * 1.5 < size - pad * 2 - 200) break;
+// ---------- verse pictures: six designs, three sizes, drawn on a canvas ----------
+// Sizes for where the picture goes: a square post, a full-screen story or status, or a wide post.
+const PIC_FORMATS = {
+  square: { w: 1080, h: 1080, n: ['ካሬ', 'Square'], d: ['Instagram፣ WhatsApp፣ Facebook', 'Instagram, WhatsApp, Facebook'] },
+  story: { w: 1080, h: 1920, n: ['ስቶሪ', 'Story'], d: ['Status፣ Stories፣ TikTok፣ Telegram', 'Status, Stories, TikTok, Telegram'] },
+  wide: { w: 1200, h: 675, n: ['ሰፊ', 'Wide'], d: ['X፣ Telegram ቻናል፣ Facebook', 'X, Telegram channels, Facebook'] }
+};
+// Each design: a name, a small preview for its button (CSS), and how to paint the background and colour the text.
+const PIC_STYLES = {
+  ember: { n: ['ፍም', 'Ember'], css: 'linear-gradient(135deg,#FF6B6B,#EF3340 45%,#7A0C1F)', text: '#FFFFFF', ref: '#FFE0B3', sub: 'rgba(255,255,255,.78)' },
+  tibeb: { n: ['ጥበብ', 'Tibeb'], css: 'repeating-linear-gradient(45deg,#F5C04A 0 4px,#5C0A1A 4px 12px)', text: '#FFF5E6', ref: '#F5C04A', sub: 'rgba(255,245,230,.75)' },
+  sunrise: { n: ['ንጋት', 'Sunrise'], css: 'radial-gradient(circle at 50% 110%,#FFB347,#EF3340 55%,#5C0A1A)', text: '#FFFFFF', ref: '#FFE7A8', sub: 'rgba(255,255,255,.8)' },
+  charcoal: { n: ['ከሰል', 'Charcoal'], css: 'radial-gradient(circle,#4A4D54 1.5px,transparent 2px) 0 0/8px 8px,linear-gradient(135deg,#2B2D31,#141518)', text: '#F2F2F3', ref: '#FF5A64', sub: 'rgba(242,242,243,.7)' },
+  night: { n: ['ሌሊት', 'Night'], css: 'radial-gradient(circle at 50% 120%,#EF3340,#2B0A12 55%,#0E0F12)', text: '#FFFFFF', ref: '#FF8A93', sub: 'rgba(255,255,255,.72)' },
+  paper: { n: ['ወረቀት', 'Paper'], css: 'linear-gradient(135deg,#FFF8F0,#F6E9DC)', text: '#1F2023', ref: '#D21F2D', sub: 'rgba(31,32,35,.62)' }
+};
+const LOGO = new Image();
+LOGO.src = 'icon.svg';
+LOGO.onload = () => { if (S.studio) drawStudio(); };
+// A small repeatable random sequence, so a design's stars and texture look the same every time.
+const seeded = (seed) => () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+
+function paintBackground(g, W, H, style) {
+  const u = Math.min(W, H * 1.4) / 1080;
+  const lin = (stops, x0 = 0, y0 = 0, x1 = W, y1 = H) => { const gr = g.createLinearGradient(x0, y0, x1, y1); stops.forEach(([o, c]) => gr.addColorStop(o, c)); return gr; };
+  const rad = (x, y, r, stops) => { const gr = g.createRadialGradient(x, y, 0, x, y, r); stops.forEach(([o, c]) => gr.addColorStop(o, c)); return gr; };
+  if (style === 'ember') {
+    g.fillStyle = lin([[0, '#FF6B6B'], [0.45, '#EF3340'], [1, '#7A0C1F']]); g.fillRect(0, 0, W, H);
+    g.save(); g.strokeStyle = 'rgba(255,255,255,0.07)'; g.lineWidth = 2 * u;
+    for (let x = -H; x < W; x += 34 * u) { g.beginPath(); g.moveTo(x, H); g.lineTo(x + H, 0); g.stroke(); }
+    g.restore();
+    g.fillStyle = rad(W * 0.85, H * 0.12, Math.max(W, H) * 0.55, [[0, 'rgba(255,255,255,0.28)'], [1, 'rgba(255,255,255,0)']]); g.fillRect(0, 0, W, H);
+    g.fillStyle = rad(W * 0.1, H * 0.95, Math.max(W, H) * 0.5, [[0, 'rgba(60,0,10,0.45)'], [1, 'rgba(60,0,10,0)']]); g.fillRect(0, 0, W, H);
+  } else if (style === 'sunrise') {
+    g.fillStyle = rad(W / 2, H * 1.08, Math.max(W, H) * 1.05, [[0, '#FFC46B'], [0.3, '#FF7A45'], [0.6, '#EF3340'], [1, '#4A0715']]); g.fillRect(0, 0, W, H);
+    g.save(); g.strokeStyle = 'rgba(255,255,255,0.09)'; g.lineWidth = 3 * u;
+    for (let r = 120 * u; r < Math.max(W, H) * 1.3; r += 70 * u) { g.beginPath(); g.arc(W / 2, H * 1.08, r, Math.PI, 2 * Math.PI); g.stroke(); }
+    g.restore();
+  } else if (style === 'charcoal') {
+    g.fillStyle = lin([[0, '#2E3035'], [1, '#121316']]); g.fillRect(0, 0, W, H);
+    g.fillStyle = 'rgba(255,255,255,0.06)';
+    for (let y = 18 * u; y < H; y += 36 * u) for (let x = 18 * u; x < W; x += 36 * u) { g.beginPath(); g.arc(x, y, 2.2 * u, 0, Math.PI * 2); g.fill(); }
+    g.fillStyle = rad(W, 0, Math.max(W, H) * 0.7, [[0, 'rgba(239,51,64,0.32)'], [1, 'rgba(239,51,64,0)']]); g.fillRect(0, 0, W, H);
+  } else if (style === 'night') {
+    g.fillStyle = lin([[0, '#0E0F12'], [0.6, '#22080F'], [1, '#3A0A16']], 0, 0, 0, H); g.fillRect(0, 0, W, H);
+    const r = seeded(7);
+    for (let i = 0; i < 160; i++) { g.fillStyle = `rgba(255,255,255,${0.15 + r() * 0.55})`; g.beginPath(); g.arc(r() * W, r() * H * 0.75, (0.6 + r() * 2) * u, 0, Math.PI * 2); g.fill(); }
+    g.fillStyle = rad(W / 2, H * 1.15, Math.max(W, H) * 0.75, [[0, 'rgba(239,51,64,0.85)'], [0.5, 'rgba(239,51,64,0.25)'], [1, 'rgba(239,51,64,0)']]); g.fillRect(0, 0, W, H);
+  } else if (style === 'paper') {
+    g.fillStyle = lin([[0, '#FFF9F2'], [1, '#F4E6D8']]); g.fillRect(0, 0, W, H);
+    const r = seeded(3);
+    for (let i = 0; i < 2600; i++) { g.fillStyle = `rgba(90,50,20,${r() * 0.05})`; g.fillRect(r() * W, r() * H, 2 * u, 2 * u); }
+    g.fillStyle = '#EF3340'; g.fillRect(0, 0, W, 14 * u);
+  } else if (style === 'tibeb') {
+    g.fillStyle = lin([[0, '#6B0D20'], [1, '#2A0610']]); g.fillRect(0, 0, W, H);
+    // Woven borders after Ethiopian tibeb: a gold zigzag between red and white lines, top and bottom.
+    const band = (y0, flip) => {
+      const h = 64 * u, step = 32 * u;
+      g.fillStyle = '#EF3340'; g.fillRect(0, y0, W, h);
+      g.fillStyle = '#FFF5E6'; g.fillRect(0, flip ? y0 + h - 6 * u : y0, W, 6 * u);
+      g.fillStyle = '#F5C04A';
+      for (let x = -step; x < W + step; x += step) {
+        g.beginPath(); g.moveTo(x, y0 + h / 2); g.lineTo(x + step / 2, y0 + 14 * u); g.lineTo(x + step, y0 + h / 2); g.lineTo(x + step / 2, y0 + h - 14 * u); g.closePath(); g.fill();
+      }
+      g.fillStyle = '#6B0D20';
+      for (let x = -step; x < W + step; x += step) { g.beginPath(); g.arc(x + step / 2, y0 + h / 2, 5 * u, 0, Math.PI * 2); g.fill(); }
+    };
+    band(0, false); band(H - 64 * u, true);
+    g.save(); g.strokeStyle = 'rgba(245,192,74,0.08)'; g.lineWidth = 2 * u;
+    for (let x = -H; x < W + H; x += 46 * u) { g.beginPath(); g.moveTo(x, 64 * u); g.lineTo(x + H, H - 64 * u); g.stroke(); g.beginPath(); g.moveTo(x + H, 64 * u); g.lineTo(x, H - 64 * u); g.stroke(); }
+    g.restore();
   }
-  g.fillStyle = '#FFFFFF'; g.textBaseline = 'top'; g.direction = rtl ? 'rtl' : 'ltr';
-  g.textAlign = rtl ? 'right' : 'left';
-  const x = rtl ? size - pad : pad;
-  let y = (size - lines.length * fontSize * 1.5 - 120) / 2;
-  lines.forEach((l) => { g.fillText(l, x, y); y += fontSize * 1.5; });
+}
+
+// Wraps text into lines no wider than maxW at the current font.
+function wrapLines(g, text, maxW) {
+  const lines = []; let line = '';
+  for (const w of text.split(/\s+/)) {
+    const next = line ? line + ' ' + w : w;
+    if (g.measureText(next).width > maxW && line) { lines.push(line); line = w; } else line = next;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function drawVersePicture(canvas, o) {
+  const F = PIC_FORMATS[o.fmt] || PIC_FORMATS.square, ST = PIC_STYLES[o.style] || PIC_STYLES.ember;
+  const W = F.w, H = F.h, u = Math.min(W, H * 1.4) / 1080;   // the unit of size; a wide picture is short but still reads at a glance
+  canvas.width = W; canvas.height = H;
+  const g = canvas.getContext('2d');
+  paintBackground(g, W, H, o.style);
+  const family = '"Noto Sans Ethiopic", "Kefa", "Nyala", "Abyssinica SIL", "SBL Hebrew", "Noto Serif", system-ui, sans-serif';
+  const band = o.style === 'tibeb' ? 64 * u : 0;
+  const pad = (o.fmt === 'wide' ? 80 : 96) * u + band * 0.4;
+  const footH = 84 * u;
+  const top = pad + band, bottom = H - pad - band - footH;
+  const maxW = W - pad * 2;
+  // The big opening quotation mark.
+  g.font = `700 ${190 * u}px Georgia, "Noto Serif", serif`; g.fillStyle = o.style === 'paper' ? 'rgba(239,51,64,0.9)' : 'rgba(255,255,255,0.22)';
+  g.textBaseline = 'top'; g.textAlign = 'left'; g.direction = 'ltr';
+  const quoteH = o.fmt === 'wide' ? 0 : 120 * u;
+  if (quoteH) g.fillText('“', pad - 8 * u, top - 40 * u);
+  // Largest text size at which the verse (and the second version, smaller) fits.
+  const avail = bottom - top - quoteH - 120 * u;
+  let size = (o.fmt === 'story' ? 96 : o.fmt === 'wide' ? 64 : 70) * u, main = [], alt = [];
+  for (; size >= 26 * u; size -= 2 * u) {
+    g.font = `600 ${size}px ${family}`; main = wrapLines(g, o.text, maxW);
+    let h = main.length * size * 1.45;
+    if (o.alt) { g.font = `500 ${size * 0.62}px ${family}`; alt = wrapLines(g, o.alt, maxW); h += 28 * u + alt.length * size * 0.62 * 1.5; }
+    if (h <= avail) break;
+  }
+  let blockH = main.length * size * 1.45 + (o.alt ? 28 * u + alt.length * size * 0.62 * 1.5 : 0) + 110 * u;
+  let y = top + quoteH + Math.max(0, (bottom - top - quoteH - blockH) / 2);
+  const rtl = !!o.rtl;
+  g.direction = rtl ? 'rtl' : 'ltr'; g.textAlign = rtl ? 'right' : 'left';
+  const x = rtl ? W - pad : pad;
+  g.fillStyle = ST.text;
+  if (o.style !== 'paper') { g.shadowColor = 'rgba(0,0,0,0.25)'; g.shadowBlur = 12 * u; g.shadowOffsetY = 2 * u; }
+  g.font = `600 ${size}px ${family}`;
+  main.forEach((l) => { g.fillText(l, x, y); y += size * 1.45; });
+  g.shadowColor = 'transparent';
   g.direction = 'ltr'; g.textAlign = 'left';
-  g.font = `700 40px ${family}`; g.fillStyle = '#F5C76B';
-  g.fillText(verseRef(b, c, v), pad, y + 36);
-  g.font = `500 30px ${family}`; g.fillStyle = 'rgba(255,255,255,0.75)';
-  g.fillText(versions[id].name, pad, y + 92);
-  g.font = `700 34px ${family}`; g.fillStyle = 'rgba(255,255,255,0.9)'; g.textAlign = 'right';
-  g.fillText('ቃሉ · Qalu', size - pad, size - pad);
+  if (o.alt) {
+    y += 28 * u;
+    g.font = `500 ${size * 0.62}px ${family}`; g.fillStyle = ST.sub;
+    alt.forEach((l) => { g.fillText(l, pad, y); y += size * 0.62 * 1.5; });
+  }
+  // The reference with a short accent line before it.
+  y += 34 * u;
+  g.fillStyle = ST.ref; g.fillRect(pad, y + 18 * u, 46 * u, 5 * u);
+  g.font = `700 ${40 * u}px ${family}`; g.fillText(o.ref, pad + 64 * u, y);
+  g.font = `500 ${26 * u}px ${family}`; g.fillStyle = ST.sub; g.fillText(o.versions, pad + 64 * u, y + 54 * u);
+  // Footer: the logo and the app's name.
+  const fy = H - pad - band - 56 * u;
+  if (LOGO.complete && LOGO.naturalWidth) g.drawImage(LOGO, pad, fy, 56 * u, 56 * u);
+  g.font = `700 ${32 * u}px ${family}`; g.fillStyle = ST.text; g.textBaseline = 'middle';
+  g.fillText('ቃሉ', pad + 72 * u, fy + 28 * u);
+  g.font = `500 ${24 * u}px ${family}`; g.fillStyle = ST.sub; g.textAlign = 'right';
+  g.fillText('Qalu · Bible study', W - pad, fy + 28 * u);
+}
+
+// The share window: a live preview, the six designs, the three sizes, and Share or Download.
+function studioOptions() {
+  const st = S.studio;
+  const text = verseText(st.id, st.b, st.c, st.v);
+  const second = st.both && S.secondary && S.secondary !== st.id && versions[S.secondary] ? verseText(S.secondary, st.b, st.c, st.v) : '';
+  if (text === null || second === null) return null;
+  return {
+    text: text || '', alt: second || '', style: st.style, fmt: st.fmt, rtl: versions[st.id].language === 'orig' && st.b < 39,
+    ref: verseRef(st.b, st.c, st.v), versions: [st.id].concat(second ? [S.secondary] : []).map((id) => versions[id].short || versions[id].name).join(' · ')
+  };
+}
+function drawStudio() {
+  const cv = document.getElementById('studio-canvas'), o = S.studio && studioOptions();
+  if (cv && o) drawVersePicture(cv, o);
+}
+function studioView() {
+  const st = S.studio;
+  if (!st) return '';
+  const hasSecond = S.secondary && S.secondary !== st.id && versions[S.secondary];
+  return `<div class="studio" role="dialog" aria-modal="true" aria-label="${t('እንደ ሥዕል አጋራ', 'Share as a picture')}">
+<div class="studio-back" data-a="studioClose"></div>
+<div class="studio-box"><div class="row between"><b style="font-size:18px">${t('እንደ ሥዕል አጋራ', 'Share as a picture')}</b><button class="btn round" data-a="studioClose" data-k="st-close" aria-label="${t('ዝጋ', 'Close')}">${icon('close')}</button></div>
+<div class="studio-stage" data-fmt="${st.fmt}"><canvas id="studio-canvas" aria-label="${t('ቅድመ እይታ', 'Preview')}"></canvas></div>
+<div class="stack" style="gap:6px"><span class="muted small"><b>${t('ንድፍ', 'Design')}</b></span>
+<div class="row studio-styles">${Object.entries(PIC_STYLES).map(([k, x]) => `<button class="swatch" data-a="studioStyle" data-v="${k}" data-k="ss-${k}" aria-pressed="${st.style === k}" title="${esc(tp(x.n))}"><i style="background:${x.css}"></i><span>${esc(tp(x.n))}</span></button>`).join('')}</div></div>
+<div class="stack" style="gap:6px"><span class="muted small"><b>${t('መጠን', 'Size')}</b></span>
+<div class="seg studio-fmt">${Object.entries(PIC_FORMATS).map(([k, x]) => `<button data-a="studioFmt" data-v="${k}" data-k="sf-${k}" aria-pressed="${st.fmt === k}"><b>${esc(tp(x.n))}</b><span class="small muted">${esc(tp(x.d))}</span></button>`).join('')}</div></div>
+${hasSecond ? `<label class="row studio-both"><input type="checkbox" data-c="studioBoth" data-k="st-both" ${st.both ? 'checked' : ''}> ${t('ሁለተኛውን ትርጉም (' + esc(shortName(S.secondary)) + ') ጨምር', 'Add the second version (' + esc(shortName(S.secondary)) + ')')}</label>` : ''}
+<div class="row studio-actions"><button class="btn fill" data-a="studioShare" data-k="st-share">${icon('share')}${t('አጋራ', 'Share')}</button><button class="btn" data-a="studioSave" data-k="st-save">${icon('download')}${t('አውርድ', 'Download')}</button></div>
+</div></div>`;
+}
+async function studioExport(share) {
+  const o = studioOptions();
+  if (!o) return;
+  const canvas = document.createElement('canvas');
+  drawVersePicture(canvas, o);
   const blob = await new Promise((done) => canvas.toBlob(done, 'image/png'));
-  const name = 'qalu-' + bookName(b).replace(/\s+/g, '-') + '-' + c + '-' + v + '.png';
+  const st = S.studio;
+  const name = 'qalu-' + bookName(st.b).replace(/\s+/g, '-') + '-' + st.c + '-' + st.v + '-' + st.fmt + '.png';
   const file = new File([blob], name, { type: 'image/png' });
-  try {
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: verseRef(b, c, v) }); return; }
-  } catch (e) { if (e && e.name === 'AbortError') return; }
+  if (share) {
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: o.ref }); return; }
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+  }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  S.toast = t('ሥዕሉ ወርዷል', 'Picture downloaded'); render();
+}
+function shareVersePicture(id, b, c, v) {
+  S.studio = { id, b, c, v, style: ls.get('picStyle', 'ember'), fmt: ls.get('picFmt', 'square'), both: ls.get('picBoth', S.split) };
+  render();
 }
 
 function browseView() {
@@ -2320,7 +2466,7 @@ function highlightsList(hls) {
 // ---------- journey: the story timeline as a game ----------
 // Each story is a lesson: read the passage, then answer questions made from its own verses.
 // Hearts left at the end become stars; finishing a story opens the next one.
-const ERA_COLORS = ['#58B368', '#4A9FE0', '#E0A23A', '#E0705A', '#A58BEA', '#3CB6B0', '#E487B6', '#8DBB52', '#E8935A'];
+const ERA_COLORS = ['#FF6B73', '#FF9566', '#F5B841', '#F27A8C', '#FF8A80', '#E8A07A', '#F59AB0', '#F7B267', '#FF7B6B']; // a warm family around the brand red, light enough for dark text
 const DX = [0, 46, 66, 46, 0, -46, -66, -46];
 const dayKey = (d = new Date()) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const streakNow = () => (S.game.last === dayKey() || S.game.last === dayKey(new Date(Date.now() - 864e5)) ? S.game.streak : 0);
@@ -2513,7 +2659,8 @@ function render() {
   }
   const offBanner = navigator.onLine === false && S.screen !== 'offline' ? `<button class="offbanner" data-a="nav" data-v="offline" data-k="offbanner">${icon('wifiOff', 16)}${t('ኢንተርኔት የለም፤ የተቀመጡት ይሠራሉ', 'Offline: saved content still works')}</button>` : '';
   const view = offBanner + (S.screen === 'offline' ? offlineView() : S.screen === 'journey' ? journeyView() : S.screen === 'study' ? studyView() : S.screen === 'notes' ? notesView() : S.screen === 'plans' ? plansView() : S.screen === 'map' ? mapView() : browseView());
-  root.innerHTML = sideMenu() + '<main>' + view + '</main>' + mapViewer() + picViewer() + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : '');
+  root.innerHTML = sideMenu() + '<main>' + view + '</main>' + mapViewer() + picViewer() + studioView() + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : '');
+  if (S.studio) drawStudio();
   if (S.toast && !render.toastTimer) render.toastTimer = setTimeout(() => { S.toast = ''; render.toastTimer = null; render(); }, 2600);
   const newPanel = root.querySelector('.sidepanel');
   if (newPanel && panelTop) newPanel.scrollTop = panelTop;     // keep the side panel where the reader left it
@@ -2739,6 +2886,11 @@ const actions = {
   verse(v) { S.verseMore = false; S.sel = S.sel === +v ? null : +v; S.more = 8; save('sel'); ls.set('hintSeen', true); },
   inter() { S.inter = !S.inter; save('inter'); },
   shareVerse() { if (S.sel) shareVersePicture(S.primary, S.pass.b, S.pass.c, S.sel); return false; },
+  studioClose() { S.studio = null; },
+  studioStyle(v) { S.studio.style = v; ls.set('picStyle', v); },
+  studioFmt(v) { S.studio.fmt = v; ls.set('picFmt', v); },
+  studioShare() { studioExport(true); return false; },
+  studioSave() { studioExport(false); return false; },
   shareDaily() { const [b, c, v] = dailyRef(); shareVersePicture(S.primary, b, c, v); return false; },
   openDaily() { const [b, c, v] = dailyRef(); S.pass = { b, c, f: 1, to: 0 }; S.sel = v; S.goVerse = v; S.screen = 'study'; save('pass', 'screen', 'sel'); window.scrollTo(0, 0); },
   xrefTab() {
@@ -2872,6 +3024,7 @@ const changes = {
   primary(v) { useVersion(v); },
   secondary(v) { S.secondary = v; save('secondary'); },
   mapBook(v) { S.mapBook = +v; S.more = 8; },
+  studioBoth(v) { S.studio.both = !!v; ls.set('picBoth', !!v); },
   qv(v) { S.qv = v; save('qv'); if (S.searchOn) { runSearch(); } }
 };
 
@@ -2914,7 +3067,7 @@ root.addEventListener('touchend', (e) => {
 root.addEventListener('change', (e) => {
   const el = e.target.closest('[data-c]');
   if (!el) return;
-  changes[el.dataset.c](el.value);
+  changes[el.dataset.c](el.type === 'checkbox' ? el.checked : el.value);
   render();
 });
 root.addEventListener('input', (e) => {
