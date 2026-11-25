@@ -1037,7 +1037,8 @@ const PACK_NAMES = {
   context: ['የመጻሕፍቱ ዳራና የምዕራፍ ማብራሪያ', 'Book backgrounds and chapter notes'],
   interlinear: ['የዕብራይስጥና የግሪክ ቃላት (ቃል በቃል)', 'Hebrew and Greek words (word by word)'],
   xref: ['ተዛማጅ ጥቅሶች', 'Related verses (cross-references)'],
-  obs: ['50 የልጆች የሥዕል ታሪኮች', '50 picture stories for kids']
+  obs: ['50 የልጆች የሥዕል ታሪኮች', '50 picture stories for kids'],
+  narration: ['የታሪኮቹ ድምፅ (እንግሊዝኛ)', 'Story narration (English)']
 };
 const mb = (bytes) => (bytes / 1e6 < 10 ? (bytes / 1e6).toFixed(1) : Math.round(bytes / 1e6)) + ' MB';
 
@@ -1122,7 +1123,7 @@ ${OFF.busy ? `<div class="card stack" role="status"><b>${t('በማውረድ ላ�
     : missing.length ? `<div class="card stack"><b>${t('የሚያጠኑትን ሁሉ አስቀምጡ', 'Save what you study with')}</b><p class="muted small" style="margin:0">${t('የሚያነቧቸው ሁለቱ ትርጉሞች፣ የአባቶች ትርጓሜና የመጻሕፍቱ ዳራ', 'Your two versions, the fathers’ commentary and the book backgrounds')} · ${mb(needBytes)}</p><button class="btn fill go" data-a="offEssentials" data-k="off-essentials" ${online ? '' : 'disabled'}>${icon('download')}${t('አሁን አውርድ', 'Save now')}</button></div>` : ''}
 ${S.msg && !OFF.busy ? `<p class="prose" role="status">${esc(S.msg)}</p>` : ''}
 <h2>${t('የመጽሐፍ ቅዱስ ትርጉሞች', 'Bible versions')}</h2><div class="card offlist">${versionRows || `<p class="muted">${t('እየተጫነ ነው…', 'Loading…')}</p>`}</div>
-<h2>${t('የጥናት ጽሑፎች', 'Study material')}</h2><div class="card offlist">${['fathers', 'context', 'xref', 'obs', 'interlinear'].map((n) => row(n, tp(PACK_NAMES[n]))).join('')}</div>
+<h2>${t('የጥናት ጽሑፎች', 'Study material')}</h2><div class="card offlist">${['fathers', 'context', 'xref', 'obs', 'narration', 'interlinear'].map((n) => row(n, tp(PACK_NAMES[n]))).join('')}</div>
 ${OFF.quota ? `<p class="muted small">${t('በዚህ መሣሪያ ላይ የተያዘ ቦታ', 'Space used on this device')}: ${mb(OFF.used)} / ${mb(OFF.quota)}</p>` : ''}
 <div class="card stack"><b>${t('ኢንተርኔት የሚያስፈልጋቸው', 'Still needs internet')}</b><p class="muted small" style="margin:0">${t('የBibleProject ቪዲዮዎችና ሥዕሎቻቸው፣ በGoogle መግባትና ማመሳሰል፣ እና “የዛሬ ካርታ”። የተሳለው ካርታ፣ ጉዞው፣ ፍለጋውና ማስታወሻዎችዎ ያለ ኢንተርኔት ይሠራሉ።', 'BibleProject videos and their pictures, Google sign-in and sync, and the “Present-day map”. The illustrated map, the Journey, search and your notes all work offline.')}</p></div>
 </div>`;
