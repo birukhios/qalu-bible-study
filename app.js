@@ -1373,7 +1373,10 @@ async function runSearch() {
   const groups = parseQuery(S.q);
   S.searchOn = groups.length > 0;
   save('q', 'qv', 'searchOn');
-  if (!groups.length) { S.results = null; render(); return; }
+  if (!groups.length) { S.results = null; S.topic = null; render(); return; }
+  S.topic = findTopic(S.q);
+  S.topicOpen = {};
+  if (!TP.data) { topicData(); }
   // Search a Bible in the language the question was typed in.
   let id = versions[S.qv] ? S.qv : S.primary;
   const ethiopic = /[ሀ-፿]/.test(S.q);
@@ -1426,8 +1429,105 @@ async function runSearch() {
   }
   found.sort((x, y) => y.score - x.score);      // the sort is stable, so equal scores stay in Bible order
   S.results = found;
+  if (!S.topic) S.topic = findTopic(S.q);     // the full topic list may have arrived while the Bible loaded
   S.searchNote = '';
   render();
+}
+
+// ---------- topics (Nave's Topical Bible, public domain; data CC BY 4.0, Brady Stephenson) ----------
+// Everyday topics with their Amharic names, so a search in either language finds the topic as well as the words.
+// [Nave's topic, Amharic, English, other words that mean the same]
+const TOPICS = [
+  ['FAITH', 'እምነት', 'Faith', 'trust,believe,ማመን'], ['HOPE', 'ተስፋ', 'Hope', ''], ['LOVE', 'ፍቅር', 'Love', 'ፍቅረ'],
+  ['FORGIVENESS', 'ይቅርታ', 'Forgiveness', 'forgive,ይቅር'], ['PRAYER', 'ጸሎት', 'Prayer', 'pray,መጸለይ'], ['FEAR', 'ፍርሃት', 'Fear', 'afraid'],
+  ['CARE', 'ጭንቀት', 'Worry', 'anxiety,anxious,worry,care,መጨነቅ'], ['PEACE', 'ሰላም', 'Peace', ''], ['JOY', 'ደስታ', 'Joy', 'happiness'],
+  ['PATIENCE', 'ትዕግሥት', 'Patience', 'ትዕግስት'], ['HUMILITY', 'ትሕትና', 'Humility', 'humble,ትህትና'], ['PRIDE', 'ትዕቢት', 'Pride', 'proud'],
+  ['ANGER', 'ቁጣ', 'Anger', 'angry,wrath'], ['RICHES', 'ሀብት', 'Money and wealth', 'money,wealth,rich,ገንዘብ,ብልጽግና'],
+  ['COVETOUSNESS', 'ስግብግብነት', 'Greed', 'greed,covet,ስስት'], ['CONTENTMENT', 'መርካት', 'Contentment', 'content'],
+  ['LIBERALITY', 'ልግስና', 'Giving', 'giving,generosity,give,መስጠት'], ['TITHES', 'አሥራት', 'Tithes', 'tithe,tithing,አስራት'],
+  ['INDUSTRY', 'ትጋት', 'Work', 'work,diligence,ሥራ'], ['WISDOM', 'ጥበብ', 'Wisdom', 'wise'], ['OBEDIENCE', 'መታዘዝ', 'Obedience', 'obey'],
+  ['REPENTANCE', 'ንስሐ', 'Repentance', 'repent,ንስሓ'], ['TEMPTATION', 'ፈተና', 'Temptation', 'tempt,tempted'],
+  ['AFFLICTIONS AND ADVERSITIES', 'መከራ', 'Hard times', 'suffering,affliction,trouble,trials,ችግር'], ['SORROW', 'ሐዘን', 'Sorrow', 'grief,sad,ሀዘን'],
+  ['DEATH', 'ሞት', 'Death', 'die'], ['HEAVEN', 'ሰማይ', 'Heaven', 'መንግሥተ ሰማያት'], ['RESURRECTION', 'ትንሣኤ', 'Resurrection', 'ትንሳኤ'],
+  ['FASTING', 'ጾም', 'Fasting', 'fast,ፆም'], ['WORSHIP', 'አምልኮ', 'Worship', ''], ['PRAISE', 'ምስጋና', 'Praise', ''],
+  ['THANKFULNESS', 'አመስጋኝነት', 'Thankfulness', 'thanks,thanksgiving,gratitude,grateful'], ['FRIENDSHIP', 'ወዳጅነት', 'Friendship', 'friend,friends,ጓደኛ'],
+  ['ENEMY', 'ጠላት', 'Enemies', 'enemies'], ['KINDNESS', 'ቸርነት', 'Kindness', 'kind,ደግነት'], ['MERCY', 'ምሕረት', 'Mercy', 'ምህረት'],
+  ['GRACE OF GOD', 'ጸጋ', 'Grace', 'grace'], ['JUSTICE', 'ፍትሕ', 'Justice', 'ፍትህ'], ['POOR', 'ድሆች', 'The poor', 'poverty,ድሃ,ድህነት'],
+  ['HOSPITALITY', 'እንግዳ መቀበል', 'Hospitality', 'stranger,strangers'], ['SLANDER', 'ሐሜት', 'Gossip and slander', 'gossip,ሀሜት'],
+  ['FALSEHOOD', 'ውሸት', 'Lying', 'lie,lies,lying'], ['TRUTH', 'እውነት', 'Truth', ''], ['COURAGE', 'ድፍረት', 'Courage', 'brave,ጀግንነት'],
+  ['DOUBTING', 'ጥርጣሬ', 'Doubt', 'doubt'], ['ENVY', 'ቅናት', 'Envy', 'jealousy'], ['BAPTISM', 'ጥምቀት', 'Baptism', 'baptize'],
+  ['HOLY SPIRIT', 'መንፈስ ቅዱስ', 'The Holy Spirit', 'spirit'], ['SALVATION', 'መዳን', 'Salvation', 'saved,ድኅነት'], ['SIN', 'ኃጢአት', 'Sin', 'sins'],
+  ['RIGHTEOUSNESS', 'ጽድቅ', 'Righteousness', ''], ['HOLINESS', 'ቅድስና', 'Holiness', 'holy'], ['MARRIAGE', 'ጋብቻ', 'Marriage', 'married,ትዳር'],
+  ['HUSBAND', 'ባል', 'Husbands', 'husbands'], ['WIFE', 'ሚስት', 'Wives', 'wives'], ['CHILDREN', 'ልጆች', 'Children', 'child,ልጅ'],
+  ['PARENTS', 'ወላጆች', 'Parents', 'father,mother,ወላጅ'], ['DIVORCE', 'ፍቺ', 'Divorce', ''], ['ADULTERY', 'ዝሙት', 'Adultery', 'sexual immorality'],
+  ['DRUNKENNESS', 'ስካር', 'Drunkenness', 'drunk,alcohol,wine'], ['SICKNESS', 'ሕመም', 'Sickness and healing', 'sick,healing,heal,illness,በሽታ,ፈውስ'],
+  ['SELF-CONTROL', 'ራስን መግዛት', 'Self-control', 'temperance'], ['LABOR', 'ድካም', 'Labour', 'labor']
+];
+// Topics shown as buttons under the search box.
+const TOPIC_CHIPS = ['FORGIVENESS', 'CARE', 'FEAR', 'LOVE', 'FAITH', 'PRAYER', 'RICHES', 'ANGER', 'PEACE', 'MARRIAGE', 'AFFLICTIONS AND ADVERSITIES', 'HUMILITY', 'SICKNESS', 'WISDOM', 'THANKFULNESS', 'TEMPTATION'];
+const TP = { data: null, pending: false };
+function topicData() {
+  if (TP.data) return TP.data;
+  if (!TP.pending) {
+    TP.pending = true;
+    fetch('data/topics.json').then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then((d) => { TP.data = d; }).catch(() => { TP.data = {}; }).then(() => { TP.pending = false; render(); });
+  }
+  return null;
+}
+const topicName = (key) => { const x = TOPICS.find((e) => e[0] === key); return x ? t(x[1], x[2]) : key.charAt(0) + key.slice(1).toLowerCase(); };
+// The topic a search names, if any: one of the everyday topics (in Amharic or English), or any of Nave's topics by name.
+function findTopic(q) {
+  const words = fold(q).split(/[^\p{L}\p{N}]+/u).filter((w) => w && !STOP.has(w));
+  if (!words.length) return null;
+  const phrase = words.join(' ');
+  for (const [key, am, en, also] of TOPICS) {
+    const names = [am, en, ...also.split(',')].filter(Boolean).map(fold);
+    if (names.includes(phrase) || (words.length <= 3 && names.some((n) => !n.includes(' ') && words.includes(n)))) return key;
+  }
+  const d = TP.data;
+  if (d) {
+    const up = phrase.toUpperCase();
+    if (d[up]) return up;
+    if (d[up.replace(/S$/, '')]) return up.replace(/S$/, '');
+  }
+  return null;
+}
+function topicCard(key) {
+  const d = topicData();
+  if (!d) return `<div class="card"><p class="muted" role="status">${t('ርእሶቹ እየተጫኑ ነው…', 'Loading topics…')}</p></div>`;
+  const groups = (d[key] || []).filter((g) => g[0][0] !== '@' && g.length > 1);
+  const see = (d[key] || []).filter((g) => g[0][0] === '@').map((g) => g[0].slice(1)).filter((k) => d[k]);
+  if (!groups.length && !see.length) return '';
+  // General verses first, then the sub-topics in Nave's order.
+  groups.sort((a, b) => (/^general/i.test(b[0]) ? 1 : 0) - (/^general/i.test(a[0]) ? 1 : 0));
+  const id = versions[S.qv] ? S.qv : S.primary;
+  const count = groups.reduce((n, g) => n + g.length - 1, 0);
+  const open = S.topicOpen || {};
+  const one = (r) => {
+    const [b, c, vv] = r.split('.');
+    const [v, w] = (vv || '').split('-').map(Number);
+    const label = `${esc(bookName(+b))} ${c}${v ? t('፥', ':') + v + (w ? '–' + w : '') : ''}`;
+    let tx = '';
+    if (v) { const x = verseText(id, +b, +c, v); tx = x === null ? '…' : esc(x) + (w ? ' …' : ''); }
+    else tx = `<span class="muted">${t('ሙሉ ምዕራፉ', 'The whole chapter')}</span>`;
+    return `<button class="result" data-a="hlOpen" data-v="${b}.${c}.${v || 1}" data-k="tp-${r}"><b>${label}</b><span ${langOf(id, +b)}>${tx}</span></button>`;
+  };
+  const body = groups.slice(0, open.all ? 99 : 6).map((g, gi) => {
+    const refs = g.slice(1), n = open[gi] ? refs.length : 4;
+    const label = /^general/i.test(g[0]) ? t('አጠቃላይ ጥቅሶች', 'General verses') : g[0];
+    return `<div class="stack" style="gap:6px"><b class="small muted" lang="en">${esc(label)}</b>${refs.slice(0, n).map(one).join('')}
+${refs.length > n ? `<button class="btn" data-a="topicMore" data-v="${gi}" data-k="tpm-${gi}">${t('ሁሉንም አሳይ', 'Show all')} (${refs.length})</button>` : ''}</div>`;
+  }).join('');
+  return `<div class="card stack topic"><span class="muted small"><b>${t('ርእስ', 'Topic')}</b></span>
+<b style="font-size:22px">${esc(topicName(key))}</b><span class="muted small">${count} ${t('ጥቅሶች፣ በ' + groups.length + ' ንዑስ ርእሶች። ከNave’s Topical Bible።', 'verses in ' + groups.length + ' sub-topics, from Nave’s Topical Bible.')}</span>
+${body}
+${groups.length > 6 && !open.all ? `<button class="btn" data-a="topicMore" data-v="all" data-k="tpm-all">${t('ሁሉንም ንዑስ ርእሶች አሳይ', 'Show every sub-topic')} (${groups.length})</button>` : ''}
+${see.length ? `<div class="row chiprow" style="gap:6px"><span class="muted small">${t('ተዛማጅ ርእሶች፦', 'See also:')}</span>${see.slice(0, 8).map((k) => `<button class="chip" data-a="topicGo" data-v="${esc(k)}" data-k="tps-${esc(k)}">${esc(topicName(k))}</button>`).join('')}</div>` : ''}
+</div>`;
+}
+function topicChips() {
+  return `<div class="stack" style="gap:6px"><span class="muted small"><b>${t('በርእስ ፈልግ', 'Search by topic')}</b></span><div class="row chiprow" style="gap:6px">${TOPIC_CHIPS.map((k) => `<button class="chip" data-a="topicGo" data-v="${k}" data-k="tc-${k}">${esc(topicName(k))}</button>`).join('')}</div></div>`;
 }
 
 function markTerms(text, terms) {
@@ -1456,6 +1556,11 @@ ${S.searchOn ? `<button class="btn" type="button" data-a="clearSearch" data-k="q
 }
 
 function searchResults() {
+  const topic = S.topic ? topicCard(S.topic) : '';
+  if (topic && S.results && !S.results.length) return topic;      // the topic answers it; no need to say no verse has the word
+  return topic + (topic && S.results && S.results.length ? `<h2>${t('ቃሉ ያለባቸው ጥቅሶች', 'Verses with the words')}</h2>` : '') + plainResults();
+}
+function plainResults() {
   if (S.results === null) return `<p id="searchnote" class="muted prose" role="status">${esc(S.searchNote || t('እየፈለገ ነው…', 'Searching…'))}</p>`;
   const id = versions[S.qv] ? S.qv : S.primary;
   if (!S.results.length) return `<div class="card"><p class="prose">${t('በ' + versions[id].name + ' ውስጥ ምንም አልተገኘም። ሌላ ቃል ወይም ሌላ ትርጉም ይሞክሩ።', 'Nothing found in the ' + versions[id].name + '. Try another word or another version.')}</p></div>`;
@@ -1590,6 +1695,7 @@ ${groups.join('')}`;
   return `<div class="wrap" style="max-width:980px">
 <h1>${t('ፈልግ', 'Explore')}</h1>
 ${searchBar()}
+${S.searchOn ? '' : topicChips()}
 ${main}
 </div>`;
 }
@@ -1803,7 +1909,7 @@ function pickerSheet(count) {
   let body;
   if (step === 'search') {
     return `<div class="card stack sheet" role="dialog" aria-label="${t('ፈልግ', 'Search')}">${head(t('ፈልግ ወይም ወደ ጥቅስ ሂድ', 'Search or go to a verse'))}
-<p class="muted small">${t('ቃል፣ ጥያቄ ወይም ጥቅስ ይጻፉ፤ ለምሳሌ “ፍቅር”፣ “ዮሐንስ 3:16”', 'Type a word, a question or a reference, e.g. “love” or “John 3:16”')}</p>${searchBar()}${S.searchOn ? searchResults() : ''}</div>`;
+<p class="muted small">${t('ቃል፣ ጥያቄ ወይም ጥቅስ ይጻፉ፤ ለምሳሌ “ፍቅር”፣ “ዮሐንስ 3:16”', 'Type a word, a question or a reference, e.g. “love” or “John 3:16”')}</p>${searchBar()}${S.searchOn ? searchResults() : topicChips()}</div>`;
   } else if (step === 'book') {
     const testament = S.pickT || (S.pass.b < 39 ? 'ot' : 'nt');
     const ids = C.books.map((_, i) => i).filter((i) => (testament === 'ot' ? i < 39 : i >= 39));
@@ -2406,7 +2512,9 @@ const actions = {
   book(v) { S.openBook = S.openBook === +v ? null : +v; save('openBook'); },
   chapter(v) { const [b, c] = v.split('.').map(Number); S.pass = { b, c, f: 1, to: 0 }; S.sel = null; S.more = 8; S.screen = 'study'; save('pass', 'screen', 'sel'); window.scrollTo(0, 0); },
   jumpTo(v) { const el = document.getElementById(v); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return false; },
-  clearSearch() { S.q = ''; S.searchOn = false; S.results = null; save('q', 'searchOn'); },
+  topicGo(v) { S.q = topicName(v); S.topic = v; S.topicOpen = {}; S.searchOn = true; runSearch().then(() => { S.topic = v; render(); }); return false; },
+  topicMore(v) { S.topicOpen = Object.assign({}, S.topicOpen, { [v]: true }); },
+  clearSearch() { S.q = ''; S.searchOn = false; S.results = null; S.topic = null; save('q', 'searchOn'); },
   moreResults() { S.shown += 100; },
   openResult(v) {
     const r = S.results[+v];
