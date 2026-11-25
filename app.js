@@ -1927,7 +1927,51 @@ function notesView() {
   else body = S.notes.length
     ? S.notes.map(noteCard).join('')
     : `<div class="card stack" style="align-items:flex-start"><p class="prose">${t('እስካሁን ማስታወሻ የለም። በጥናት ገጽ አንድ ቁጥር ይንኩና ማስታወሻ ይያዙ።', 'No notes yet. Click a verse on the Study screen and add one.')}</p><button class="btn fill" data-a="nav" data-v="study" data-k="to-study">${t('ጥናት', 'Study')}</button></div>`;
-  return `<div class="wrap narrow"><h1>${t('ማስታወሻዎችና ቀለሞች', 'Notes and highlights')}</h1><p class="muted">${t('በጥናት ጊዜ የያዟቸው ማስታወሻዎችና የቀለሟቸው ቁጥሮች በአንድ ቦታ።', 'Every note you take and every verse you highlight, in one place.')}</p>${seg}${body}</div>`;
+  return `<div class="wrap narrow"><h1>${t('ማስታወሻዎችና ቀለሞች', 'Notes and highlights')}</h1><p class="muted">${t('በጥናት ጊዜ የያዟቸው ማስታወሻዎችና የቀለሟቸው ቁጥሮች በአንድ ቦታ።', 'Every note you take and every verse you highlight, in one place.')}</p>${seg}${body}${backupCard()}</div>`;
+}
+
+// ---------- backup: one file with this account's notes, highlights, Journey progress and voice notes ----------
+function backupCard() {
+  return `<div class="card stack" style="margin-top:12px"><b>${t('ምትኬ', 'Backup')}</b>
+<p class="muted small">${t('ማስታወሻዎችዎን፣ ቀለሞችዎን፣ የድምፅ ማስታወሻዎችዎንና የጉዞ ውጤትዎን በአንድ ፋይል ያስቀምጡ። በሌላ መሣሪያ ወይም አሳሹ ከተጸዳ በኋላ መልሰው ያስገቡት፤ ያሉት አይጠፉም፣ አዲሶቹ ይጨመራሉ።', 'Save your notes, highlights, voice notes and Journey progress in one file. Load it back on another device or after the browser is cleared; nothing already here is lost, the file’s items are added.')}</p>
+<div class="row"><button class="btn fill" data-a="backupSave" data-k="bk-save">${icon('download')}${t('ምትኬ አውርድ', 'Download backup')}</button>
+<button class="btn" data-a="backupLoad" data-k="bk-load">${t('ምትኬ አስገባ…', 'Restore from a file…')}</button></div>
+${S.backupMsg ? `<p class="prose" role="status">${esc(S.backupMsg)}</p>` : ''}</div>`;
+}
+const blobToData = (blob) => new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
+async function makeBackup() {
+  const audio = {};
+  for (const n of S.notes.filter((x) => x.audio)) {
+    try { const blob = await idb('audio', 'readonly', (st) => st.get(n.id)); if (blob) audio[n.id] = await blobToData(blob); } catch (e) { /* skip */ }
+  }
+  const data = { app: 'qalu', kind: 'backup', version: 1, made: new Date().toISOString(), highlights: S.highlights, notes: S.notes, game: S.game, audio };
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'qalu-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  S.backupMsg = t('ምትኬው ወርዷል፦ ', 'Backup downloaded: ') + S.notes.length + t(' ማስታወሻ፣ ', ' notes, ') + Object.keys(S.highlights).length + t(' ቀለም።', ' highlights.');
+  render();
+}
+// Adds a backup to what is here: notes by id, highlights by verse (the file wins), Journey stars by the better score.
+async function restoreBackup(data) {
+  if (!data || data.app !== 'qalu' || data.kind !== 'backup') throw new Error('format');
+  const have = new Set(S.notes.map((n) => n.id));
+  const added = (data.notes || []).filter((n) => n && n.id && !have.has(n.id));
+  for (const n of added) {
+    if (n.audio && data.audio && data.audio[n.id]) {
+      try { const blob = await (await fetch(data.audio[n.id])).blob(); await idb('audio', 'readwrite', (st) => st.put(blob, n.id)); } catch (e) { /* keep the note without its sound */ }
+    }
+  }
+  S.notes = S.notes.concat(added).sort((a, b) => b.date - a.date);
+  const hl = Object.entries(data.highlights || {}).filter(([, c]) => c);
+  hl.forEach(([k, c]) => { S.highlights[k] = c; });
+  const g = data.game || {};
+  if (g.done) Object.entries(g.done).forEach(([k, v]) => { S.game.done[k] = Math.max(S.game.done[k] || 0, v); });
+  S.game.xp = Math.max(S.game.xp || 0, g.xp || 0);
+  if ((g.last || '') > (S.game.last || '')) { S.game.last = g.last; S.game.streak = g.streak || 0; }
+  save('notes', 'highlights', 'game');
+  S.backupMsg = t('ተመልሷል፦ ', 'Restored: ') + added.length + t(' አዲስ ማስታወሻ፣ ', ' new notes, ') + hl.length + t(' ቀለም።', ' highlights.');
 }
 // Every highlighted verse, in Bible order, with its text from the main version, filtered by colour.
 function highlightsList(hls) {
@@ -2331,6 +2375,8 @@ const actions = {
   },
   hl(v) { const k = hlKey(S.sel); S.highlights[k] = S.highlights[k] === v ? '' : v; save('highlights'); if (S.highlights[k]) { S.hlFlash = S.sel; S.sel = null; save('sel'); setTimeout(() => { S.hlFlash = null; }, 700); } },
   notesTab(v) { S.notesTab = v; },
+  backupSave() { makeBackup(); return false; },
+  backupLoad() { fileInput.dataset.kind = 'backup'; fileInput.click(); return false; },
   hlFilter(v) { S.hlFilter = v; },
   hlOpen(v) { const [b, c, n] = v.split('.').map(Number); setPass({ b, c, f: 1, to: 0 }); S.sel = n; S.goVerse = n; S.screen = 'study'; save('sel', 'screen'); window.scrollTo(0, 0); },
   hlRemove(v) { S.highlights[v] = ''; save('highlights'); },
@@ -2500,8 +2546,15 @@ root.addEventListener('submit', (e) => {
 // Importing a Bible file keeps it in this browser only; nothing is uploaded.
 fileInput.addEventListener('change', async () => {
   const file = fileInput.files[0];
+  const kind = fileInput.dataset.kind; delete fileInput.dataset.kind;
   fileInput.value = '';
   if (!file) return;
+  if (kind === 'backup') {
+    try { await restoreBackup(JSON.parse(await file.text())); }
+    catch (e) { S.backupMsg = t('ይህ ፋይል የቃሉ ምትኬ አይደለም።', 'This file is not a Qalu backup.'); }
+    render();
+    return;
+  }
   try {
     const data = JSON.parse(await file.text());
     const ok = data && typeof data.id === 'string' && data.id && typeof data.name === 'string' && Array.isArray(data.books) && data.books.length === 66 && data.books.every(Array.isArray);
